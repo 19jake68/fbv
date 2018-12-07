@@ -56,18 +56,13 @@
 			{!! Form::open(['action' => 'LA\OrdersController@store', 'id' => 'order-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-                    @la_form($module)
-					
-					{{--
+          {{-- @la_form($module) --}}
+          @la_input($module, 'area_id')
 					@la_input($module, 'job_number')
 					@la_input($module, 'team_leader')
-					@la_input($module, 'area_id')
 					@la_input($module, 'date')
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
-					@la_input($module, 'user_id')
-					@la_input($module, 'total')
-					--}}
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -92,8 +87,8 @@
 $(function () {
 	$("#example1").DataTable({
 		processing: true,
-        serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
@@ -103,9 +98,7 @@ $(function () {
 		columnDefs: [ { orderable: false, targets: [-1] }],
 		@endif
 	});
-	$("#order-add-form").validate({
-		
-	});
+	$("#order-add-form").validate({});
 });
 </script>
 @endpush

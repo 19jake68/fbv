@@ -21,5 +21,10 @@ class Role extends EntrustRole
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function roleUser()
+  {
+    return $this->hasOne('App\RoleUser');
+  }
 }
