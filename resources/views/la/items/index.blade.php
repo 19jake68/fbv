@@ -59,6 +59,7 @@
                     @la_form($module)
 					
 					{{--
+					@la_input($module, 'amount')
 					@la_input($module, 'order_id')
 					@la_input($module, 'activity_id')
 					@la_input($module, 'item_detail_id')

@@ -15,11 +15,14 @@ class Item_Detail extends Model
 	
 	protected $table = 'item_details';
 	
-	protected $hidden = [
-        
-    ];
+	protected $hidden = [];
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function items()
+  {
+    return $this->hasMany('App\Models\Items');
+  }
 }

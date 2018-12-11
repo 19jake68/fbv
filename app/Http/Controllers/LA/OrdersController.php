@@ -8,6 +8,7 @@ namespace App\Http\Controllers\LA;
 
 use Auth;
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Order;
 use Collective\Html\FormFacade as Form;
 use Datatables;
@@ -74,29 +75,34 @@ class OrdersController extends Controller
    */
   public function store(Request $request)
   {
-    echo '<pre>';
-    $user = Auth::user();
-    print_r($user->roleUser->role);
-    // $role = Role::find($request->role);
-    exit;
-
     if (Module::hasAccess("Orders", "create")) {
-
       $rules = Module::validateRules("Orders", $request);
-
       $validator = Validator::make($request->all(), $rules);
 
       if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
       }
 
+      // Add user id who created the order
+      $request->user_id = Auth::id();
       $insert_id = Module::insert("Orders", $request);
-
-      return redirect()->route(config('laraadmin.adminRoute') . '.orders.index');
-
+      return redirect(config('laraadmin.adminRoute') . "/orders/" . $insert_id . '#tab-items');
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
     }
+  }
+
+  /**
+   * Store order items in database.
+   * 
+   * @param \Illuminate\Http\Request $request
+   * @return \Illuminate\Http\Response
+   */
+  public function addItems(Request $request)
+  {
+    echo '<pre>';
+    print_r($request->all());
+    exit;
   }
 
   /**
@@ -113,12 +119,28 @@ class OrdersController extends Controller
       if (isset($order->id)) {
         $module = Module::get('Orders');
         $module->row = $order;
+        $activities = Activity::lists('name', 'id');
+        
+        $values = DB::table('orders')->select($this->listing_cols)->whereNull('deleted_at');
+        $out = Datatables::of($values)->make();
+        $data = $out->getData();
+
+
+        echo '<pre>';
+        print_r($order->listItems());
+        // print_r($order->items);
+        // $items = Datatables::of($order->items)->make();
+        // print_r($items->getData());
+
+
+        exit;
 
         return view('la.orders.show', [
           'module' => $module,
           'view_col' => $this->view_col,
           'no_header' => true,
           'no_padding' => "no-padding",
+          'activities' => $activities
         ])->with('order', $order);
       } else {
         return view('errors.404', [

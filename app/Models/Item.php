@@ -15,11 +15,24 @@ class Item extends Model
 	
 	protected $table = 'items';
 	
-	protected $hidden = [
-        
-    ];
+	protected $hidden = [];
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function order()
+  {
+    return $this->belongsTo('App\Models\Order');
+  }
+
+  public function itemDetail()
+  {
+    return $this->belongsTo('App\Models\Item_Detail')->select('id', 'name', 'amount');
+  }
+
+  public function unit()
+  {
+    return $this->belongsTo('App\Models\Unit')->select('id', 'unit');
+  }
 }

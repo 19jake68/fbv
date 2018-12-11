@@ -107,6 +107,7 @@
 						<h4>General Info</h4>
 					</div>
 					<div class="panel-body">
+						@la_display($module, 'amount')
 						@la_display($module, 'order_id')
 						@la_display($module, 'activity_id')
 						@la_display($module, 'item_detail_id')

@@ -1,5 +1,17 @@
 @extends('la.layouts.app')
 
+@push('styles')
+<style>
+  .title-item {
+    display: inline-block;
+  }
+
+  .btn-add-item {
+    margin-top: 7px;
+  }
+</style>
+@endpush
+  
 @section('htmlheader_title')
 	Order View
 @endsection
@@ -10,29 +22,28 @@
 	<div class="bg-primary clearfix">
 		<div class="col-md-4">
 			<div class="row">
-				<div class="col-md-3">
-					<!--<img class="profile-image" src="{{ asset('la-assets/img/avatar5.png') }}" alt="">-->
+			  <div class="col-md-3">
+					<!-- <img class="profile-image" src="{{ asset('la-assets/img/avatar5.png') }}" alt=""> -->
 					<div class="profile-icon text-primary"><i class="fa {{ $module->fa_icon }}"></i></div>
 				</div>
 				<div class="col-md-9">
-					<h4 class="name">{{ $order->$view_col }}</h4>
-					<div class="row stats">
-						<div class="col-md-4"><i class="fa fa-facebook"></i> 234</div>
-						<div class="col-md-4"><i class="fa fa-twitter"></i> 12</div>
-						<div class="col-md-4"><i class="fa fa-instagram"></i> 89</div>
-					</div>
-					<p class="desc">Test Description in one line</p>
+					<h4 class="name">Job #: {{ $order->$view_col }}</h4>
+          <ul class="list-unstyled">
+            <li>Area: {{ $order->area->name }}</li>
+            <li>Team Leader: {{ $order->team_leader }}</li>
+            <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('F d, Y') }}</li>
+          </ul>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-3">
-			<div class="dats1"><div class="label2">Admin</div></div>
-			<div class="dats1"><i class="fa fa-envelope-o"></i> superadmin@gmail.com</div>
-			<div class="dats1"><i class="fa fa-map-marker"></i> Pune, India</div>
+      <div class="dats1 mt10">Added by:</div>
+			<div class="dats1"><div class="label2">{{ $order->user->name }}</div></div>
+      <div class="dats1"><i class="fa fa-envelope-o"></i> {{ $order->user->email }}</div>
 		</div>
 		<div class="col-md-4">
-			<!--
-			<div class="teamview">
+			
+			<!--<div class="teamview">
 				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user1-128x128.jpg') }}" alt=""><i class="status-online"></i></a>
 				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user2-160x160.jpg') }}" alt=""></a>
 				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user3-128x128.jpg') }}" alt=""></a>
@@ -45,7 +56,7 @@
 				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user6-128x128.jpg') }}" alt=""><i class="status-online"></i></a>
 				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user7-128x128.jpg') }}" alt=""></a>
 			</div>
-			-->
+			
 			<div class="dats1 pb">
 				<div class="clearfix">
 					<span class="pull-left">Task #1</span>
@@ -78,16 +89,19 @@
 						<span class="sr-only">60% Complete</span>
 					</div>
 				</div>
-			</div>
+			</div>-->
+
+      <div class="dats1 mt10">Total:</div>
+      <div class="dats1"><div class="label2 success">Php {{ number_format($order->total, 2) }}</div></div>
 		</div>
 		<div class="col-md-1 actions">
 			@la_access("Orders", "edit")
-				<a href="{{ url(config('laraadmin.adminRoute') . '/orders/'.$order->id.'/edit') }}" class="btn btn-xs btn-edit btn-default"><i class="fa fa-pencil"></i></a><br>
+				<a href="{{ url(config('laraadmin.adminRoute') . '/orders/'.$order->id.'/edit') }}" class="btn btn-xs btn-edit btn-default" title="Edit Order"><i class="fa fa-pencil"></i></a><br>
 			@endla_access
 			
 			@la_access("Orders", "delete")
 				{{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
-					<button class="btn btn-default btn-delete btn-xs" type="submit"><i class="fa fa-times"></i></button>
+					<button class="btn btn-default btn-delete btn-xs" type="submit" title="Delete Order"><i class="fa fa-times"></i></button>
 				{{ Form::close() }}
 			@endla_access
 		</div>
@@ -95,12 +109,35 @@
 
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/orders') }}" data-toggle="tooltip" data-placement="right" title="Back to Orders"><i class="fa fa-chevron-left"></i></a></li>
-		<li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-		<li class=""><a role="tab" data-toggle="tab" href="#tab-timeline" data-target="#tab-timeline"><i class="fa fa-clock-o"></i> Timeline</a></li>
+    <li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-items" data-target="#tab-items"><i class="fa fa-list-ol"></i> Items</a></li>
+		<li class=""><a role="tab" data-toggle="tab" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
+    <li class=""><a role="tab" data-toggle="tab" href="#tab-timeline" data-target="#tab-timeline"><i class="fa fa-clock-o"></i> Timeline</a></li>
 	</ul>
 
 	<div class="tab-content">
-		<div role="tabpanel" class="tab-pane active fade in" id="tab-info">
+    <div role="tabpanel" class="tab-pane active fade in" id="tab-items">
+      <div class="tab-content">
+				<div class="panel infolist">
+					<div class="panel-default panel-heading">
+						<h4 class="title-item">Items</h4>
+            @la_access("Orders", "create")
+              <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItem">Add Items</button>
+            @endla_access
+					</div>
+					<div class="panel-body">
+						<table id="example1" class="table table-bordered">
+              <thead>
+                
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+					</div>
+				</div>
+			</div>
+    </div>
+		<div role="tabpanel" class="tab-pane fade in" id="tab-info">
 			<div class="tab-content">
 				<div class="panel infolist">
 					<div class="panel-default panel-heading">
@@ -119,6 +156,7 @@
 				</div>
 			</div>
 		</div>
+    
 		<div role="tabpanel" class="tab-pane fade in p20 bg-white" id="tab-timeline">
 			<ul class="timeline timeline-inverse">
 				<!-- timeline time label -->
@@ -218,4 +256,67 @@
 	</div>
 	</div>
 </div>
+
+@la_access("Orders", "create")
+<div class="modal fade" id="addItem" role="dialog" aria-labelledby="addItemsModal">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="addItemsModal">Add Items</h4>
+			</div>
+			{!! Form::open(['action' => 'LA\OrdersController@addItems', 'id' => 'order-add-items-form']) !!}
+			<div class="modal-body">
+				<div class="box-body">
+          {{-- @la_form($module) --}}
+          <div class="form-group">
+            {{ Form::label('activity', 'Activity*:') }}
+            {{ Form::select('activity_id', $activities, null, ['class' => 'form-control']) }}
+          </div>
+          
+          	<table id="activityItems" class="table table-bordered">
+              <thead>
+                <tr class="success">
+                  <th>Name</th>
+                  <th>Amount</th>
+                  <th>Quantity</th>
+                  <th>Measurement</th>
+                  <th>Unit</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
+			</div>
+			{!! Form::close() !!}
+		</div>
+	</div>
+</div>
+@endla_access
 @endsection
+
+@push('scripts')
+<script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<script>
+$(function () {
+	$("#example1").DataTable({
+		processing: true,
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
+		language: {
+			lengthMenu: "_MENU_",
+			search: "_INPUT_",
+			searchPlaceholder: "Search"
+		}
+	});
+	$("#order-add-form").validate({});
+});
+</script>
+@endpush

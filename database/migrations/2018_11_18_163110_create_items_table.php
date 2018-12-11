@@ -18,6 +18,7 @@ class CreateItemsTable extends Migration
     public function up()
     {
         Module::generate("Items", 'items', 'order_id', 'fa-cube', [
+            ["amount", "Amount", "Currency", false, "0", 0, 11, true],
             ["order_id", "Job #", "Dropdown", false, "", 0, 0, true, "@orders"],
             ["activity_id", "Activity", "Dropdown", false, "", 0, 0, true, "@activities"],
             ["item_detail_id", "Item Detail", "Dropdown", false, "", 0, 0, true, "@item_details"],

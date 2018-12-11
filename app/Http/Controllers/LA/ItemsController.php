@@ -23,7 +23,7 @@ class ItemsController extends Controller
 {
 	public $show_action = true;
 	public $view_col = 'order_id';
-	public $listing_cols = ['id', 'order_id', 'activity_id', 'item_detail_id', 'quantity', 'measurement', 'unit_id', 'subtotal'];
+	public $listing_cols = ['id', 'amount', 'order_id', 'activity_id', 'item_detail_id', 'quantity', 'measurement', 'unit_id', 'subtotal'];
 	
 	public function __construct() {
 		// Field Access of Listing Columns

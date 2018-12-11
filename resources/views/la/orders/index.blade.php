@@ -15,32 +15,32 @@
 @section("main-content")
 
 @if (count($errors) > 0)
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+  <div class="alert alert-danger">
+    <ul>
+      @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+      @endforeach
+    </ul>
+  </div>
 @endif
 
 <div class="box box-success">
 	<!--<div class="box-header"></div>-->
 	<div class="box-body">
 		<table id="example1" class="table table-bordered">
-		<thead>
-		<tr class="success">
-			@foreach( $listing_cols as $col )
-			<th>{{ $module->fields[$col]['label'] or ucfirst($col) }}</th>
-			@endforeach
-			@if($show_actions)
-			<th>Actions</th>
-			@endif
-		</tr>
-		</thead>
-		<tbody>
-			
-		</tbody>
+      <thead>
+      <tr class="success">
+        @foreach( $listing_cols as $col )
+        <th>{{ $module->fields[$col]['label'] or ucfirst($col) }}</th>
+        @endforeach
+        @if($show_actions)
+        <th>Actions</th>
+        @endif
+      </tr>
+      </thead>
+      <tbody>
+        
+      </tbody>
 		</table>
 	</div>
 </div>

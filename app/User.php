@@ -56,4 +56,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
   {
     return $this->hasOne('App\RoleUser');
   }
+
+  public function orders()
+  {
+    return $this->hasMany('App\Models\Order');
+  }
+
+  public function employee()
+  {
+    return $this->belongsTo('App\Models\Employee');
+  }
 }
