@@ -39,12 +39,9 @@ class Order extends Model
 
   public function listItems()
   {
-    $items = Item::with('itemDetail', 'unit')
+    return Item::with('itemDetail', 'unit')
       ->select()
       ->where('order_id', $this->id)
       ->whereNull('deleted_at');
-    $out = Datatables::of($items)->make();
-    $data = $out->getData();
-    return $data;
   }
 }

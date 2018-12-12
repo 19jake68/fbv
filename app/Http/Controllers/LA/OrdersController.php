@@ -9,7 +9,10 @@ namespace App\Http\Controllers\LA;
 use Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Item;
+use App\Models\Item_Detail;
 use App\Models\Order;
+use App\Models\Unit;
 use Collective\Html\FormFacade as Form;
 use Datatables;
 use DB;
@@ -120,20 +123,6 @@ class OrdersController extends Controller
         $module = Module::get('Orders');
         $module->row = $order;
         $activities = Activity::lists('name', 'id');
-        
-        $values = DB::table('orders')->select($this->listing_cols)->whereNull('deleted_at');
-        $out = Datatables::of($values)->make();
-        $data = $out->getData();
-
-
-        echo '<pre>';
-        print_r($order->listItems());
-        // print_r($order->items);
-        // $items = Datatables::of($order->items)->make();
-        // print_r($items->getData());
-
-
-        exit;
 
         return view('la.orders.show', [
           'module' => $module,
@@ -272,5 +261,30 @@ class OrdersController extends Controller
     }
     $out->setData($data);
     return $out;
+  }
+
+  /**
+   * Datatable Order items
+   *
+   * @param {id} Activity Id
+   */
+  public function getItemDetailsByActivityId($id)
+  {
+    $model = Item_Detail::where('activity_id', $id)
+      ->orderBy('name', 'ASC')
+      ->get();
+    $units = Unit::pluck('unit', 'id')->toArray();
+
+    foreach ($model as $row) {
+      // Add unit selection
+      $row->unit = '<select style="width: 100px" name="unit' . $row->id . '" class="form-control input-sm">';
+      foreach ($units as $id => $unit) {
+        $row->unit .= '<option value="' . $id . '">' . $unit . '</option>';
+      }
+      $row->unit .= '</select>';
+      $row->quantity = '<input style="width: 100px" type="text" name="quantity' . $row->id . '" class="form-control input-sm">';
+      $row->measurement = '<input style="width: 100px" type="text" name="measurement' . $row->id . '" class="form-control input-sm">';
+    }
+    return $model->toJson();
   }
 }

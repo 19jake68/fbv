@@ -121,13 +121,13 @@
 					<div class="panel-default panel-heading">
 						<h4 class="title-item">Items</h4>
             @la_access("Orders", "create")
-              <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItem">Add Items</button>
+              <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItemModal">Add Items</button>
             @endla_access
 					</div>
 					<div class="panel-body">
-						<table id="example1" class="table table-bordered">
+						<table id="orderItems" class="table table-bordered">
               <thead>
-                
+                <th>Item Id</th>
               </thead>
               <tbody>
                 
@@ -258,7 +258,7 @@
 </div>
 
 @la_access("Orders", "create")
-<div class="modal fade" id="addItem" role="dialog" aria-labelledby="addItemsModal">
+<div class="modal fade" id="addItemModal" role="dialog" aria-labelledby="addItemsModal">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -271,22 +271,21 @@
           {{-- @la_form($module) --}}
           <div class="form-group">
             {{ Form::label('activity', 'Activity*:') }}
-            {{ Form::select('activity_id', $activities, null, ['class' => 'form-control']) }}
+            {{ Form::select('activity_id', $activities, null, ['id' => 'activityList', 'class' => 'form-control']) }}
           </div>
           
-          	<table id="activityItems" class="table table-bordered">
+          	<table id="itemList" class="table table-bordered">
               <thead>
                 <tr class="success">
                   <th>Name</th>
                   <th>Amount</th>
-                  <th>Quantity</th>
-                  <th>Measurement</th>
-                  <th>Unit</th>
+                  <th style="width: 110px">Quantity</th>
+                  <th style="width: 110px">Measurement</th>
+                  <th style="width: 110px">Unit</th>
                   <th>Subtotal</th>
                 </tr>
               </thead>
               <tbody>
-                
               </tbody>
             </table>
 				</div>
@@ -303,20 +302,45 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
 <script>
-$(function () {
-	$("#example1").DataTable({
-		processing: true,
-    serverSide: true,
-    ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
-		language: {
-			lengthMenu: "_MENU_",
-			search: "_INPUT_",
-			searchPlaceholder: "Search"
-		}
-	});
-	$("#order-add-form").validate({});
+let selectedActivity = $('#activityList').val();
+let listItems = function() {
+  let url = "{{ url(config('laraadmin.adminRoute') . '/order_list_item_details/') }}",
+    tableBody = $('#itemList tbody');
+  $.ajax({
+    url: url + '/' + selectedActivity,
+    type: 'GET',
+    dataType: 'html',
+    beforeSend: function() {
+      $('#activityList').attr('disabled', true);
+      tableBody.html('');
+    },
+    success: function(response) {
+      let array = $.parseJSON(response);
+      $.each(array, function(index, itemDetail) {
+        tableBody.append($('<tr>')
+          .attr('id', 'item' + itemDetail.id)
+          .append($('<td>').append(itemDetail.name))
+          .append($('<td>').append(itemDetail.amount))
+          .append($('<td>').append(itemDetail.quantity))
+          .append($('<td>').append(itemDetail.measurement))
+          .append($('<td>').append(itemDetail.unit))
+          .append($('<td>').append(itemDetail.amount))
+        );
+      });
+    },
+    complete: function() {
+      $('#activityList').removeAttr('disabled');
+    }
+  });
+}
+$('#addItemModal').on('show.bs.modal', e => {
+  listItems();
+
+});
+$("#activityList").change(function() {
+  selectedActivity = $(this).val();
+  listItems();
 });
 </script>
 @endpush
