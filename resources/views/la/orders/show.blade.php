@@ -9,6 +9,10 @@
   .btn-add-item {
     margin-top: 7px;
   }
+
+  .th-add-item-110 {
+    width: 110px;
+  }
 </style>
 @endpush
   
@@ -272,17 +276,18 @@
           <div class="form-group">
             {{ Form::label('activity', 'Activity*:') }}
             {{ Form::select('activity_id', $activities, null, ['id' => 'activityList', 'class' => 'form-control']) }}
+            {{ Form::hidden('order_id', $order->id) }}
           </div>
           
           	<table id="itemList" class="table table-bordered">
               <thead>
                 <tr class="success">
                   <th>Name</th>
-                  <th>Amount</th>
-                  <th style="width: 110px">Quantity</th>
-                  <th style="width: 110px">Measurement</th>
-                  <th style="width: 110px">Unit</th>
-                  <th>Subtotal</th>
+                  <th class="th-add-item-110">Amount</th>
+                  <th class="th-add-item-110">Quantity</th>
+                  <th class="th-add-item-110">Measurement</th>
+                  <th class="th-add-item-110">Unit</th>
+                  <th class="th-add-item-110">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
@@ -321,11 +326,11 @@ let listItems = function() {
         tableBody.append($('<tr>')
           .attr('id', 'item' + itemDetail.id)
           .append($('<td>').append(itemDetail.name))
-          .append($('<td>').append(itemDetail.amount))
+          .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
           .append($('<td>').append(itemDetail.quantity))
           .append($('<td>').append(itemDetail.measurement))
           .append($('<td>').append(itemDetail.unit))
-          .append($('<td>').append(itemDetail.amount))
+          .append($('<td>').append(itemDetail.subtotal))
         );
       });
     },
@@ -341,6 +346,17 @@ $('#addItemModal').on('show.bs.modal', e => {
 $("#activityList").change(function() {
   selectedActivity = $(this).val();
   listItems();
+});
+$('body').on('change', 'input.quantity', function() {
+  let id = $(this).data('id'),
+    quantity = $(this).val(),
+    amount = $(this).data('amount'),
+    subtotal = quantity * amount,
+    subtotalString = 'Php ' + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+    // Set values
+    $(this).parent().parent().find('input.subtotal').val(subtotalString);
+    $(this).parent().find('input[type=hidden]').val(subtotal);
 });
 </script>
 @endpush

@@ -274,16 +274,18 @@ class OrdersController extends Controller
       ->orderBy('name', 'ASC')
       ->get();
     $units = Unit::pluck('unit', 'id')->toArray();
+    $unitOptions = '';
+    foreach ($units as $id => $unit) {
+      $unitOptions .= '<option value="' . $id . '">' . $unit . '</option>';
+    }
 
     foreach ($model as $row) {
       // Add unit selection
-      $row->unit = '<select style="width: 100px" name="unit' . $row->id . '" class="form-control input-sm">';
-      foreach ($units as $id => $unit) {
-        $row->unit .= '<option value="' . $id . '">' . $unit . '</option>';
-      }
-      $row->unit .= '</select>';
-      $row->quantity = '<input style="width: 100px" type="text" name="quantity' . $row->id . '" class="form-control input-sm">';
-      $row->measurement = '<input style="width: 100px" type="text" name="measurement' . $row->id . '" class="form-control input-sm">';
+      $row->amount = number_format($row->amount, 2);
+      $row->quantity = '<input style="width: 100px" type="number" name="' . $row->id . '[quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0"><input type="hidden" name="' . $row->id . '[subtotal]">';
+      $row->measurement = '<input style="width: 100px" type="number" name="' . $row->id . '[measurement]" class="form-control input-sm" min="0">';
+      $row->unit = '<select style="width: 100px" name="' . $row->id . '[unit]" class="form-control input-sm">' . $unitOptions . '</select>';
+      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="Php 0.00" tabindex="-1"><input type="hidden" name="' . $row->id . '[amount]" value="' . $row->amount . '">';
     }
     return $model->toJson();
   }
