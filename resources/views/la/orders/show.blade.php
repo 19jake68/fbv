@@ -13,6 +13,9 @@
   .th-add-item-110 {
     width: 110px;
   }
+  .profile2 .label2.total {
+    font-size: 20px;
+  }
 </style>
 @endpush
   
@@ -96,7 +99,7 @@
 			</div>-->
 
       <div class="dats1 mt10">Total:</div>
-      <div class="dats1"><div class="label2 success">Php {{ number_format($order->total, 2) }}</div></div>
+      <div class="dats1"><div class="label2 success total">Php {{ number_format($order->total, 2) }}</div></div>
 		</div>
 		<div class="col-md-1 actions">
 			@la_access("Orders", "edit")
@@ -114,8 +117,8 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/orders') }}" data-toggle="tooltip" data-placement="right" title="Back to Orders"><i class="fa fa-chevron-left"></i></a></li>
     <li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-items" data-target="#tab-items"><i class="fa fa-list-ol"></i> Items</a></li>
-		<li class=""><a role="tab" data-toggle="tab" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-    <li class=""><a role="tab" data-toggle="tab" href="#tab-timeline" data-target="#tab-timeline"><i class="fa fa-clock-o"></i> Timeline</a></li>
+		<!-- <li class=""><a role="tab" data-toggle="tab" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
+    <li class=""><a role="tab" data-toggle="tab" href="#tab-timeline" data-target="#tab-timeline"><i class="fa fa-clock-o"></i> Timeline</a></li> -->
 	</ul>
 
 	<div class="tab-content">

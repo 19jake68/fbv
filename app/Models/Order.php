@@ -44,4 +44,13 @@ class Order extends Model
       ->where('order_id', $this->id)
       ->whereNull('deleted_at');
   }
+
+  public function calcTotalAmount($id) {
+    $total = Item::where('order_id', $id)
+      ->sum('subtotal');
+    $order =$this->where('id', $id)
+      ->first();
+    $order->total = $total;
+    return $order->save();
+  }
 }

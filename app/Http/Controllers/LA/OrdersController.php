@@ -89,7 +89,7 @@ class OrdersController extends Controller
       // Add user id who created the order
       $request->user_id = Auth::id();
       $insert_id = Module::insert("Orders", $request);
-      return redirect(config('laraadmin.adminRoute') . "/orders/" . $insert_id . '#tab-items');
+      return redirect(config('laraadmin.adminRoute') . "/orders/" . $insert_id);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
     }
@@ -103,9 +103,26 @@ class OrdersController extends Controller
    */
   public function addItems(Request $request)
   {
-    echo '<pre>';
-    print_r($request->all());
-    exit;
+    if (Module::hasAccess("Orders", "create")) {
+      $orderId = $request->order_id;
+      $activityId = $request->activity_id;
+
+      foreach ($request->items as $itemId => $item) {
+        $quantity = (int) $item['quantity'];
+        if (!$quantity) continue;
+        $amount = (float) $item['amount'];
+        $subtotal = (float) $quantity * $amount;
+
+        $itemModel = new Item;
+        $itemModel->createOrUpdate($orderId, $itemId, $activityId, $quantity, $item['measurement'], $item['unit'], $amount, $subtotal);
+      }
+
+      $order = new Order;
+      $order->calcTotalAmount($orderId);
+      return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
+    } else {
+      return redirect(config('laraadmin.adminRoute') . "/");
+    }
   }
 
   /**
@@ -117,7 +134,6 @@ class OrdersController extends Controller
   public function show($id)
   {
     if (Module::hasAccess("Orders", "view")) {
-
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
@@ -282,10 +298,10 @@ class OrdersController extends Controller
     foreach ($model as $row) {
       // Add unit selection
       $row->amount = number_format($row->amount, 2);
-      $row->quantity = '<input style="width: 100px" type="number" name="' . $row->id . '[quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0"><input type="hidden" name="' . $row->id . '[subtotal]">';
-      $row->measurement = '<input style="width: 100px" type="number" name="' . $row->id . '[measurement]" class="form-control input-sm" min="0">';
-      $row->unit = '<select style="width: 100px" name="' . $row->id . '[unit]" class="form-control input-sm">' . $unitOptions . '</select>';
-      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="Php 0.00" tabindex="-1"><input type="hidden" name="' . $row->id . '[amount]" value="' . $row->amount . '">';
+      $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0">';
+      $row->measurement = '<input style="width: 100px" type="text" name="items[' . $row->id . '][measurement]" class="form-control input-sm" >';
+      $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
+      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="Php 0.00" tabindex="-1"><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
     return $model->toJson();
   }
