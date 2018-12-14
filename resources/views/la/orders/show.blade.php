@@ -1,6 +1,7 @@
 @extends('la.layouts.app')
 
 @push('styles')
+<link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
 <style>
   .title-item {
     display: inline-block;
@@ -16,13 +17,16 @@
   .profile2 .label2.total {
     font-size: 20px;
   }
+
+  .th-unit {
+    width: 30px;
+  }
 </style>
 @endpush
   
 @section('htmlheader_title')
 	Order View
 @endsection
-
 
 @section('main-content')
 <div id="page-content" class="profile2">
@@ -132,9 +136,13 @@
             @endla_access
 					</div>
 					<div class="panel-body">
-						<table id="orderItems" class="table table-bordered">
+						<table id="orderItems" class="table table-bordered table-striped table-hover">
               <thead>
-                <th>Item Id</th>
+                <tr class="success">
+                  @foreach( $items_cols as $col )
+                  <th class="th-{{$col}}">{{ ucfirst($col) }}</th>
+                  @endforeach
+                </tr>
               </thead>
               <tbody>
                 
@@ -310,56 +318,84 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
 <script>
-let selectedActivity = $('#activityList').val();
-let listItems = function() {
-  let url = "{{ url(config('laraadmin.adminRoute') . '/order_list_item_details/') }}",
-    tableBody = $('#itemList tbody');
-  $.ajax({
-    url: url + '/' + selectedActivity,
-    type: 'GET',
-    dataType: 'html',
-    beforeSend: function() {
-      $('#activityList').attr('disabled', true);
-      tableBody.html('');
-    },
-    success: function(response) {
-      let array = $.parseJSON(response);
-      $.each(array, function(index, itemDetail) {
-        tableBody.append($('<tr>')
-          .attr('id', 'item' + itemDetail.id)
-          .append($('<td>').append(itemDetail.name))
-          .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
-          .append($('<td>').append(itemDetail.quantity))
-          .append($('<td>').append(itemDetail.measurement))
-          .append($('<td>').append(itemDetail.unit))
-          .append($('<td>').append(itemDetail.subtotal))
-        );
-      });
-    },
-    complete: function() {
-      $('#activityList').removeAttr('disabled');
-    }
+$(document).ready(function() {
+  let selectedActivity = $('#activityList').val();
+  let listItems = function() {
+    let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
+      tableBody = $('#itemList tbody');
+
+    $.ajax({
+      url: url + '/' + selectedActivity,
+      type: 'GET',
+      dataType: 'html',
+      beforeSend: function() {
+        $('#activityList').attr('disabled', true);
+        tableBody.html('');
+      },
+      success: function(response) {
+        let array = $.parseJSON(response);
+        $.each(array, function(index, itemDetail) {
+          tableBody.append($('<tr>')
+            .attr('id', 'item' + itemDetail.id)
+            .append($('<td>').append(itemDetail.name))
+            .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
+            .append($('<td>').append(itemDetail.quantity))
+            .append($('<td>').append(itemDetail.measurement))
+            .append($('<td>').append(itemDetail.unit))
+            .append($('<td>').append(itemDetail.subtotal))
+          );
+        });
+      },
+      complete: function() {
+        $('#activityList').removeAttr('disabled');
+      }
+    });
+  }
+
+  $('#orderItems').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
+		language: {
+			lengthMenu: "_MENU_",
+			search: "_INPUT_",
+			searchPlaceholder: "Search"
+		},
+    columnDefs: [
+      { targets: 0, searchable: false, visible: false },
+      { data: 'name' },
+      { data: 'activity' },
+      { data: 'amount' },
+      { data: 'quantity' },
+      { data: 'measurement' },
+      { data: 'unit' },
+      { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: -1 }
+    ]
   });
-}
-$('#addItemModal').on('show.bs.modal', e => {
-  listItems();
 
-});
-$("#activityList").change(function() {
-  selectedActivity = $(this).val();
-  listItems();
-});
-$('body').on('change', 'input.quantity', function() {
-  let id = $(this).data('id'),
-    quantity = $(this).val(),
-    amount = $(this).data('amount'),
-    subtotal = quantity * amount,
-    subtotalString = 'Php ' + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  $('#addItemModal').on('show.bs.modal', e => {
+    listItems();
+  });
 
-    // Set values
-    $(this).parent().parent().find('input.subtotal').val(subtotalString);
-    $(this).parent().find('input[type=hidden]').val(subtotal);
+  $("#activityList").change(function() {
+    selectedActivity = $(this).val();
+    listItems();
+  });
+
+  $('body').on('change', 'input.quantity', function() {
+    let id = $(this).data('id'),
+      quantity = $(this).val(),
+      amount = $(this).data('amount'),
+      subtotal = quantity * amount,
+      subtotalString = 'Php ' + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+      // Set values
+      $(this).parent().parent().find('input.subtotal').val(subtotalString);
+      $(this).parent().find('input[type=hidden]').val(subtotal);
+  });
 });
 </script>
 @endpush

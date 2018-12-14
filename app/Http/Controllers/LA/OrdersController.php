@@ -26,6 +26,7 @@ class OrdersController extends Controller
   public $show_action = true;
   public $view_col = 'job_number';
   public $listing_cols = ['id', 'job_number', 'team_leader', 'area_id', 'date', 'user_id', 'total'];
+  public $order_items_cols = ['id', 'name', 'activity', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
 
   public function __construct()
   {
@@ -139,13 +140,14 @@ class OrdersController extends Controller
         $module = Module::get('Orders');
         $module->row = $order;
         $activities = Activity::lists('name', 'id');
-
+        
         return view('la.orders.show', [
           'module' => $module,
           'view_col' => $this->view_col,
           'no_header' => true,
           'no_padding' => "no-padding",
-          'activities' => $activities
+          'activities' => $activities,
+          'items_cols' => $this->order_items_cols
         ])->with('order', $order);
       } else {
         return view('errors.404', [
@@ -234,6 +236,22 @@ class OrdersController extends Controller
     }
   }
 
+  public function dtajaxOrderItems($id)
+  {
+    $values = DB::table(Item::getTableName() . ' AS item')
+      ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
+      ->leftJoin(Activity::getTableName() . ' AS activity', 'item.activity_id', '=', 'activity.id')
+      ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
+      ->select('item.id', 'item_detail.name', 'activity.name AS activity', 'item.measurement', 'unit.unit', 'item.amount', 'item.quantity', 'item.subtotal')
+      ->select('item.id', 'item_detail.name', 'activity.name AS activity', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
+      ->where('item.order_id', $id)
+      ->whereNull('item.deleted_at');
+    $out = Datatables::of($values)->make();
+    $data = $out->getData();
+    $out->setData($data);
+    return $out;
+  }
+
   /**
    * Datatable Ajax fetch
    *
@@ -290,6 +308,7 @@ class OrdersController extends Controller
     if (!isset($order->id)) return [];
     $model = Item_Detail::where('activity_id', $order->id)
       ->where('area_id', $order->area_id)
+      ->whereNull('deleted_at')
       ->orderBy('name', 'ASC')
       ->get();
     $units = Unit::pluck('unit', 'id')->toArray();

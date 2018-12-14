@@ -7,10 +7,10 @@
 namespace App\Models;
 
 use App\Models\Item;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Datatables;
-class Order extends Model
+class Order extends BaseModel
 {
   use SoftDeletes;
 	

@@ -88,7 +88,9 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
   Route::resource(config('laraadmin.adminRoute') . '/orders', 'LA\OrdersController');
   Route::post(config('laraadmin.adminRoute') . '/orders/add_items', 'LA\OrdersController@addItems');
   Route::get(config('laraadmin.adminRoute') . '/order_dt_ajax', 'LA\OrdersController@dtajax');
-  Route::get(config('laraadmin.adminRoute') . '/order_list_item_details/{id}', 'LA\OrdersController@getItemDetailsByActivityId');
+  Route::get(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/{id}', 'LA\OrdersController@getItemDetailsByActivityId');
+  Route::get(config('laraadmin.adminRoute') . '/order_dt_ajax_items/{id}', 'LA\OrdersController@dtajaxOrderItems');
+
 
 
 	/* ================== Item_Details ================== */

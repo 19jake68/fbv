@@ -6,10 +6,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Item extends Model
+class Item extends BaseModel
 {
     use SoftDeletes;
 	
@@ -28,12 +28,17 @@ class Item extends Model
 
   public function itemDetail()
   {
-    return $this->belongsTo('App\Models\Item_Detail')->select('id', 'name', 'amount');
+    return $this->belongsTo('App\Models\Item_Detail', 'item_detail_id', 'id')->select('id', 'name', 'amount');
   }
 
   public function unit()
   {
-    return $this->belongsTo('App\Models\Unit')->select('id', 'unit');
+    return $this->hasOne('App\Models\Unit', 'unit_id', 'id')->select('id', 'unit');
+  }
+
+  public function activity()
+  {
+    return $this->hasOne('App\Models\Activity', 'id', 'activity_id')->select('id', 'name');
   }
 
   public function createOrUpdate($orderId, $itemId, $activityId, $quantity, $measurement, $unit, $amount, $subtotal)
