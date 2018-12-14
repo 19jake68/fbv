@@ -286,7 +286,10 @@ class OrdersController extends Controller
    */
   public function getItemDetailsByActivityId($id)
   {
-    $model = Item_Detail::where('activity_id', $id)
+    $order = Order::find($id);
+    if (!isset($order->id)) return [];
+    $model = Item_Detail::where('activity_id', $order->id)
+      ->where('area_id', $order->area_id)
       ->orderBy('name', 'ASC')
       ->get();
     $units = Unit::pluck('unit', 'id')->toArray();
