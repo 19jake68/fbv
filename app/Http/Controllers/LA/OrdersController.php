@@ -240,7 +240,9 @@ class OrdersController extends Controller
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
       ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
       ->where('item.order_id', $id)
-      ->whereNull('item.deleted_at');
+      ->whereNull('item.deleted_at')
+      ->orderBy('activity.id', 'ASC')
+      ->orderBy('item_detail.id', 'ASC');
     $out = Datatables::of($values)->make();
     $data = $out->getData();
     $out->setData($data);
