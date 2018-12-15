@@ -186,7 +186,7 @@ class OrdersController extends Controller
         ]);
       }
     } else {
-      return redirect(config('laraadmin.adminRoute') . "/");
+      return redirect(config('laraadmin.adminRoute') . "/orders");
     }
   }
 
@@ -200,9 +200,7 @@ class OrdersController extends Controller
   public function update(Request $request, $id)
   {
     if (Module::hasAccess("Orders", "edit")) {
-
       $rules = Module::validateRules("Orders", $request, true);
-
       $validator = Validator::make($request->all(), $rules);
 
       if ($validator->fails()) {
@@ -210,9 +208,7 @@ class OrdersController extends Controller
       }
 
       $insert_id = Module::updateRow("Orders", $request, $id);
-
-      return redirect()->route(config('laraadmin.adminRoute') . '.orders.index');
-
+      return redirect(config('laraadmin.adminRoute') . "/orders/" . $id);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
     }
