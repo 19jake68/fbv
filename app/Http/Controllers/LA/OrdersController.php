@@ -302,12 +302,10 @@ class OrdersController extends Controller
    *
    * @param {id} Activity Id
    */
-  public function getItemDetailsByActivityId($id)
+  public function getItemDetailsByActivityId(Request $request)
   {
-    $order = Order::find($id);
-    if (!isset($order->id)) return [];
-    $model = Item_Detail::where('activity_id', $order->id)
-      ->where('area_id', $order->area_id)
+    $model = Item_Detail::where('activity_id', $request->id)
+      ->where('area_id', $request->areaId)
       ->whereNull('deleted_at')
       ->orderBy('name', 'ASC')
       ->get();

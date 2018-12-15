@@ -328,7 +328,7 @@ $(document).ready(function() {
       tableBody = $('#itemList tbody');
 
     $.ajax({
-      url: url + '/' + selectedActivity,
+      url: url + '/' + selectedActivity + '/' + {{ $order->area_id }},
       type: 'GET',
       dataType: 'html',
       beforeSend: function() {
