@@ -26,7 +26,7 @@ class OrdersController extends Controller
   public $show_action = true;
   public $view_col = 'job_number';
   public $listing_cols = ['id', 'job_number', 'team_leader', 'area_id', 'date', 'user_id', 'total'];
-  public $order_items_cols = ['id', 'name', 'activity', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
+  public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
 
   public function __construct()
   {
@@ -242,8 +242,7 @@ class OrdersController extends Controller
       ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
       ->leftJoin(Activity::getTableName() . ' AS activity', 'item.activity_id', '=', 'activity.id')
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
-      ->select('item.id', 'item_detail.name', 'activity.name AS activity', 'item.measurement', 'unit.unit', 'item.amount', 'item.quantity', 'item.subtotal')
-      ->select('item.id', 'item_detail.name', 'activity.name AS activity', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
+      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
       ->where('item.order_id', $id)
       ->whereNull('item.deleted_at');
     $out = Datatables::of($values)->make();
@@ -307,7 +306,7 @@ class OrdersController extends Controller
     $model = Item_Detail::where('activity_id', $request->id)
       ->where('area_id', $request->areaId)
       ->whereNull('deleted_at')
-      ->orderBy('name', 'ASC')
+      ->orderBy('id', 'ASC')
       ->get();
     $units = Unit::pluck('unit', 'id')->toArray();
     $unitOptions = '';
