@@ -384,6 +384,7 @@ $(document).ready(function() {
     processing: true,
     serverSide: true,
     ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
+		searching: false,
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
