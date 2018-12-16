@@ -104,7 +104,7 @@ class OrdersController extends Controller
    */
   public function addItems(Request $request)
   {
-    if (Module::hasAccess("Orders", "create")) {
+    if (Module::hasAccess("Items", "create")) {
       $orderId = $request->order_id;
       $activityId = $request->activity_id;
 
@@ -245,6 +245,17 @@ class OrdersController extends Controller
       ->orderBy('item_detail.id', 'ASC');
     $out = Datatables::of($values)->make();
     $data = $out->getData();
+
+    for ($i = 0; $i < count($data->data); $i++) {
+      $output = '';
+      if (Module::hasAccess("Items", "delete")) {
+        $output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.items.destroy', $data->data[$i][0]], 'method' => 'delete', 'style' => 'display:inline']);
+        $output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
+        $output .= Form::close();
+      }
+      $data->data[$i][] = (string) $output;
+    }
+
     $out->setData($data);
     return $out;
   }

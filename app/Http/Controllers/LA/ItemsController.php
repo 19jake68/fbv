@@ -18,6 +18,7 @@ use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 
 use App\Models\Item;
+use App\Models\Order;
 
 class ItemsController extends Controller
 {
@@ -193,10 +194,12 @@ class ItemsController extends Controller
 	public function destroy($id)
 	{
 		if(Module::hasAccess("Items", "delete")) {
-			Item::find($id)->delete();
-			
-			// Redirecting to index() method
-			return redirect()->route(config('laraadmin.adminRoute') . '.items.index');
+			$model = Item::find($id);
+			$orderId = $model->order_id;
+			$order = new Order;
+			$order->calcTotalAmount($orderId);
+			$model->delete();
+			return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}

@@ -2,6 +2,7 @@
 
 @push('styles')
 <link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
+`<link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/Editor/css/editor.dataTables.min.css') }}"/>
 <style>
   .title-item {
     display: inline-block;
@@ -21,6 +22,10 @@
   .th-unit {
     width: 30px;
   }
+
+	.dt-body-center {
+		text-align: center;
+	}
 </style>
 @endpush
   
@@ -111,9 +116,9 @@
 			@endla_access
 			
 			@la_access("Orders", "delete")
-				{{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
+				<!-- {{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
 					<button class="btn btn-default btn-delete btn-xs" type="submit" title="Delete Order"><i class="fa fa-times"></i></button>
-				{{ Form::close() }}
+				{{ Form::close() }} -->
 			@endla_access
 		</div>
 	</div>
@@ -131,7 +136,7 @@
 				<div class="panel infolist">
 					<div class="panel-default panel-heading">
 						<h4 class="title-item">Items</h4>
-            @la_access("Orders", "create")
+            @la_access("Items", "create")
               <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItemModal">Add Items</button>
             @endla_access
 					</div>
@@ -142,6 +147,7 @@
                   @foreach( $items_cols as $col )
                   <th class="th-{{$col}}">{{ ucfirst($col) }}</th>
                   @endforeach
+									<th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -319,8 +325,11 @@
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<!-- <script src="{{ asset('la-assets/plugins/datatables/Editor/js/dataTables.editor.min.js') }}"></script> -->
 <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
 <script>
+var editor; // use a global for the submit and return data rendering in the examples
+
 $(document).ready(function() {
   let selectedActivity = $('#activityList').val();
   let listItems = function() {
@@ -353,7 +362,23 @@ $(document).ready(function() {
         $('#activityList').removeAttr('disabled');
       }
     });
-  }
+	}
+
+	// editor = new $.fn.dataTable.Editor({
+	// 	ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
+	// 	table: '#orderItems',
+	// 	fields: [
+	// 		{
+	// 			label: 'Activity',
+	// 			name: 'activity'
+	// 		}
+	// 	]
+	// });
+	
+	// Activate an inline edit on click of a table cell
+	$('#orderItems').on( 'click', 'tbody td:not(:first-child)', function (e) {
+		editor.inline( this );
+	});
 
   $('#orderItems').DataTable({
     processing: true,
@@ -372,7 +397,8 @@ $(document).ready(function() {
       { data: 'quantity' },
       { data: 'measurement' },
       { data: 'unit' },
-      { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: -1 }
+      { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: 7 },
+			{ className: 'dt-body-center', orderable: false, targets: [-1] }
     ]
   });
 
