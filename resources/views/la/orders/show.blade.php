@@ -2,7 +2,6 @@
 
 @push('styles')
 <link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
-`<link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/Editor/css/editor.dataTables.min.css') }}"/>
 <style>
   .title-item {
     display: inline-block;
@@ -15,6 +14,11 @@
   .th-add-item-110 {
     width: 110px;
   }
+
+  .th-add-item-200 {
+    width: 200px;
+  }
+
   .profile2 .label2.total {
     font-size: 20px;
   }
@@ -147,7 +151,7 @@
                   @foreach( $items_cols as $col )
                   <th class="th-{{$col}}">{{ ucfirst($col) }}</th>
                   @endforeach
-									<th>Actions</th>
+									<th style="width:60px">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -325,10 +329,8 @@
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
-<!-- <script src="{{ asset('la-assets/plugins/datatables/Editor/js/dataTables.editor.min.js') }}"></script> -->
 <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
 <script>
-var editor; // use a global for the submit and return data rendering in the examples
 
 $(document).ready(function() {
   let selectedActivity = $('#activityList').val();
@@ -364,22 +366,6 @@ $(document).ready(function() {
     });
 	}
 
-	// editor = new $.fn.dataTable.Editor({
-	// 	ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
-	// 	table: '#orderItems',
-	// 	fields: [
-	// 		{
-	// 			label: 'Activity',
-	// 			name: 'activity'
-	// 		}
-	// 	]
-	// });
-	
-	// Activate an inline edit on click of a table cell
-	$('#orderItems').on( 'click', 'tbody td:not(:first-child)', function (e) {
-		editor.inline( this );
-	});
-
   $('#orderItems').DataTable({
     processing: true,
     serverSide: true,
@@ -390,6 +376,12 @@ $(document).ready(function() {
 			search: "_INPUT_",
 			searchPlaceholder: "Search"
 		},
+    pageLength: 50,
+    order: [
+      [1, "asc"],
+      [2, "asc"]
+    ],
+    select: true,
     columnDefs: [
       { targets: 0, searchable: false, visible: false },
       { data: 'name' },
@@ -412,6 +404,20 @@ $(document).ready(function() {
     listItems();
   });
 
+  // Edit Item
+  $('body').on('click', 'button.item-edit', function(e) {
+    alert('display edit item modal');
+  });
+
+  // Delete item
+  $('body').on('click', 'button.item-delete', function(e) {
+    let result = confirm('Are you sure you want to delete this item?');
+    if (!result) {
+      e.preventDefault();
+    }
+  });
+
+  // Change subtotal - Add Item Modal
   $('body').on('change', 'input.quantity', function() {
     let id = $(this).data('id'),
       quantity = $(this).val(),

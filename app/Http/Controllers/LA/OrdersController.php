@@ -232,7 +232,7 @@ class OrdersController extends Controller
     }
   }
 
-  public function dtajaxOrderItems($id)
+  public function dtajaxOrderItems($id, Request $request)
   {
     $values = DB::table(Item::getTableName() . ' AS item')
       ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
@@ -240,19 +240,24 @@ class OrdersController extends Controller
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
       ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
       ->where('item.order_id', $id)
-      ->whereNull('item.deleted_at')
-      ->orderBy('activity.id', 'ASC')
-      ->orderBy('item_detail.id', 'ASC');
+      ->whereNull('item.deleted_at');
+
     $out = Datatables::of($values)->make();
     $data = $out->getData();
 
     for ($i = 0; $i < count($data->data); $i++) {
       $output = '';
+
+      if (Module::hasAccess("Items", "edit")) {
+        $output .= '<button class="btn btn-warning btn-xs item-edit" data-id="' . $data->data[$i][0] . '" type="submit"><i class="fa fa-edit"></i></button>';
+      }
+
       if (Module::hasAccess("Items", "delete")) {
         $output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.items.destroy', $data->data[$i][0]], 'method' => 'delete', 'style' => 'display:inline']);
-        $output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
+        $output .= ' <button class="btn btn-danger btn-xs item-delete" type="submit"><i class="fa fa-times"></i></button>';
         $output .= Form::close();
       }
+
       $data->data[$i][] = (string) $output;
     }
 
@@ -315,7 +320,7 @@ class OrdersController extends Controller
     $model = Item_Detail::where('activity_id', $request->id)
       ->where('area_id', $request->areaId)
       ->whereNull('deleted_at')
-      ->orderBy('id', 'ASC')
+      ->orderBy('name', 'ASC')
       ->get();
     $units = Unit::pluck('unit', 'id')->toArray();
     $unitOptions = '';

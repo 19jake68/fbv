@@ -195,10 +195,10 @@ class ItemsController extends Controller
 	{
 		if(Module::hasAccess("Items", "delete")) {
 			$model = Item::find($id);
-			$orderId = $model->order_id;
+      $orderId = $model->order_id;
+      $model->delete();
 			$order = new Order;
-			$order->calcTotalAmount($orderId);
-			$model->delete();
+			$order->calcTotalAmount($orderId);			
 			return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");

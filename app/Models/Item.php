@@ -48,11 +48,11 @@ class Item extends BaseModel
       ->first();
 
     if ($model) {
-      $model->quantity = $quantity;
+      $model->quantity += $quantity;
       $model->measurement = $measurement;
       $model->unit_id = $unit;
-      $model->amount = $amount;
-      $model->subtotal = $subtotal;
+      $model->amount += $amount;
+      $model->subtotal += $subtotal;
       return $model->save();
     } else {
       return $this->create([
