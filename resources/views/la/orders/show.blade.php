@@ -1,5 +1,7 @@
 @extends('la.layouts.app')
-
+@push('meta_tags')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
 @push('styles')
 <link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
 <style>
@@ -33,6 +35,10 @@
 
   .dt-bootstrap .col-sm-12 {
     overflow: hidden;
+  }
+
+  .item-delete:focus {
+    border: 1px solid #48B0F7;
   }
 
   #orderItems {
@@ -120,7 +126,7 @@
 			</div>-->
 
       <div class="dats1 mt10">Total:</div>
-      <div class="dats1"><div class="label2 success total">Php {{ number_format($order->total, 2) }}</div></div>
+      <div class="dats1"><div class="label2 success total">&#8369;{{ number_format($order->total, 2) }}</div></div>
 		</div>
 		<div class="col-md-1 actions">
 			@la_access("Orders", "edit")
@@ -159,7 +165,9 @@
                   @foreach( $items_cols as $col )
                   <th class="th-{{$col}}">{{ ucfirst($col) }}</th>
                   @endforeach
-									<th style="width:60px">Actions</th>
+                  @la_access("Items", "delete")
+									<th style="width:60px">&nbsp;</th>
+                  @endla_access
                 </tr>
               </thead>
               <tbody>
@@ -337,11 +345,14 @@
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<script src="{{ asset('la-assets/plugins/datatables/sum().js') }}"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
 <script>
 
 $(document).ready(function() {
+  var request = null;
   let searchParams = new URLSearchParams(window.location.search),
+    csrfToken = $('meta[name="csrf-token"]').attr('content'),
     selectedActivity = $('#activityList').val(),
     listItems = function() {
       let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
@@ -361,7 +372,7 @@ $(document).ready(function() {
             tableBody.append($('<tr>')
               .attr('id', 'item' + itemDetail.id)
               .append($('<td>').append(itemDetail.name))
-              .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
+              .append($('<td>').append('&#8369;' + itemDetail.amount).addClass('text-right'))
               .append($('<td>').append(itemDetail.quantity))
               .append($('<td>').append(itemDetail.measurement))
               .append($('<td>').append(itemDetail.unit))
@@ -385,7 +396,7 @@ $(document).ready(function() {
         searchPlaceholder: "Search"
       },
       pageLength: 50,
-      select: true,
+      select: false,
       columnDefs: [
         { targets: 0, searchable: false, visible: false },
         { data: 'name' },
@@ -394,11 +405,15 @@ $(document).ready(function() {
         { data: 'quantity' },
         { data: 'measurement' },
         { data: 'unit' },
-        { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: 7 },
+        { render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
         { className: 'dt-body-center', orderable: false, targets: [-1] }
       ]
     }),
-    addItemModal = $('#addItemModal');
+    addItemModal = $('#addItemModal'),
+    calcAmount = function() {
+      let sum = orderItems.column(7).data().sum();
+      $('.total').html('&#8369;' + sum.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+    };
 
   addItemModal.modal({
     backdrop: 'static',
@@ -414,6 +429,37 @@ $(document).ready(function() {
   $("#activityList").change(function() {
     selectedActivity = $(this).val();
     listItems();
+  });
+
+  // Inline Edit
+  $('body').on('change', 'input.inline-edit', function(e) {
+    let id = $(this).data('id'),
+      type = $(this).data('type'),
+      value = $(this).val(),
+      _this = this;
+
+    if (request)
+      request.abort();
+
+    request = $.ajax({
+      url: "{{ url(config('laraadmin.adminRoute') . '/item_ajax_edit') }}",
+      type: 'POST',
+      data: {
+        id: id,
+        type: type,
+        value: value,
+        _token: csrfToken
+      },
+      success: function(response) {
+        let td = $(_this).parent().get(0);
+
+        // Refresh subtotal when quantity is update
+        if (type === 'quantity') {
+          orderItems.cell(td, 7).data(response.subtotal);
+          calcAmount();
+        }
+      }
+    });
   });
 
   // Edit Item
@@ -434,7 +480,9 @@ $(document).ready(function() {
         url: url,
         data: $(form).serialize(),
         success: function(result) {
-          orderItems.ajax.reload();
+          orderItems.ajax.reload(function() {
+            calcAmount();
+          });
         }
       });
     }
@@ -448,13 +496,14 @@ $(document).ready(function() {
       quantity = $(this).val(),
       amount = $(this).data('amount'),
       subtotal = quantity * amount,
-      subtotalString = 'Php ' + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      subtotalString = "₱" + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
       // Set values
       $(this).parent().parent().find('input.subtotal').val(subtotalString);
       $(this).parent().find('input[type=hidden]').val(subtotal);
   });
 
+  // Add order items without closing the modal
   $('.btn-add-items-ajax').click(function(e) {
     e.preventDefault();
 
@@ -466,7 +515,9 @@ $(document).ready(function() {
       url: url,
       data: form.serialize(),
       success: function(result) {
-        orderItems.ajax.reload();
+        orderItems.ajax.reload(function() {
+          calcAmount();
+        });
       }
     });
   });

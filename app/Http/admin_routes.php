@@ -83,7 +83,6 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	Route::resource(config('laraadmin.adminRoute') . '/units', 'LA\UnitsController');
 	Route::get(config('laraadmin.adminRoute') . '/unit_dt_ajax', 'LA\UnitsController@dtajax');
 
-
 	/* ================== Orders ================== */
   Route::resource(config('laraadmin.adminRoute') . '/orders', 'LA\OrdersController');
   Route::post(config('laraadmin.adminRoute') . '/orders/add_items', 'LA\OrdersController@addItems');
@@ -91,13 +90,12 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
   Route::get(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/{id}/{areaId}', 'LA\OrdersController@getItemDetailsByActivityId');
   Route::get(config('laraadmin.adminRoute') . '/order_dt_ajax_items/{id}', 'LA\OrdersController@dtajaxOrderItems');
 
-
-
 	/* ================== Item_Details ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/item_details', 'LA\Item_DetailsController');
 	Route::get(config('laraadmin.adminRoute') . '/item_detail_dt_ajax', 'LA\Item_DetailsController@dtajax');
 
 	/* ================== Items ================== */
-	Route::resource(config('laraadmin.adminRoute') . '/items', 'LA\ItemsController');
+  Route::resource(config('laraadmin.adminRoute') . '/items', 'LA\ItemsController');
+  Route::post(config('laraadmin.adminRoute') . '/item_ajax_edit', 'LA\ItemsController@ajaxedit');
 	Route::get(config('laraadmin.adminRoute') . '/item_dt_ajax', 'LA\ItemsController@dtajax');
 });

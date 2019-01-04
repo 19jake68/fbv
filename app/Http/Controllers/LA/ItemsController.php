@@ -16,9 +16,11 @@ use Datatables;
 use Collective\Html\FormFacade as Form;
 use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
-
+use App\Models\Activity;
 use App\Models\Item;
+use App\Models\Item_Detail;
 use App\Models\Order;
+use App\Models\Unit;
 
 class ItemsController extends Controller
 {
@@ -125,7 +127,28 @@ class ItemsController extends Controller
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
-	}
+  }
+  
+  /**
+   * Update Ajax
+   */
+  public function ajaxedit(Request $request)
+  {
+    if (Module::hasAccess('Items', 'edit')) {
+      $item = Item::find($request->id);
+      $item[$request->type] = $request->value;
+
+      if ($request->type === 'quantity') {
+        $item->subtotal = $request->value * $item->amount;
+      }
+
+      if ($item->save()) {
+        $order = new Order;
+        $order->calcTotalAmount($item->order_id);
+        return response()->json($this->_getItemDetail($item->id));
+      }
+    }
+  }
 
 	/**
 	 * Show the form for editing the specified item.
@@ -135,7 +158,7 @@ class ItemsController extends Controller
 	 */
 	public function edit($id)
 	{
-		if(Module::hasAccess("Items", "edit")) {			
+		if (Module::hasAccess("Items", "edit")) {			
 			$item = Item::find($id);
 			if(isset($item->id)) {	
 				$module = Module::get('Items');
@@ -248,5 +271,15 @@ class ItemsController extends Controller
 		}
 		$out->setData($data);
 		return $out;
-	}
+  }
+  
+  private function _getItemDetail($itemId) {
+    $data = DB::table(Item::getTableName() . ' AS item')
+      ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
+      ->leftJoin(Activity::getTableName() . ' AS activity', 'item.activity_id', '=', 'activity.id')
+      ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
+      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
+      ->where('item.id', $itemId);
+    return $data->first();
+  }
 }

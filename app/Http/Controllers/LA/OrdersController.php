@@ -255,9 +255,14 @@ class OrdersController extends Controller
 
     for ($i = 0; $i < count($data->data); $i++) {
       $output = '';
+      if (Module::hasAccess('Items', 'edit')) {
+        // Quantity
+        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit" min="1" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
 
-      if (Module::hasAccess("Items", "edit")) {
-        $output .= '<button class="btn btn-warning btn-xs item-edit" data-id="' . $data->data[$i][0] . '" type="submit"><i class="fa fa-edit"></i></button>';
+        // Measurement
+        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+
+        // $output .= '<button class="btn btn-warning btn-xs item-edit" data-id="' . $data->data[$i][0] . '" type="submit"><i class="fa fa-edit"></i></button>';
       }
 
       if (Module::hasAccess("Items", "delete")) {
@@ -342,7 +347,7 @@ class OrdersController extends Controller
       $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0">';
       $row->measurement = '<input style="width: 100px" type="text" name="items[' . $row->id . '][measurement]" class="form-control input-sm" >';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
-      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="Php 0.00" tabindex="-1"><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
+      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="&#8369;0.00" tabindex="-1"><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
     return $model->toJson();
   }
