@@ -5,6 +5,10 @@
 @push('styles')
 <link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
 <style>
+  td {
+    vertical-align: middle !important;
+  }
+
   .title-item {
     display: inline-block;
   }
@@ -315,7 +319,7 @@
             {{ Form::hidden('order_id', $order->id) }}
           </div>
           
-          	<table id="itemList" class="table table-bordered">
+          	<table id="itemList" class="table table-bordered table-striped">
               <thead>
                 <tr class="success">
                   <th>Name</th>
@@ -376,7 +380,7 @@ $(document).ready(function() {
               .append($('<td>').append(itemDetail.quantity))
               .append($('<td>').append(itemDetail.measurement))
               .append($('<td>').append(itemDetail.unit))
-              .append($('<td>').append(itemDetail.subtotal))
+              .append($('<td class="text-right">').append(itemDetail.subtotal))
             );
           });
         },
@@ -401,12 +405,12 @@ $(document).ready(function() {
         { targets: 0, searchable: false, visible: false },
         { data: 'name' },
         { data: 'activity' },
-        { data: 'amount' },
+        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 3 },
         { data: 'quantity' },
         { data: 'measurement' },
         { data: 'unit' },
-        { render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
-        { className: 'dt-body-center', orderable: false, targets: [-1] }
+        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+        { className: 'text-center', orderable: false, targets: [-1] }
       ]
     }),
     addItemModal = $('#addItemModal'),
@@ -499,7 +503,7 @@ $(document).ready(function() {
       subtotalString = "₱" + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
       // Set values
-      $(this).parent().parent().find('input.subtotal').val(subtotalString);
+      $(this).parent().parent().find('.subtotalLabel').html(subtotalString);
       $(this).parent().find('input[type=hidden]').val(subtotal);
   });
 

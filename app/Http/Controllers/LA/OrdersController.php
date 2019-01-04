@@ -347,7 +347,7 @@ class OrdersController extends Controller
       $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0">';
       $row->measurement = '<input style="width: 100px" type="text" name="items[' . $row->id . '][measurement]" class="form-control input-sm" >';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
-      $row->subtotal = '<input style="width: 100px" type="text" class="subtotal form-control input-sm text-right" readonly="true" value="&#8369;0.00" tabindex="-1"><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
+      $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
     return $model->toJson();
   }
