@@ -30,6 +30,14 @@
 	.dt-body-center {
 		text-align: center;
 	}
+
+  .dt-bootstrap .col-sm-12 {
+    overflow: hidden;
+  }
+
+  #orderItems {
+    width: 100% !important;
+  }
 </style>
 @endpush
   
@@ -120,9 +128,9 @@
 			@endla_access
 			
 			@la_access("Orders", "delete")
-				<!-- {{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
+				{{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
 					<button class="btn btn-default btn-delete btn-xs" type="submit" title="Delete Order"><i class="fa fa-times"></i></button>
-				{{ Form::close() }} -->
+				{{ Form::close() }}
 			@endla_access
 		</div>
 	</div>
@@ -144,7 +152,7 @@
               <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItemModal">Add Items</button>
             @endla_access
 					</div>
-					<div class="panel-body">
+					<div class="panel-body box-body">
 						<table id="orderItems" class="table table-bordered table-striped table-hover">
               <thead>
                 <tr class="success">
@@ -287,7 +295,6 @@
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title" id="addItemsModal">Add Items</h4>
 			</div>
 			{!! Form::open(['action' => 'LA\OrdersController@addItems', 'id' => 'order-add-items-form']) !!}
@@ -318,7 +325,8 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
+        {!! Form::submit( 'Save', ['class'=>'btn btn-success btn-add-items-ajax']) !!}
+				{!! Form::submit( 'Save and Close', ['class'=>'btn btn-success']) !!}
 			</div>
 			{!! Form::close() !!}
 		</div>
@@ -333,69 +341,73 @@
 <script>
 
 $(document).ready(function() {
-  let selectedActivity = $('#activityList').val();
-  let listItems = function() {
-    let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
-      tableBody = $('#itemList tbody');
+  let searchParams = new URLSearchParams(window.location.search),
+    selectedActivity = $('#activityList').val(),
+    listItems = function() {
+      let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
+        tableBody = $('#itemList tbody');
 
-    $.ajax({
-      url: url + '/' + selectedActivity + '/' + {{ $order->area_id }},
-      type: 'GET',
-      dataType: 'html',
-      beforeSend: function() {
-        $('#activityList').attr('disabled', true);
-        tableBody.html('');
+      $.ajax({
+        url: url + '/' + selectedActivity + '/' + {{ $order->area_id }},
+        type: 'GET',
+        dataType: 'html',
+        beforeSend: function() {
+          $('#activityList').attr('disabled', true);
+          tableBody.html('');
+        },
+        success: function(response) {
+          let array = $.parseJSON(response);
+          $.each(array, function(index, itemDetail) {
+            tableBody.append($('<tr>')
+              .attr('id', 'item' + itemDetail.id)
+              .append($('<td>').append(itemDetail.name))
+              .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
+              .append($('<td>').append(itemDetail.quantity))
+              .append($('<td>').append(itemDetail.measurement))
+              .append($('<td>').append(itemDetail.unit))
+              .append($('<td>').append(itemDetail.subtotal))
+            );
+          });
+        },
+        complete: function() {
+          $('#activityList').removeAttr('disabled');
+        }
+      });
+    },
+    orderItems = $('#orderItems').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
+      searching: false,
+      language: {
+        lengthMenu: "_MENU_",
+        search: "_INPUT_",
+        searchPlaceholder: "Search"
       },
-      success: function(response) {
-        let array = $.parseJSON(response);
-        $.each(array, function(index, itemDetail) {
-          tableBody.append($('<tr>')
-            .attr('id', 'item' + itemDetail.id)
-            .append($('<td>').append(itemDetail.name))
-            .append($('<td>').append('Php ' + itemDetail.amount).addClass('text-right'))
-            .append($('<td>').append(itemDetail.quantity))
-            .append($('<td>').append(itemDetail.measurement))
-            .append($('<td>').append(itemDetail.unit))
-            .append($('<td>').append(itemDetail.subtotal))
-          );
-        });
-      },
-      complete: function() {
-        $('#activityList').removeAttr('disabled');
-      }
-    });
-	}
+      pageLength: 50,
+      select: true,
+      columnDefs: [
+        { targets: 0, searchable: false, visible: false },
+        { data: 'name' },
+        { data: 'activity' },
+        { data: 'amount' },
+        { data: 'quantity' },
+        { data: 'measurement' },
+        { data: 'unit' },
+        { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: 7 },
+        { className: 'dt-body-center', orderable: false, targets: [-1] }
+      ]
+    }),
+    addItemModal = $('#addItemModal');
 
-  $('#orderItems').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
-		searching: false,
-		language: {
-			lengthMenu: "_MENU_",
-			search: "_INPUT_",
-			searchPlaceholder: "Search"
-		},
-    pageLength: 50,
-    order: [
-      [1, "asc"],
-      [2, "asc"]
-    ],
-    select: true,
-    columnDefs: [
-      { targets: 0, searchable: false, visible: false },
-      { data: 'name' },
-      { data: 'activity' },
-      { data: 'amount' },
-      { data: 'quantity' },
-      { data: 'measurement' },
-      { data: 'unit' },
-      { render: $.fn.dataTable.render.number( ',', '.', 2, 'Php ' ), targets: 7 },
-			{ className: 'dt-body-center', orderable: false, targets: [-1] }
-    ]
+  addItemModal.modal({
+    backdrop: 'static',
+    keyboard: false,
+    show: false
   });
 
-  $('#addItemModal').on('show.bs.modal', e => {
+  // Watch for modal toggle
+  addItemModal.on('show.bs.modal', e => {
     listItems();
   });
 
@@ -412,9 +424,22 @@ $(document).ready(function() {
   // Delete item
   $('body').on('click', 'button.item-delete', function(e) {
     let result = confirm('Are you sure you want to delete this item?');
-    if (!result) {
-      e.preventDefault();
+
+    if (result) {
+      let form = $(this).parent().get(0),
+        url = $(form).attr('action');
+      
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: $(form).serialize(),
+        success: function(result) {
+          orderItems.ajax.reload();
+        }
+      });
     }
+    
+    e.preventDefault();
   });
 
   // Change subtotal - Add Item Modal
@@ -429,6 +454,27 @@ $(document).ready(function() {
       $(this).parent().parent().find('input.subtotal').val(subtotalString);
       $(this).parent().find('input[type=hidden]').val(subtotal);
   });
+
+  $('.btn-add-items-ajax').click(function(e) {
+    e.preventDefault();
+
+    let form = $('#order-add-items-form'),
+      url = form.attr('action');
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: form.serialize(),
+      success: function(result) {
+        orderItems.ajax.reload();
+      }
+    });
+  });
+
+  // Open modal after order creation
+  if (searchParams.has('additem')) {
+    addItemModal.modal('show');
+  }
 });
 </script>
 @endpush

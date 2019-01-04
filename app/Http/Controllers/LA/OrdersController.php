@@ -90,7 +90,7 @@ class OrdersController extends Controller
       // Add user id who created the order
       $request->user_id = Auth::id();
       $insert_id = Module::insert("Orders", $request);
-      return redirect(config('laraadmin.adminRoute') . "/orders/" . $insert_id);
+      return redirect(config('laraadmin.adminRoute') . "/orders/" . $insert_id . '?additem');
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
     }
@@ -113,9 +113,17 @@ class OrdersController extends Controller
         if (!$quantity) continue;
         $amount = (float) $item['amount'];
         $subtotal = (float) $quantity * $amount;
-
+        
         $itemModel = new Item;
-        $itemModel->createOrUpdate($orderId, $itemId, $activityId, $quantity, $item['measurement'], $item['unit'], $amount, $subtotal);
+        $itemModel->order_id = $orderId;
+        $itemModel->item_detail_id = $itemId;
+        $itemModel->activity_id = $activityId;
+        $itemModel->measurement = $item['measurement'];
+        $itemModel->unit_id = $item['unit'];
+        $itemModel->quantity = $quantity;
+        $itemModel->amount = $amount;
+        $itemModel->subtotal = $subtotal;
+        $itemModel->save();
       }
 
       $order = new Order;

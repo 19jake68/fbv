@@ -1,5 +1,19 @@
 @extends("la.layouts.app")
+@push('styles')
+<style>
+	.dt-body-center {
+		text-align: center;
+	}
 
+  .dt-bootstrap .col-sm-12 {
+    overflow: hidden;
+  }
+
+  #example1 {
+    width: 100% !important;
+  }
+</style>
+@endpush
 @section("contentheader_title", "Orders")
 @section("contentheader_description", "Orders listing")
 @section("section", "Orders")
@@ -38,9 +52,7 @@
         @endif
       </tr>
       </thead>
-      <tbody>
-        
-      </tbody>
+      <tbody></tbody>
 		</table>
 	</div>
 </div>
@@ -50,7 +62,6 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title" id="myModalLabel">Add Order</h4>
 			</div>
 			{!! Form::open(['action' => 'LA\OrdersController@store', 'id' => 'order-add-form']) !!}
@@ -67,7 +78,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
+				{!! Form::submit( 'Add Items', ['class'=>'btn btn-success']) !!}
 			</div>
 			{!! Form::close() !!}
 		</div>
@@ -95,9 +106,19 @@ $(function () {
 			searchPlaceholder: "Search"
 		},
 		@if($show_actions)
-		columnDefs: [ { orderable: false, targets: [-1] }],
+		columnDefs: [
+      { visible: false, searchable: false, targets: [0] },
+      { className: 'dt-body-center', orderable: false, targets: [-1] }
+    ]
 		@endif
 	});
+
+  $('#AddModal').modal({
+    backdrop: 'static',
+    keyboard: false,
+    show: false
+  });
+
 	$("#order-add-form").validate({});
 });
 </script>
