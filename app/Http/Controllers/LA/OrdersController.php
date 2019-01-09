@@ -261,8 +261,6 @@ class OrdersController extends Controller
 
         // Measurement
         $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
-
-        // $output .= '<button class="btn btn-warning btn-xs item-edit" data-id="' . $data->data[$i][0] . '" type="submit"><i class="fa fa-edit"></i></button>';
       }
 
       if (Module::hasAccess("Items", "delete")) {
@@ -354,6 +352,30 @@ class OrdersController extends Controller
 
   public function editItems(Request $request)
   {
-    dd($request->all());
+    $hasModifications = false;
+    // Update quantity
+    if ($request->get('quantity')) {
+      array_map(function($value, $id) use ($request) {
+        $item = Item::find($id);
+        $item->quantity = $value;
+        $item->subtotal = $item->amount * $value;
+        $item->save();
+        $order = new Order;
+        $order->calcTotalAmount($request->get('orderId'));        
+      }, $request->get('quantity'), array_keys($request->get('quantity')));
+      $hasModifications = true;
+    }
+
+    // Update measurement
+    if ($request->get('measurement')) {
+      array_map(function ($value, $id) {
+        $item = Item::find($id);
+        $item->measurement = $value;
+        $item->save();        
+      }, $request->get('measurement'), array_keys($request->get('measurement')));
+      $hasModifications = true;
+    }
+
+    return response()->json(['has_modifications' => $hasModifications]);
   }
 }

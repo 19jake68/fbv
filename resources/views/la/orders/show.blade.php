@@ -195,6 +195,7 @@
                 
               </tbody>
             </table>
+            {{ Form::hidden('orderId', $order->id) }}
             {{ Form::close() }}
 					</div>
 				</div>
@@ -427,7 +428,7 @@ $(document).ready(function() {
         { searchable: false, targets: 4 },
         { searchable: false, targets: 5 },
         { searchable: false, targets: 6 },
-        { className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+        { className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
         { className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
     }),
@@ -458,8 +459,10 @@ $(document).ready(function() {
     let id = $(this).data('id'),
       type = $(this).data('type'),
       value = $(this).val(),
-      _this = this,
       form = $('#order-edit-items-form');
+
+    form.data('changed', true);
+    $(this).attr('name', type + '[' + id + ']');
   });
 
   // Edit Item
@@ -525,31 +528,40 @@ $(document).ready(function() {
   // Enable/disable edit items
   $('.btn-edit-item').click(function() {
     let toggle = $(this).data('toggle'),
-      nodes = $('#orderItems').find('.inline-edit'),
-      nodesLength = nodes.length;
+      form = $('#order-edit-items-form');
 
-      // Change button text
-      $(this).text(toggle === 'enable' ? 'Save Items' : 'Edit Items');
-
-      // Inline textfields enable/disable
-      for (let i=0; i<nodesLength; i++) {
-        let node = nodes[i];
-
-        if (toggle === 'enable') {
-          $(node).removeClass('disabled');
-        } else {
-          $(node).addClass('disabled');
-
-          // Save to database
-          let form = $('#order-edit-items-form'),
-            url = form.attr('action');
-
-          console.log( form.serialize() );
-        }
-      }
+    // Change button text
+    $(this).text(toggle === 'enable' ? 'Save Items' : 'Edit Items');
+    
+    // Toggle textbox enable/disable
+    $.map($('#orderItems').find('.inline-edit'), function(node) {
+      toggle === 'enable' 
+        ? $(node).removeClass('disabled')
+        : $(node).addClass('disabled');
+    });
 
     // set new toggle value
     let newToggle = toggle === 'enable' ? 'disable' : 'enable';
+
+    // Save to database
+    if (newToggle === 'enable' && form.data('changed')) {
+      let url = form.attr('action');
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: form.serialize(),
+        success: function(result) {
+          if (result.has_modifications) {
+            orderItems.ajax.reload(function () {
+              form[0].reset();
+              calcAmount();
+            });
+          }
+        }
+      });
+    }
+    
     $(this).data('toggle', newToggle);
   });
 
