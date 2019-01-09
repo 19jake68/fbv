@@ -257,10 +257,10 @@ class OrdersController extends Controller
       $output = '';
       if (Module::hasAccess('Items', 'edit')) {
         // Quantity
-        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit" min="1" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
+        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
 
         // Measurement
-        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
 
         // $output .= '<button class="btn btn-warning btn-xs item-edit" data-id="' . $data->data[$i][0] . '" type="submit"><i class="fa fa-edit"></i></button>';
       }
@@ -350,5 +350,10 @@ class OrdersController extends Controller
       $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
     return $model->toJson();
+  }
+
+  public function editItems(Request $request)
+  {
+    dd($request->all());
   }
 }

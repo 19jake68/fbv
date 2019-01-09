@@ -48,6 +48,17 @@
   #orderItems {
     width: 100% !important;
   }
+
+  .inline-edit.disabled {
+    pointer-events: none;
+    border-color: transparent;
+    background: none;
+  }
+  .inline-edit:not(.disabled) {
+    pointer-events: auto;
+    border-color: #d2d6de;
+    background-color: white;
+  }
 </style>
 @endpush
   
@@ -158,11 +169,17 @@
 				<div class="panel infolist">
 					<div class="panel-default panel-heading">
 						<h4 class="title-item">Items</h4>
+            <div class="pull-right">
             @la_access("Items", "create")
-              <button class="btn btn-success btn-sm pull-right btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItemModal">Add Items</button>
+              <button class="btn btn-success btn-sm btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addItemModal">Add Items</button>
             @endla_access
+            @la_access("Items", "edit")
+              <button class="btn btn-primary btn-sm btn-edit-item" style="margin-top: 7px" data-toggle="enable">Edit Items</button>
+            @endla_access
+            </div>
 					</div>
 					<div class="panel-body box-body">
+            {{ Form::open(['action' => 'LA\OrdersController@editItems', 'id' => 'order-edit-items-form', 'method' => 'post']) }}
 						<table id="orderItems" class="table table-bordered table-striped table-hover">
               <thead>
                 <tr class="success">
@@ -178,6 +195,7 @@
                 
               </tbody>
             </table>
+            {{ Form::close() }}
 					</div>
 				</div>
 			</div>
@@ -393,7 +411,7 @@ $(document).ready(function() {
       processing: true,
       serverSide: true,
       ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax_items/' . $order->id) }}",
-      searching: false,
+      searching: true,
       language: {
         lengthMenu: "_MENU_",
         search: "_INPUT_",
@@ -405,12 +423,12 @@ $(document).ready(function() {
         { targets: 0, searchable: false, visible: false },
         { data: 'name' },
         { data: 'activity' },
-        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 3 },
-        { data: 'quantity' },
-        { data: 'measurement' },
-        { data: 'unit' },
-        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
-        { className: 'text-center', orderable: false, targets: [-1] }
+        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
+        { searchable: false, targets: 4 },
+        { searchable: false, targets: 5 },
+        { searchable: false, targets: 6 },
+        { className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+        { className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
     }),
     addItemModal = $('#addItemModal'),
@@ -440,30 +458,8 @@ $(document).ready(function() {
     let id = $(this).data('id'),
       type = $(this).data('type'),
       value = $(this).val(),
-      _this = this;
-
-    if (request)
-      request.abort();
-
-    request = $.ajax({
-      url: "{{ url(config('laraadmin.adminRoute') . '/item_ajax_edit') }}",
-      type: 'POST',
-      data: {
-        id: id,
-        type: type,
-        value: value,
-        _token: csrfToken
-      },
-      success: function(response) {
-        let td = $(_this).parent().get(0);
-
-        // Refresh subtotal when quantity is update
-        if (type === 'quantity') {
-          orderItems.cell(td, 7).data(response.subtotal);
-          calcAmount();
-        }
-      }
-    });
+      _this = this,
+      form = $('#order-edit-items-form');
   });
 
   // Edit Item
@@ -524,6 +520,37 @@ $(document).ready(function() {
         });
       }
     });
+  });
+
+  // Enable/disable edit items
+  $('.btn-edit-item').click(function() {
+    let toggle = $(this).data('toggle'),
+      nodes = $('#orderItems').find('.inline-edit'),
+      nodesLength = nodes.length;
+
+      // Change button text
+      $(this).text(toggle === 'enable' ? 'Save Items' : 'Edit Items');
+
+      // Inline textfields enable/disable
+      for (let i=0; i<nodesLength; i++) {
+        let node = nodes[i];
+
+        if (toggle === 'enable') {
+          $(node).removeClass('disabled');
+        } else {
+          $(node).addClass('disabled');
+
+          // Save to database
+          let form = $('#order-edit-items-form'),
+            url = form.attr('action');
+
+          console.log( form.serialize() );
+        }
+      }
+
+    // set new toggle value
+    let newToggle = toggle === 'enable' ? 'disable' : 'enable';
+    $(this).data('toggle', newToggle);
   });
 
   // Open modal after order creation
