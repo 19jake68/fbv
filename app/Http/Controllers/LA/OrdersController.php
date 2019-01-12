@@ -283,7 +283,15 @@ class OrdersController extends Controller
    */
   public function dtajax()
   {
-    $values = DB::table('orders')->select($this->listing_cols)->whereNull('deleted_at');
+    $values = DB::table('orders')
+      ->select($this->listing_cols)
+      ->whereNull('deleted_at');
+    
+    // List user created order if not admin, otherwise display all orders
+    if (!Auth::user()->isAdministrator()) {
+      $values->where('user_id', Auth::user()->id);
+    }
+
     $out = Datatables::of($values)->make();
     $data = $out->getData();
 

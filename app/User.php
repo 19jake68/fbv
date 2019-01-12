@@ -66,4 +66,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
   {
     return $this->belongsTo('App\Models\Employee');
   }
+
+  public function isAdministrator()
+  {
+    return $this->hasRole('ADMIN') || $this->hasRole('SUPER_ADMIN');
+  } 
 }
