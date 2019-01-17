@@ -493,17 +493,35 @@ $(document).ready(function() {
     e.preventDefault();
   });
 
+  // Get previous value
+  $('body').on('focusin', 'input[type=number]', function() {
+    let value = $(this).val();
+    if (value <= 0) return
+    $(this).data('val', value);
+  });
+
   // Change subtotal - Add Item Modal
-  $('body').on('change', 'input.quantity', function() {
-    let id = $(this).data('id'),
-      quantity = $(this).val(),
-      amount = $(this).data('amount'),
-      subtotal = quantity * amount,
-      subtotalString = "₱" + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  $('body').on('change', 'input[type=number]', function() {
+    let value = $(this).val();
+
+    if (value === '') return;
+    if (value <= 0) {
+      value = $(this).data('val');
+      $(this).val(value).focus();
+      alert('Value should not be equal to or less than 0.');
+    }
+
+    // Compute subtotal for quantity
+    if ($.inArray('quantity', $(this)[0].classList) > -1) {
+      let id = $(this).data('id'),
+        amount = $(this).data('amount'),
+        subtotal = value * amount,
+        subtotalString = "₱" + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
       // Set values
       $(this).parent().parent().find('.subtotalLabel').html(subtotalString);
       $(this).parent().find('input[type=hidden]').val(subtotal);
+    }
   });
 
   // Add order items without closing the modal

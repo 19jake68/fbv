@@ -66,10 +66,10 @@ class UsersController extends Controller
 	public function show($id)
 	{
 		if(Module::hasAccess("Users", "view")) {
-			$user = User::findOrFail($id);
+      $user = User::findOrFail($id);
 			if(isset($user->id)) {
 				if($user['type'] == "Employee") {
-					return redirect(config('laraadmin.adminRoute') . '/employees/'.$user->id);
+          return redirect(config('laraadmin.adminRoute') . '/employees/'.$user->id);
 				} else if($user['type'] == "Client") {
 					return redirect(config('laraadmin.adminRoute') . '/clients/'.$user->id);
 				}

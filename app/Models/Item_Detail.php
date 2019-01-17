@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item_Detail extends BaseModel
 {
-    use SoftDeletes;
+  use SoftDeletes;
 	
 	protected $table = 'item_details';
 	
@@ -23,6 +23,6 @@ class Item_Detail extends BaseModel
   
   public function items()
   {
-    return $this->hasMany('App\Models\Items');
+    return $this->hasMany('App\Models\Item');
   }
 }

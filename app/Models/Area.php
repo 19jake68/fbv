@@ -6,20 +6,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Area extends Model
+class Area extends BaseModel
 {
-    use SoftDeletes;
+  use SoftDeletes;
 	
 	protected $table = 'areas';
 	
-	protected $hidden = [
-        
-    ];
+	protected $hidden = [];
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function items()
+  {
+    return $this->hasMany('App\Models\Item_Detail');
+  }
 }

@@ -110,7 +110,12 @@ class OrdersController extends Controller
 
       foreach ($request->items as $itemId => $item) {
         $quantity = (int) $item['quantity'];
-        if (!$quantity) continue;
+        $measurement = (int) $item['measurement'];
+
+        // Check quantity and measurement
+        if (!$quantity || $quantity <= 0) continue;        
+        if (!$measurement || $measurement <= 0) continue;
+
         $amount = (float) $item['amount'];
         $subtotal = (float) $quantity * $amount;
         
@@ -306,9 +311,6 @@ class OrdersController extends Controller
         if ($col == $this->view_col) {
           $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
         }
-        // else if($col == "author") {
-        //    $data->data[$i][$j];
-        // }
       }
 
       if ($this->show_action) {
@@ -350,8 +352,8 @@ class OrdersController extends Controller
     foreach ($model as $row) {
       // Add unit selection
       $row->amount = number_format($row->amount, 2);
-      $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="0">';
-      $row->measurement = '<input style="width: 100px" type="text" name="items[' . $row->id . '][measurement]" class="form-control input-sm" >';
+      $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="1">';
+      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="1">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
       $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
@@ -364,8 +366,9 @@ class OrdersController extends Controller
     // Update quantity
     if ($request->get('quantity')) {
       array_map(function($value, $id) use ($request) {
+        if (!$value || $value <= 0) return;
         $item = Item::find($id);
-        $item->quantity = $value;
+        $item->quantity = (int) $value;
         $item->subtotal = $item->amount * $value;
         $item->save();
         $order = new Order;
@@ -377,8 +380,9 @@ class OrdersController extends Controller
     // Update measurement
     if ($request->get('measurement')) {
       array_map(function ($value, $id) {
+        if (!$value || $value <= 0) return;
         $item = Item::find($id);
-        $item->measurement = $value;
+        $item->measurement = (int) $value;
         $item->save();        
       }, $request->get('measurement'), array_keys($request->get('measurement')));
       $hasModifications = true;

@@ -18,6 +18,7 @@ use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 
 use App\Models\Area;
+use App\Models\Item_Detail;
 
 class AreasController extends Controller
 {
@@ -46,15 +47,15 @@ class AreasController extends Controller
 	{
 		$module = Module::get('Areas');
 		
-		if(Module::hasAccess($module->id)) {
+		if (Module::hasAccess($module->id)) {
 			return View('la.areas.index', [
 				'show_actions' => $this->show_action,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
 			]);
 		} else {
-            return redirect(config('laraadmin.adminRoute')."/");
-        }
+      return redirect(config('laraadmin.adminRoute')."/");
+    }
 	}
 
 	/**
@@ -75,20 +76,32 @@ class AreasController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		if(Module::hasAccess("Areas", "create")) {
-		
+		if (Module::hasAccess("Areas", "create")) {
 			$rules = Module::validateRules("Areas", $request);
-			
 			$validator = Validator::make($request->all(), $rules);
 			
 			if ($validator->fails()) {
 				return redirect()->back()->withErrors($validator)->withInput();
-			}
-			
-			$insert_id = Module::insert("Areas", $request);
-			
-			return redirect()->route(config('laraadmin.adminRoute') . '.areas.index');
-			
+      }
+
+      $insert_id = Module::insert("Areas", $request);
+      $items = Item_Detail::select('name', 'amount', 'activity_id')
+        ->where('area_id', function($query) {
+          $query->select('id')
+            ->from(Area::getTableName())
+            ->orderBy('id')
+            ->first();
+        })
+      ->get();
+
+      $itemsArr = [];
+      foreach($items as $item) {
+        $item->area_id = $insert_id;
+        array_push($itemsArr, $item->toArray());
+      }
+
+      Item_Detail::insert($itemsArr);
+      return redirect(config('laraadmin.adminRoute') . "/areas/" . $insert_id);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -165,10 +178,8 @@ class AreasController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		if(Module::hasAccess("Areas", "edit")) {
-			
+		if (Module::hasAccess("Areas", "edit")) {
 			$rules = Module::validateRules("Areas", $request, true);
-			
 			$validator = Validator::make($request->all(), $rules);
 			
 			if ($validator->fails()) {
@@ -176,9 +187,7 @@ class AreasController extends Controller
 			}
 			
 			$insert_id = Module::updateRow("Areas", $request, $id);
-			
-			return redirect()->route(config('laraadmin.adminRoute') . '.areas.index');
-			
+			return redirect(config('laraadmin.adminRoute') . "/areas/" . $insert_id);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -192,10 +201,9 @@ class AreasController extends Controller
 	 */
 	public function destroy($id)
 	{
-		if(Module::hasAccess("Areas", "delete")) {
-			Area::find($id)->delete();
-			
-			// Redirecting to index() method
+		if (Module::hasAccess("Areas", "delete")) {
+      Area::find($id)->items()->forceDelete();
+      Area::find($id)->forceDelete();
 			return redirect()->route(config('laraadmin.adminRoute') . '.areas.index');
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
