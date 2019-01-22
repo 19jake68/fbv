@@ -258,6 +258,9 @@ class OrdersController extends Controller
     $out = Datatables::of($values)->make();
     $data = $out->getData();
 
+    // Get units
+    $units = Unit::all();
+    
     for ($i = 0; $i < count($data->data); $i++) {
       $output = '';
       if (Module::hasAccess('Items', 'edit')) {
@@ -266,6 +269,18 @@ class OrdersController extends Controller
 
         // Measurement
         $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+
+        $options = '';
+        for ($j = 0; $j < count($units); $j++) {
+          if ($data->data[$i][6] == $units[$j]->unit) {
+            $options .= '<option selected value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
+          } else {
+            $options .= '<option value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
+          }          
+        }
+
+        // Unit
+        $data->data[$i][6] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $data->data[$i][0] . '">' . $options . '</select>';
       }
 
       if (Module::hasAccess("Items", "delete")) {
@@ -385,6 +400,16 @@ class OrdersController extends Controller
         $item->measurement = (int) $value;
         $item->save();        
       }, $request->get('measurement'), array_keys($request->get('measurement')));
+      $hasModifications = true;
+    }
+
+    // Update unit
+    if ($request->get('unit')) {
+      array_map(function($value, $id) {
+        $item = Item::find($id);
+        $item->unit_id = (int) $value;
+        $item->save();
+      }, $request->get('unit'), array_keys($request->get('unit')));
       $hasModifications = true;
     }
 

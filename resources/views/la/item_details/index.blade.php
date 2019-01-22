@@ -27,7 +27,7 @@
 <div class="box box-success">
 	<!--<div class="box-header"></div>-->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered">
+		<table id="itemDetailTable" class="table table-bordered">
 		<thead>
 		<tr class="success">
 			@foreach( $listing_cols as $col )
@@ -56,8 +56,7 @@
 			{!! Form::open(['action' => 'LA\Item_DetailsController@store', 'id' => 'item_detail-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-                    @la_form($module)
-					
+          @la_form($module)
 					{{--
 					@la_input($module, 'name')
 					@la_input($module, 'amount')
@@ -67,6 +66,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
+        <input type="hidden" name="page">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
 			</div>
@@ -85,23 +85,61 @@
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
 <script>
-$(function () {
-	$("#example1").DataTable({
+$(document).ready(function() {
+	let table = $("#itemDetailTable").DataTable({
 		processing: true,
-        serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/item_detail_dt_ajax') }}",
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/item_detail_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
 			searchPlaceholder: "Search"
 		},
 		@if($show_actions)
-		columnDefs: [ { orderable: false, targets: [-1] }],
+		columnDefs: [ 
+      { visible: false, searchable: false, targets: [0] },
+      { orderable: false, targets: [-1] }
+    ]
 		@endif
 	});
-	$("#item_detail-add-form").validate({
-		
-	});
+
+	$("#item_detail-add-form").validate({});
+
+  $('#item_detail-add-form').submit(function(e) {
+    e.preventDefault();
+    $('input[name=page]').val(table.page.info().page);
+
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function(response) {
+        table.ajax.reload(null, false);
+        $('#AddModal').modal('toggle');
+      }
+    });
+  });
+
+  $('body').on('click', '.btn-danger', function(e) {
+    e.preventDefault();
+    let conf = confirm('Are you sure you want to delete this item?');
+
+    if (conf) {
+      let form = $(this).closest('form'),
+        url = form.attr('action'),
+        method = form.attr('method'),
+        data = form.serialize();
+
+      $.ajax({
+        type: method,
+        url: url,
+        data: data,
+        success: function() {
+          table.ajax.reload(null, false);
+        }
+      });
+    }
+  });
 });
 </script>
 @endpush

@@ -33,6 +33,7 @@ class CreateEmployeesTable extends Migration
             ["date_left", "Resignation Date", "Date", false, "1990-01-01", 0, 0, false],
             ["salary_cur", "Current Salary", "Decimal", false, "0.0", 0, 2, false],
             ["is_active", "Status", "Radio", false, "Active", 0, 0, true, ["Active","Inactive"]],
+            ["initial_login", "Initial Login", "Integer", false, "0", 0, 1, true],
         ]);
 		
 		/*
