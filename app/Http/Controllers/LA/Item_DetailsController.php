@@ -75,20 +75,21 @@ class Item_DetailsController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		if(Module::hasAccess("Item_Details", "create")) {
-		
+		if (Module::hasAccess("Item_Details", "create")) {
 			$rules = Module::validateRules("Item_Details", $request);
-			
 			$validator = Validator::make($request->all(), $rules);
 			
 			if ($validator->fails()) {
 				return redirect()->back()->withErrors($validator)->withInput();
-			}
+      }
 			
-			$insert_id = Module::insert("Item_Details", $request);
-			
-			return redirect()->route(config('laraadmin.adminRoute') . '.item_details.index');
-			
+      $insert_id = Module::insert("Item_Details", $request);
+      
+      if ($request->page) {
+        return response()->json(['insert_id' => $insert_id, 'page' => $request->page]);
+      }
+
+			return response()->json(['insert_id' => $insert_id]);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}

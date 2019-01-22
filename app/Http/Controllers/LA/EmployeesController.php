@@ -23,7 +23,7 @@ class EmployeesController extends Controller
 {
 	public $show_action = true;
 	public $view_col = 'name';
-	public $listing_cols = ['id', 'name', 'designation', 'gender', 'mobile', 'mobile2', 'email', 'dept', 'city', 'address', 'about', 'date_birth', 'date_hire', 'date_left', 'salary_cur', 'initial_login'];
+	public $listing_cols = ['id', 'name', 'designation', 'gender', 'mobile', 'email', 'dept'];
 	
 	public function __construct() {
 		// Field Access of Listing Columns

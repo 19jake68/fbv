@@ -97,6 +97,7 @@ class AreasController extends Controller
       $itemsArr = [];
       foreach($items as $item) {
         $item->area_id = $insert_id;
+        $item->amount = 0;
         array_push($itemsArr, $item->toArray());
       }
 

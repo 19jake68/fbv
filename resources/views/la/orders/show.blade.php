@@ -59,6 +59,9 @@
     border-color: #d2d6de;
     background-color: white;
   }
+  .width-45 {
+    width: 45px;
+  }
 </style>
 @endpush
   
@@ -427,7 +430,7 @@ $(document).ready(function() {
         { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
         { searchable: false, targets: 4 },
         { searchable: false, targets: 5 },
-        { searchable: false, targets: 6 },
+        { className: 'width-45', searchable: false, targets: 6 },
         { className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
         { className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
@@ -455,7 +458,7 @@ $(document).ready(function() {
   });
 
   // Inline Edit
-  $('body').on('change', 'input.inline-edit', function(e) {
+  $('body').on('change', '.inline-edit', function(e) {
     let id = $(this).data('id'),
       type = $(this).data('type'),
       value = $(this).val(),
@@ -482,10 +485,10 @@ $(document).ready(function() {
         type: 'POST',
         url: url,
         data: $(form).serialize(),
-        success: function(result) {
+        success: function(result) {   
           orderItems.ajax.reload(function() {
             calcAmount();
-          });
+          }, false);
         }
       });
     }
@@ -504,7 +507,6 @@ $(document).ready(function() {
   $('body').on('change', 'input[type=number]', function() {
     let value = $(this).val();
 
-    if (value === '') return;
     if (value <= 0) {
       value = $(this).data('val');
       $(this).val(value).focus();
@@ -538,7 +540,7 @@ $(document).ready(function() {
       success: function(result) {
         orderItems.ajax.reload(function() {
           calcAmount();
-        });
+        }, false);
       }
     });
   });
@@ -574,7 +576,7 @@ $(document).ready(function() {
             orderItems.ajax.reload(function () {
               form[0].reset();
               calcAmount();
-            });
+            }, false);
           }
         }
       });
