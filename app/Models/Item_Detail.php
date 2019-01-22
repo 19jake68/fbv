@@ -25,4 +25,14 @@ class Item_Detail extends BaseModel
   {
     return $this->hasMany('App\Models\Item');
   }
+
+  public function area()
+  {
+    return $this->belongsTo('App\Models\Area', 'area_id');
+  }
+
+  public function activity()
+  {
+    return $this->belongsTo('App\Models\Acitivity', 'activity_id');
+  }
 }
