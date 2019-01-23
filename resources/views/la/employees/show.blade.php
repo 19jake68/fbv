@@ -111,16 +111,7 @@
 						@la_display($module, 'designation')
 						@la_display($module, 'gender')
 						@la_display($module, 'mobile')
-						@la_display($module, 'mobile2')
 						@la_display($module, 'email')
-						@la_display($module, 'dept')
-						@la_display($module, 'city')
-						@la_display($module, 'address')
-						@la_display($module, 'about')
-						@la_display($module, 'date_birth')
-						@la_display($module, 'date_hire')
-						@la_display($module, 'date_left')
-						@la_display($module, 'salary_cur')
 						@la_display($module, 'initial_login')
 					</div>
 				</div>

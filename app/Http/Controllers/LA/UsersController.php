@@ -53,8 +53,8 @@ class UsersController extends Controller
 				'module' => $module
 			]);
 		} else {
-            return redirect(config('laraadmin.adminRoute')."/");
-        }
+      return redirect(config('laraadmin.adminRoute')."/");
+    }
 	}
 
 	/**
@@ -65,7 +65,7 @@ class UsersController extends Controller
 	 */
 	public function show($id)
 	{
-		if(Module::hasAccess("Users", "view")) {
+		if (Module::hasAccess("Users", "view")) {
       $user = User::findOrFail($id);
 			if(isset($user->id)) {
 				if($user['type'] == "Employee") {

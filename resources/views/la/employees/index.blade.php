@@ -56,8 +56,7 @@
 			{!! Form::open(['action' => 'LA\EmployeesController@store', 'id' => 'employee-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-                    @la_form($module)
-					
+          @la_form($module)
 					{{--
 					@la_input($module, 'name')
 					@la_input($module, 'designation')
@@ -75,6 +74,17 @@
 					@la_input($module, 'salary_cur')
 					@la_input($module, 'initial_login')
 					--}}
+          <div class="form-group">
+						<label for="role">Role* :</label>
+						<select class="form-control" required="1" data-placeholder="Select Role" rel="select2" name="role">
+							<?php $roles = App\Role::all(); ?>
+							@foreach($roles as $role)
+								@if($role->id != 1)
+									<option value="{{ $role->id }}">{{ $role->name }}</option>
+								@endif
+							@endforeach
+						</select>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
