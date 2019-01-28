@@ -26,6 +26,8 @@ class OrganizationsController extends Controller
 	public $listing_cols = ['id', 'profile_image', 'name', 'email', 'phone', 'website', 'assigned_to', 'city'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {

@@ -29,6 +29,8 @@ class ItemsController extends Controller
 	public $listing_cols = ['id', 'amount', 'order_id', 'activity_id', 'item_detail_id', 'quantity', 'measurement', 'unit_id', 'subtotal'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {

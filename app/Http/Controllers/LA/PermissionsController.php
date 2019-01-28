@@ -29,6 +29,8 @@ class PermissionsController extends Controller
 	public $listing_cols = ['id', 'name', 'display_name'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {

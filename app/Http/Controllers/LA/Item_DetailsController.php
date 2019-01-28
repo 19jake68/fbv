@@ -26,6 +26,8 @@ class Item_DetailsController extends Controller
 	public $listing_cols = ['id', 'name', 'amount', 'area_id', 'activity_id'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {

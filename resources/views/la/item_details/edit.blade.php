@@ -31,14 +31,7 @@
 			<div class="col-md-8 col-md-offset-2">
 				{!! Form::model($item_detail, ['route' => [config('laraadmin.adminRoute') . '.item_details.update', $item_detail->id ], 'method'=>'PUT', 'id' => 'item_detail-edit-form']) !!}
 					@la_form($module)
-					
-					{{--
-					@la_input($module, 'name')
-					@la_input($module, 'amount')
-					@la_input($module, 'area_id')
-					@la_input($module, 'activity_id')
-					--}}
-                    <br>
+          <br>
 					<div class="form-group">
 						{!! Form::submit( 'Update', ['class'=>'btn btn-success']) !!} <button class="btn btn-default pull-right"><a href="{{ url(config('laraadmin.adminRoute') . '/item_details') }}">Cancel</a></button>
 					</div>

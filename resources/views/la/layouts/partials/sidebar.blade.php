@@ -35,7 +35,11 @@
         <ul class="sidebar-menu">
             <li class="header">MODULES</li>
             <!-- Optionally, you can add icons to the links -->
+
+            @if(Auth::user()->isAdministrator())
             <li><a href="{{ url(config('laraadmin.adminRoute')) }}"><i class='fa fa-home'></i> <span>Dashboard</span></a></li>
+            @endif
+
             <?php
             $menuItems = Dwij\Laraadmin\Models\Menu::where("parent", 0)->orderBy('hierarchy', 'asc')->get();
             ?>

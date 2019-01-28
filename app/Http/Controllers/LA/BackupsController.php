@@ -28,6 +28,8 @@ class BackupsController extends Controller
 	public $backup_filepath = "/storage/app/http---localhost/";
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {

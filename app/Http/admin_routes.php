@@ -23,9 +23,7 @@ if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 }
 
 Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], function () {
-	
-	/* ================== Dashboard ================== */
-	
+	/* ================== Dashboard ================== */	
 	Route::get(config('laraadmin.adminRoute'), 'LA\DashboardController@index');
 	Route::get(config('laraadmin.adminRoute'). '/dashboard', 'LA\DashboardController@index');
 	
@@ -59,7 +57,7 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Employees ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/employees', 'LA\EmployeesController');
 	Route::get(config('laraadmin.adminRoute') . '/employee_dt_ajax', 'LA\EmployeesController@dtajax');
-	Route::post(config('laraadmin.adminRoute') . '/change_password/{id}', 'LA\EmployeesController@change_password');
+  Route::post(config('laraadmin.adminRoute') . '/change_password/{id}', 'LA\EmployeesController@change_password');
 	
 	/* ================== Organizations ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/organizations', 'LA\OrganizationsController');
@@ -99,5 +97,10 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Items ================== */
   Route::resource(config('laraadmin.adminRoute') . '/items', 'LA\ItemsController');
   Route::post(config('laraadmin.adminRoute') . '/item_ajax_edit', 'LA\ItemsController@ajaxedit');
-	Route::get(config('laraadmin.adminRoute') . '/item_dt_ajax', 'LA\ItemsController@dtajax');
+  Route::get(config('laraadmin.adminRoute') . '/item_dt_ajax', 'LA\ItemsController@dtajax');
+  
+  /* Password */
+  Route::get(config('laraadmin.adminRoute') . '/password/set', 'Auth\PasswordController@setPasswordPage');
+  Route::post(config('laraadmin.adminRoute') . '/setpass', 'Auth\PasswordController@setPassword');
+
 });

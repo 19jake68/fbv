@@ -1,7 +1,7 @@
 @extends('la.layouts.auth')
 
 @section('htmlheader_title')
-Password reset
+Set New Password
 @endsection
 
 @section('content')
@@ -9,7 +9,7 @@ Password reset
 <body class="login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="{{ url('/home') }}"><b>{{ LAConfigs::getByKey('sitename_part1') }} </b>{{ LAConfigs::getByKey('sitename_part2') }}</a>
+    <a href="{{ url('/') }}"><b>{{ LAConfigs::getByKey('sitename_part1') }} </b>{{ LAConfigs::getByKey('sitename_part2') }}</a>
   </div><!-- /.login-logo -->
 
   @if (session('status'))
@@ -30,22 +30,17 @@ Password reset
   @endif
 
   <div class="login-box-body">
-    <p class="login-box-msg">Reset Password</p>
-    <form action="{{ url('/password/reset') }}" method="post">
+    <p class="login-box-msg">Set New Password</p>
+    <form action="{{ url(config('laraadmin.adminRoute') . '/setpass') }}" method="post">
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="token" value="{{ $token }}">
-      <div class="form-group has-feedback">
-        <input type="email" class="form-control" placeholder="Email" name="email" value="{{ old('email') }}"/>
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-      </div>
 
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password" name="password"/>
+        <input type="password" class="form-control" placeholder="New Password" name="password"/>
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
 
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password" name="password_confirmation"/>
+        <input type="password" class="form-control" placeholder="Confirm Password" name="password_confirmation"/>
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
 
@@ -53,15 +48,12 @@ Password reset
         <div class="col-xs-2">
         </div><!-- /.col -->
         <div class="col-xs-8">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Reset password</button>
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Set password</button>
         </div><!-- /.col -->
         <div class="col-xs-2">
         </div><!-- /.col -->
       </div>
     </form>
-
-    <a href="{{ url('/login') }}">Log in</a><br>
-    <!--<a href="{{ url('/register') }}" class="text-center">Register a new membership</a>-->
 
   </div><!-- /.login-box-body -->
 

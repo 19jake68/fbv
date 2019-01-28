@@ -32,6 +32,8 @@ class EmployeesController extends Controller
   public $listing_cols = ['id', 'name', 'designation', 'mobile', 'email', 'dept'];
 	
 	public function __construct() {
+    parent::__construct();
+    
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {
@@ -299,16 +301,15 @@ class EmployeesController extends Controller
 	}
 	
 	/**
-     * Change Employee Password
-     *
-     * @return
-     */
+   * Change Employee Password
+   *
+   * @return
+   */
 	public function change_password($id, Request $request) {
-		
 		$validator = Validator::make($request->all(), [
-            'password' => 'required|min:6',
+      'password' => 'required|min:6',
 			'password_confirmation' => 'required|min:6|same:password'
-        ]);
+    ]);
 		
 		if ($validator->fails()) {
 			return \Redirect::to(config('laraadmin.adminRoute') . '/employees/'.$id)->withErrors($validator);
@@ -333,5 +334,5 @@ class EmployeesController extends Controller
 		}
 		
 		return redirect(config('laraadmin.adminRoute') . '/employees/'.$id.'#tab-account-settings');
-	}
+  }
 }

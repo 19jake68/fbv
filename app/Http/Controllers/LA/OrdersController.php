@@ -30,6 +30,7 @@ class OrdersController extends Controller
 
   public function __construct()
   {
+    parent::__construct();
     // Field Access of Listing Columns
     if (\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
       $this->middleware(function ($request, $next) {

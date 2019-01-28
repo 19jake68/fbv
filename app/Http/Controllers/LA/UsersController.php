@@ -26,6 +26,8 @@ class UsersController extends Controller
 	public $listing_cols = ['id', 'name', 'email', 'type'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// Field Access of Listing Columns
 		if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 			$this->middleware(function ($request, $next) {
@@ -127,5 +129,5 @@ class UsersController extends Controller
 		}
 		$out->setData($data);
 		return $out;
-	}
+  }
 }

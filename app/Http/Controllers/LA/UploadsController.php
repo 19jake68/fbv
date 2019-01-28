@@ -33,6 +33,8 @@ class UploadsController extends Controller
 	public $listing_cols = ['id', 'name', 'path', 'extension', 'caption', 'user_id'];
 	
 	public function __construct() {
+    parent::__construct();
+
 		// for authentication (optional)
 		$this->middleware('auth', ['except' => 'get_file']);
 		
@@ -64,8 +66,8 @@ class UploadsController extends Controller
 				'module' => $module
 			]);
 		} else {
-            return redirect(config('laraadmin.adminRoute')."/");
-        }
+      return redirect(config('laraadmin.adminRoute')."/");
+    }
 	}
 	
 	/**

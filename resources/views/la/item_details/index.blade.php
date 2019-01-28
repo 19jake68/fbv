@@ -97,7 +97,6 @@ $(document).ready(function() {
 		},
 		@if($show_actions)
 		columnDefs: [ 
-      { visible: false, searchable: false, targets: [0] },
       { orderable: false, targets: [-1] }
     ]
 		@endif

@@ -209,9 +209,9 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="{{ asset('/la-assets/js/bootstrap.min.js') }}" type="text/javascript"></script>
 <script>
-    $('.carousel').carousel({
-        interval: 3500
-    })
+  $('.carousel').carousel({
+    interval: 3500
+  });
 </script>
 </body>
 </html>

@@ -15,34 +15,34 @@ use Illuminate\Http\Request;
  */
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        
-    }
+  /**
+   * Create a new controller instance.
+   *
+   * @return void
+   */
+  public function __construct()
+  {
+    parent::__construct();
+  }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        return redirect(config('laraadmin.adminRoute'));
-        $roleCount = \App\Role::count();
-		if($roleCount != 0) {
-			if($roleCount != 0) {
-				return view('home');
-			}
-		} else {
-			return view('errors.error', [
-				'title' => 'Migration not completed',
-				'message' => 'Please run command <code>php artisan db:seed</code> to generate required table data.',
-			]);
-		}
+  /**
+   * Show the application dashboard.
+   *
+   * @return Response
+   */
+  public function index()
+  {
+    return redirect(config('laraadmin.adminRoute'));
+      $roleCount = \App\Role::count();
+    if($roleCount != 0) {
+      if($roleCount != 0) {
+        return view('home');
+      }
+    } else {
+      return view('errors.error', [
+        'title' => 'Migration not completed',
+        'message' => 'Please run command <code>php artisan db:seed</code> to generate required table data.',
+      ]);
     }
+  }
 }
