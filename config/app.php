@@ -159,7 +159,12 @@ return [
         /*
          * LaraAdmin
          */
-        Dwij\Laraadmin\LAProvider::class
+        Dwij\Laraadmin\LAProvider::class,
+
+        /**
+         * https: //erik.cat/projects/invoices
+         */
+        ConsoleTVs\Invoices\InvoicesServiceProvider::class,
 
     ],
 
