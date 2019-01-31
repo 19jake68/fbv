@@ -21,9 +21,14 @@ class Item_Detail extends BaseModel
 
   protected $dates = ['deleted_at'];
   
-  public function items()
+  public function order()
   {
-    return $this->hasMany('App\Models\Item');
+    return $this->belongsToMany('App\Models\Order');
+  }
+
+  public function item()
+  {
+    return $this->belongsTo('App\Models\Item');
   }
 
   public function area()

@@ -20,6 +20,7 @@ use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 use Illuminate\Http\Request;
 use Validator;
+use App\Helpers\FBV\Invoice;
 
 class OrdersController extends Controller
 {
@@ -50,6 +51,7 @@ class OrdersController extends Controller
   public function index()
   {
     $module = Module::get('Orders');
+    // return $this->generateInvoice();
 
     if (Module::hasAccess($module->id)) {
       return View('la.orders.index', [
@@ -254,7 +256,8 @@ class OrdersController extends Controller
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
       ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
       ->where('item.order_id', $id)
-      ->whereNull('item.deleted_at');
+      ->whereNull('item.deleted_at')
+      ->whereNull('item_detail.deleted_at');
 
     $out = Datatables::of($values)->make();
     $data = $out->getData();
@@ -415,5 +418,35 @@ class OrdersController extends Controller
     }
 
     return response()->json(['has_modifications' => $hasModifications]);
+  }
+
+  public function generateInvoice(Request $request)
+  {
+    if (Module::hasAccess("Orders", "view")) {
+      $order = Order::find($request->id);
+
+      if (isset($order->id)) {
+        $invoice = Invoice::make()->template('fbv')->number($order->job_number)->accountName($order->user->name)
+          ->area($order->area->name)->dateDone($order->date)->timeStart($order->timeStart)->timeEnd($order->timeEnd)
+          ->currency('PHP')->tax(0)->decimals(2)->customer([])->currency('&#8369;');
+        
+
+        $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
+          ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
+          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'items.quantity', 'unit.unit')
+          ->where('order_id', '=', $order->id)
+          ->whereNull('items.deleted_at')
+          ->whereNull('item_detail.deleted_at')
+          ->orderBy('items.id', 'ASC')
+          ->get();
+
+        foreach ($items as $index => $item) {
+          $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->measurement, $item->unit);
+        }
+
+        // Generate Invoice
+        $invoice->show();
+      }
+    }
   }
 }

@@ -31,6 +31,11 @@ class Item extends BaseModel
     return $this->belongsTo('App\Models\Item_Detail', 'item_detail_id', 'id')->select('id', 'name', 'amount');
   }
 
+  public function item()
+  {
+    return $this->belongsto('App\Models\Item_Detail', 'item_detail_id', 'id')->select('id', 'name', 'amount');
+  }
+
   public function unit()
   {
     return $this->hasOne('App\Models\Unit', 'unit_id', 'id')->select('id', 'unit');

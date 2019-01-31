@@ -5,7 +5,7 @@
         <title>{{ $invoice->name }}</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <style>
-            h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; }
+            /* h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; } */
         </style>
     </head>
     <body>
@@ -57,24 +57,20 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>ID</th>
-                    <th>Item Name</th>
-                    <th>Price</th>
-                    <th>Amount</th>
-                    <th>Total</th>
+                  <th>Qty</th>
+                  <th>Unit</th>
+                  <th>Activity</th>
+                  <th>Amount</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($invoice->items as $loop => $item)
-                    <tr>
-                        <td>{{ ($loop+1) }}</td>
-                        <td>{{ $item->get('id') }}</td>
-                        <td>{{ $item->get('name') }}</td>
-                        <td>{{ $item->get('price') }} {{ $invoice->formatCurrency()->symbol }}</td>
-                        <td>{{ $item->get('ammount') }}</td>
-                        <td>{{ $item->get('totalPrice') }} {{ $invoice->formatCurrency()->symbol }}</td>
-                    </tr>
+                  <tr>
+                    <td>{{ $item->get('ammount') }}</td>
+                    <td>{{ $item->get('unit') }}</td>
+                    <td>{{ $item->get('name') }}</td>
+                    <td>₱{{ $item->get('totalPrice') }}</td>
+                  </tr>
                 @endforeach
             </tbody>
         </table>
@@ -95,7 +91,7 @@
                     <tbody>
                         <tr>
                             <td><b>Subtotal</b></td>
-                            <td>{{ $invoice->subTotalPriceFormatted() }} {{ $invoice->formatCurrency()->symbol }}</td>
+                            <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
                         </tr>
                         <tr>
                             <td>
@@ -103,11 +99,11 @@
                                     Taxes {{ $invoice->tax_type == 'percentage' ? '(' . $invoice->tax . '%)' : '' }}
                                 </b>
                             </td>
-                            <td>{{ $invoice->taxPriceFormatted() }} {{ $invoice->formatCurrency()->symbol }}</td>
+                            <td>{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
                         </tr>
                         <tr>
                             <td><b>TOTAL</b></td>
-                            <td><b>{{ $invoice->totalPriceFormatted() }} {{ $invoice->formatCurrency()->symbol }}</b></td>
+                            <td><b>P₱&#8369;{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</b></td>
                         </tr>
                     </tbody>
                 </table>

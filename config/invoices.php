@@ -81,13 +81,13 @@ return [
   */
 
   'business_details' => [
-      'name'        => 'My Company',
-      'id'          => '1234567890',
-      'phone'       => '+34 123 456 789',
-      'location'    => 'Main Street 1st',
-      'zip'         => '08241',
-      'city'        => 'Barcelona',
-      'country'     => 'Spain',
+      'name'        => 'FBV Waterworks & General Services',
+      'id'          => '', 
+      'phone'       => '',
+      'location'    => '',
+      'zip'         => '',
+      'city'        => 'Antipolo City',
+      'country'     => 'Philippines',
   ],
 
   /*

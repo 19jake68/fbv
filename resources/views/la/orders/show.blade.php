@@ -4,6 +4,9 @@
 @endpush
 @push('styles')
 <link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
+<link rel="stylesheet" type="text/css" href="{{ asset('vendor/Print.js-1.0.54/print.min.css') }}">
+
+
 <style>
   td {
     vertical-align: middle !important;
@@ -61,6 +64,14 @@
   }
   .width-45 {
     width: 45px;
+  }
+
+  .btn.btn-print {
+    color: #398439;
+  }
+  .btn.btn-print:hover {
+    background: #398439;
+    color: #fff;
   }
 </style>
 @endpush
@@ -147,6 +158,8 @@
       <div class="dats1"><div class="label2 success total">&#8369;{{ number_format($order->total, 2) }}</div></div>
 		</div>
 		<div class="col-md-1 actions">
+      <button class="btn btn-xs btn-print btn-default" title="Print Job Order"><i class="fa fa-print"></i></button>
+
 			@la_access("Orders", "edit")
 				<a href="{{ url(config('laraadmin.adminRoute') . '/orders/'.$order->id.'/edit') }}" class="btn btn-xs btn-edit btn-default" title="Edit Order"><i class="fa fa-pencil"></i></a><br>
 			@endla_access
@@ -373,6 +386,7 @@
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
 <script src="{{ asset('la-assets/plugins/datatables/sum().js') }}"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
+<script src="{{ asset('vendor/Print.js-1.0.54/print.min.js') }}"></script>
 <script>
 
 $(document).ready(function() {
@@ -589,6 +603,15 @@ $(document).ready(function() {
   if (searchParams.has('additem')) {
     addItemModal.modal('show');
   }
+
+  $('.btn-print').click(function() {
+    let url = "{{ route(config('laraadmin.adminRoute') . '.orders.generateInvoice', ['id' => $order->id]) }}";
+    printJS({
+      printable: url,
+      type: 'pdf',
+      showModal: true
+    });
+  });
 });
 </script>
 @endpush

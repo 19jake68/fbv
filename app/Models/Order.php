@@ -22,7 +22,7 @@ class Order extends BaseModel
 
   protected $dates = ['deleted_at'];
   
-  public function items()
+  public function orderItems()
   {
     return $this->hasMany('App\Models\Item');
   }
@@ -35,14 +35,6 @@ class Order extends BaseModel
   public function user()
   {
     return $this->belongsTo('App\User');
-  }
-
-  public function listItems()
-  {
-    return Item::with('itemDetail', 'unit')
-      ->select()
-      ->where('order_id', $this->id)
-      ->whereNull('deleted_at');
   }
 
   public function calcTotalAmount($id) {
