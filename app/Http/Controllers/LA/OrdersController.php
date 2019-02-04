@@ -428,12 +428,12 @@ class OrdersController extends Controller
       if (isset($order->id)) {
         $invoice = Invoice::make()->template('fbv')->number($order->job_number)->accountName($order->user->name)
           ->area($order->area->name)->dateDone($order->date)->timeStart($order->timeStart)->timeEnd($order->timeEnd)
-          ->currency('PHP')->tax(0)->decimals(2)->customer([])->currency('&#8369;');
+          ->tax(0)->decimals(2)->customer([])->currency('&#8369;');
         
 
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
-          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'items.quantity', 'unit.unit')
+          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'unit.unit')
           ->where('order_id', '=', $order->id)
           ->whereNull('items.deleted_at')
           ->whereNull('item_detail.deleted_at')

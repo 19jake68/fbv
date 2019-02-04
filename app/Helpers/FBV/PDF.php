@@ -28,8 +28,11 @@ class PDF
         $options = new Options();
 
         $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        // $options->set('dpi', 72);
 
         $pdf = new Dompdf($options);
+        // $pdf->setPaper('A6');
 
         $context = stream_context_create([
             'ssl' => [

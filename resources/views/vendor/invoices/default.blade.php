@@ -105,6 +105,7 @@
                             </td>
                             <td>{{ $invoice->taxPriceFormatted() }} {{ $invoice->formatCurrency()->symbol }}</td>
                         </tr>
+                        
                         <tr>
                             <td><b>TOTAL</b></td>
                             <td><b>{{ $invoice->totalPriceFormatted() }} {{ $invoice->formatCurrency()->symbol }}</b></td>

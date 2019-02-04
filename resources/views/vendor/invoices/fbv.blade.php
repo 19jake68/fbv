@@ -3,117 +3,90 @@
     <head>
         <meta charset="utf-8">
         <title>{{ $invoice->name }}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <style>
-            /* h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; } */
+            h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; sans-serif; }
+
+            .wrapper {
+                outline: 1px solid black;
+            }
+
+            table {
+                width: 100%;
+                text-align: center;
+            }
+
+            td {
+                padding-bottom: 2px;
+                border: 1px solid #888;
+            }
+
+            .font-weight-bold {
+                font-weight: bold
+            }
         </style>
     </head>
     <body>
-        <div style="clear:both; position:relative;">
-            <div style="position:absolute; left:0pt; width:250pt;">
-                <img class="img-rounded" height="{{ $invoice->logo_height }}" src="{{ $invoice->logo }}">
-            </div>
-            <div style="margin-left:300pt;">
-                <b>Date: </b> {{ $invoice->date->formatLocalized('%A %d %B %Y') }}<br />
-                @if ($invoice->number)
-                    <b>Invoice #: </b> {{ $invoice->number }}
-                @endif
-                <br />
-            </div>
-        </div>
-        <br />
-        <h2>{{ $invoice->name }} {{ $invoice->number ? '#' . $invoice->number : '' }}</h2>
-        <div style="clear:both; position:relative;">
-            <div style="position:absolute; left:0pt; width:250pt;">
-                <h4>Business Details:</h4>
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        {!! $invoice->business_details->count() == 0 ? '<i>No business details</i><br />' : '' !!}
-                        {{ $invoice->business_details->get('name') }}<br />
-                        ID: {{ $invoice->business_details->get('id') }}<br />
-                        {{ $invoice->business_details->get('phone') }}<br />
-                        {{ $invoice->business_details->get('location') }}<br />
-                        {{ $invoice->business_details->get('zip') }} {{ $invoice->business_details->get('city') }}
-                        {{ $invoice->business_details->get('country') }}<br />
-                    </div>
-                </div>
-            </div>
-            <div style="margin-left: 300pt;">
-                <h4>Customer Details:</h4>
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        {!! $invoice->customer_details->count() == 0 ? '<i>No customer details</i><br />' : '' !!}
-                        {{ $invoice->customer_details->get('name') }}<br />
-                        ID: {{ $invoice->customer_details->get('id') }}<br />
-                        {{ $invoice->customer_details->get('phone') }}<br />
-                        {{ $invoice->customer_details->get('location') }}<br />
-                        {{ $invoice->customer_details->get('zip') }} {{ $invoice->customer_details->get('city') }}
-                        {{ $invoice->customer_details->get('country') }}<br />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <h4>Items:</h4>
-        <table class="table table-bordered">
-            <thead>
+        <div class="wrapper">
+            <table>
                 <tr>
-                  <th>Qty</th>
-                  <th>Unit</th>
-                  <th>Activity</th>
-                  <th>Amount</th>
+                    <td colspan="5" class="font-weight-bold text-uppercase">{{ env('RECEIPT_NAME') }}</td>
                 </tr>
-            </thead>
-            <tbody>
+                <tr>
+                    <td colspan="5" class="font-weight-bold">JOB ORDER RECEIPT</td>
+                </tr>
+                <tr>
+                    <td class="font-weight-bold">J.O. #</td>
+                    <td>{{ $invoice->number }}</td>
+                    <td></td>
+                    <td class="font-weight-bold">Date Done</td>
+                    <td>{{ $invoice->dateDone }}</td>
+                </tr>
+                <tr>
+                    <td class="font-weight-bold">Account Name</td>
+                    <td>{{ $invoice->accountName }}</td>
+                    <td></td>
+                    <td class="font-weight-bold">Time Started</td>
+                    <td>{{ $invoice->timeStart }}</td>
+                </tr>
+                <tr>
+                    <td class="font-weight-bold">Area</td>
+                    <td>{{ $invoice->area }}</td>
+                    <td></td>
+                    <td class="font-weight-bold">Time Ended</td>
+                    <td>{{ $invoice->timeEnd }}</td>
+                </tr>
+            </table>
+            <table style="margin-top:10px">
+                <tr>
+                    <td class="font-weight-bold">Qty</td>
+                    <td class="font-weight-bold">Unit</td>
+                    <td class="font-weight-bold">Activity</td>
+                    <td class="font-weight-bold">Amount</td>
+                </tr>
                 @foreach ($invoice->items as $loop => $item)
-                  <tr>
-                    <td>{{ $item->get('ammount') }}</td>
-                    <td>{{ $item->get('unit') }}</td>
-                    <td>{{ $item->get('name') }}</td>
-                    <td>₱{{ $item->get('totalPrice') }}</td>
-                  </tr>
+                    <tr>
+                        <td>{{ $item->get('ammount') }}</td>
+                        <td>{{ $item->get('unit') }}</td>
+                        <td>{{ $item->get('name') }}</td>
+                        <td>{{ $invoice->currency }}{{ $item->get('totalPrice') }}</td>
+                    </tr>
                 @endforeach
-            </tbody>
-        </table>
-        <div style="clear:both; position:relative;">
-            @if($invoice->notes)
-                <div style="position:absolute; left:0pt; width:250pt;">
-                    <h4>Notes:</h4>
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            {{ $invoice->notes }}
-                        </div>
-                    </div>
-                </div>
-            @endif
-            <div style="margin-left: 300pt;">
-                <h4>Total:</h4>
-                <table class="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <td><b>Subtotal</b></td>
-                            <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <b>
-                                    Taxes {{ $invoice->tax_type == 'percentage' ? '(' . $invoice->tax . '%)' : '' }}
-                                </b>
-                            </td>
-                            <td>{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
-                        </tr>
-                        <tr>
-                            <td><b>TOTAL</b></td>
-                            <td><b>P₱&#8369;{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</b></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <tr>
+                    <td colspan="4" style="text-align:left;padding-left:5px">Other Charges:</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="3">Total Invoice</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
+                </tr>
+            <table>
         </div>
-        @if ($invoice->footnote)
-            <br /><br />
-            <div class="well">
-                {{ $invoice->footnote }}
-            </div>
-        @endif
     </body>
 </html>
