@@ -92,6 +92,14 @@ class UsersController extends Controller
       $user = User::find($id);
       $user->is_active = $request->is_active;
       $user->changepass = isset($request->changepass) ? 1 : 0;
+
+      // Set temporary password
+      if ($user->changepass === 1) {
+        // generate password
+        $password = env('DEFAULT_PASSWORD') ? env('DEFAULT_PASSWORD') : LAHelper::gen_password();
+        $user->password = bcrypt($password);
+      }
+
       $user->save();
       return redirect(config('laraadmin.adminRoute'). '/employees/' . $id . '#' . $request->_tab);
     } else {

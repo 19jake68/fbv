@@ -55,9 +55,21 @@ class EmployeesController extends Controller
 		$module = Module::get('Employees');
 		
 		if (Module::hasAccess($module->id)) {
-      $showAction = Auth::user()->isAdministrator() ? $this->show_action : null;
+      if (Auth::user()->isAdministrator()) {
+        $showAction = $this->show_action;
+        $isActivePopupVals = json_decode(Module::get('Users')->fields['is_active']['popup_vals']);
+        $isActiveVals = [];
+        foreach($isActivePopupVals as $key => $value) {
+          $isActiveVals[$value] = $value;
+        }
+      } else {
+        $showAction = null;
+        $isActiveVals = null;
+      }
+      
 			return View('la.employees.index', [
-				'show_actions' => $showAction,
+        'show_actions' => $showAction,
+        'isActiveVals' => $isActiveVals,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
 			]);
@@ -95,18 +107,20 @@ class EmployeesController extends Controller
 			}
 			
 			// generate password
-			$password = env('DEFAULT_PASSWORD') ? env('DEFAULT_PASSWORD') : LAHelper::gen_password();
-			
+      $password = env('DEFAULT_PASSWORD') ? env('DEFAULT_PASSWORD') : LAHelper::gen_password();
+
 			// Create Employee
-			$employee_id = Module::insert("Employees", $request);
+      $employee_id = Module::insert("Employees", $request);
+      
 			// Create User
 			$user = User::create([
 				'name' => $request->name,
 				'email' => $request->email,
 				'password' => bcrypt($password),
 				'context_id' => $employee_id,
-				'type' => "Employee",
-			]);
+        'type' => "Employee",
+        'is_active' => $request->is_active
+      ]);
 	
 			// update user role
 			$user->detachRoles();
