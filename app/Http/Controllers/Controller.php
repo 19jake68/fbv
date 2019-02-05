@@ -14,8 +14,9 @@ class Controller extends BaseController
   use AuthorizesRequests, AuthorizesResources, DispatchesJobs, ValidatesRequests;
 
   public function __construct() {
-    // $this->middleware('setPass')->except([
-    //   'setPasswordPage'
-    // ]);
+    $this->middleware('setPass')->except([
+      'setPasswordPage',
+      'setPassword'
+    ]);
   }
 }

@@ -334,6 +334,7 @@ class OrdersController extends Controller
 
       if ($this->show_action) {
         $output = '';
+      
         if (Module::hasAccess("Orders", "edit")) {
           $output .= '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0] . '/edit') . '" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
         }

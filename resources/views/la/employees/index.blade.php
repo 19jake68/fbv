@@ -117,7 +117,7 @@ $(function () {
 			searchPlaceholder: "Search"
 		},
 		@if($show_actions)
-		columnDefs: [ { orderable: false, targets: [-1] }],
+		columnDefs: [ { class: 'text-center', orderable: false, targets: [-1] }],
 		@endif
 	});
 	$("#employee-add-form").validate({

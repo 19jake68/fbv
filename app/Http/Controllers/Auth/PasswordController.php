@@ -45,16 +45,17 @@ class PasswordController extends Controller
 
   public function setPassword(Request $request) {
     $validator = Validator::make($request->all(), [
-      'password' => 'required|min:6',
-			'password_confirmation' => 'required|min:6|same:password'
-    ]);
+      'new_password' => 'required|min:6',
+			'password_confirmation' => 'required|min:6|same:new_password'
+    ]);    
 		
 		if ($validator->fails()) {
 			return \Redirect::to(config('laraadmin.adminRoute') . '/password/set')->withErrors($validator);
 		}
     
     $user = Auth::user();
-    $user->password = bcrypt($request->password);
+    $user->password = bcrypt($request->new_password);
+    $user->changepass = 0;
     $user->save();
     
     \Session::flash('success_message', 'Password is successfully changed');
@@ -62,12 +63,12 @@ class PasswordController extends Controller
 		// Send mail to User his new Password
 		if(env('MAIL_USERNAME') != null && env('MAIL_USERNAME') != "null" && env('MAIL_USERNAME') != "") {
 			// Send mail to User his new Password
-			Mail::send('emails.send_login_cred_change', ['user' => $user, 'password' => $request->password], function ($m) use ($user) {
+			Mail::send('emails.send_login_cred_change', ['user' => $user, 'password' => $request->new_password], function ($m) use ($user) {
 				$m->from(LAConfigs::getByKey('default_email'), LAConfigs::getByKey('sitename'));
 				$m->to($user->email, $user->name)->subject('LaraAdmin - Login Credentials chnaged');
 			});
 		} else {
-			Log::info("User change_password: username: ".$user->email." Password: ".$request->password);
+			Log::info("User change_password: username: ".$user->email." Password: ".$request->new_password);
     }
     
     return redirect(config('laraadmin.adminRoute') . '/');

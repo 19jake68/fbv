@@ -31,16 +31,16 @@ Set New Password
 
   <div class="login-box-body">
     <p class="login-box-msg">Set New Password</p>
-    <form action="{{ url(config('laraadmin.adminRoute') . '/setpass') }}" method="post">
+    <form action="{{ url(config('laraadmin.adminRoute') . '/setpass') }}" method="post" autocomplete="off">
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="New Password" name="password"/>
+        <input type="password" name="new_password" value="" id="password" class="form-control" placeholder="Password" autocomplete="off" required="required" data-rule-minlength="6" data-msg-minlength="Please enter at least 6 characters.">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
 
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Confirm Password" name="password_confirmation"/>
+        <input type="password" name="password_confirmation" value="" id="password_confirmation" class="form-control" placeholder="Retype password" autocomplete="off" required="required" data-rule-equalto="#password" data-msg-equalto="Please enter the same value again.">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
 

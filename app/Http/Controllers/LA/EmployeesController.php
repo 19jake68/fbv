@@ -55,8 +55,9 @@ class EmployeesController extends Controller
 		$module = Module::get('Employees');
 		
 		if (Module::hasAccess($module->id)) {
+      $showAction = Auth::user()->isAdministrator() ? $this->show_action : null;
 			return View('la.employees.index', [
-				'show_actions' => $this->show_action,
+				'show_actions' => $showAction,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
 			]);
@@ -145,12 +146,19 @@ class EmployeesController extends Controller
 				$module->row = $employee;
 				
 				// Get User Table Information
-				$user = User::where('context_id', '=', $id)->firstOrFail();
+        $user = User::where('context_id', '=', $id)->firstOrFail();
+
+        $isActivePopupVals = json_decode(Module::get('Users')->fields['is_active']['popup_vals']);
+        $isActiveVals = [];
+        foreach($isActivePopupVals as $key => $value) {
+          $isActiveVals[$value] = $value;
+        }
 				
 				return view('la.employees.show', [
 					'user' => $user,
 					'module' => $module,
-					'view_col' => $this->view_col,
+          'view_col' => $this->view_col,
+          'isActiveVals' => $isActiveVals,
 					'no_header' => true,
 					'no_padding' => "no-padding"
 				])->with('employee', $employee);
@@ -223,13 +231,15 @@ class EmployeesController extends Controller
 			// Update User
 			$user = User::where('context_id', $employee_id)->first();
 			$user->name = $request->name;
-			$user->save();
-			
-			// update user role
-			$user->detachRoles();
-			$role = Role::find($request->role);
-			$user->attachRole($role);
-			
+      $user->save();
+      
+      // update user role
+      if ($request->role) {
+        $user->detachRoles();
+        $role = Role::find($request->role);
+        $user->attachRole($role);
+      }
+
 			return redirect()->route(config('laraadmin.adminRoute') . '.employees.index');
 			
 		} else {

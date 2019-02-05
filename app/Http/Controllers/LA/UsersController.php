@@ -84,7 +84,20 @@ class UsersController extends Controller
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
-	}
+  }
+  
+  public function update(Request $request, $id)
+  {
+    if (Module::hasAccess('Users', 'edit')) {
+      $user = User::find($id);
+      $user->is_active = $request->is_active;
+      $user->changepass = isset($request->changepass) ? 1 : 0;
+      $user->save();
+      return redirect(config('laraadmin.adminRoute'). '/employees/' . $id . '#' . $request->_tab);
+    } else {
+			return redirect(config('laraadmin.adminRoute')."/");
+		}
+  }
 	
 	/**
 	 * Datatable Ajax fetch

@@ -8,6 +8,8 @@ use App\Role;
 use Validator;
 use Eloquent;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 

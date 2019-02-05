@@ -25,6 +25,13 @@ class Authenticate
       }
     }
 
+    if (Auth::check() && Auth::user()->is_active === 'Inactive') {
+      Auth::logout();
+      return redirect('login')->withErrors([
+        'username' => 'This account is not active. Please contact your administrator.'
+      ]);
+    }
+
     return $next($request);
   }
 }
