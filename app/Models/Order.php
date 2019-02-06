@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Datatables;
 class Order extends BaseModel
 {
-  use SoftDeletes;
+  // use SoftDeletes;
 	
 	protected $table = 'orders';
 	

@@ -97,7 +97,7 @@ $(document).ready(function() {
 		},
 		@if($show_actions)
 		columnDefs: [ 
-      { orderable: false, targets: [-1] }
+      { className: 'text-center', orderable: false, targets: [-1] }
     ]
 		@endif
 	});

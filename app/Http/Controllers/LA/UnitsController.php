@@ -226,9 +226,6 @@ class UnitsController extends Controller
 				if($col == $this->view_col) {
 					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/units/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
 				}
-				// else if($col == "author") {
-				//    $data->data[$i][$j];
-				// }
 			}
 			
 			if($this->show_action) {
@@ -239,7 +236,7 @@ class UnitsController extends Controller
 				
 				if(Module::hasAccess("Units", "delete")) {
 					$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.units.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
-					$output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
+					$output .= ' <button class="btn btn-danger btn-xs btn-delete" type="submit"><i class="fa fa-times"></i></button>';
 					$output .= Form::close();
 				}
 				$data->data[$i][] = (string)$output;

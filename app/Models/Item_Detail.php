@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item_Detail extends BaseModel
 {
-  use SoftDeletes;
+  // use SoftDeletes;
 	
 	protected $table = 'item_details';
 	

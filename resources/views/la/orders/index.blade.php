@@ -1,15 +1,11 @@
 @extends("la.layouts.app")
 @push('styles')
 <style>
-	.dt-body-center {
-		text-align: center;
-	}
-
   .dt-bootstrap .col-sm-12 {
     overflow: hidden;
   }
 
-  #example1 {
+  #orderTable {
     width: 100% !important;
   }
 </style>
@@ -41,7 +37,7 @@
 <div class="box box-success">
 	<!--<div class="box-header"></div>-->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered">
+		<table id="orderTable" class="table table-bordered">
       <thead>
       <tr class="success">
         @foreach( $listing_cols as $col )
@@ -96,7 +92,7 @@
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
 <script>
 $(function () {
-	$("#example1").DataTable({
+	let datatable = $("#orderTable").DataTable({
 		processing: true,
     serverSide: true,
     ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
@@ -108,7 +104,7 @@ $(function () {
 		@if($show_actions)
 		columnDefs: [
       { visible: false, searchable: false, targets: [0] },
-      { className: 'dt-body-center', orderable: false, targets: [-1] }
+      { className: 'text-center', orderable: false, targets: [-1] }
     ]
 		@endif
 	});
@@ -120,6 +116,29 @@ $(function () {
   });
 
 	$("#order-add-form").validate({});
+
+  // Delete item
+  $('body').on('click', 'button.btn-delete', function(e) {
+    let result = confirm('Are you sure you want to delete this item?');
+
+    if (result) {
+      let form = $(this).parent().get(0),
+        url = $(form).attr('action');
+      
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: $(form).serialize(),
+        success: function(result) {   
+          datatable.ajax.reload(function() {
+            // callback
+          }, false);
+        }
+      });
+    }
+    
+    e.preventDefault();
+  });
 });
 </script>
 @endpush

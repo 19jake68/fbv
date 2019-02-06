@@ -341,7 +341,7 @@ class OrdersController extends Controller
 
         if (Module::hasAccess("Orders", "delete")) {
           $output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $data->data[$i][0]], 'method' => 'delete', 'style' => 'display:inline']);
-          $output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
+          $output .= ' <button class="btn btn-danger btn-xs btn-delete" type="submit"><i class="fa fa-times"></i></button>';
           $output .= Form::close();
         }
         $data->data[$i][] = (string) $output;

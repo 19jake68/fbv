@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Activity extends BaseModel
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 	
 	protected $table = 'activities';
 	

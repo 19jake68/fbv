@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Area extends BaseModel
 {
-  use SoftDeletes;
+  // use SoftDeletes;
 	
 	protected $table = 'areas';
 	
