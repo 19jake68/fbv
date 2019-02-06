@@ -4,16 +4,16 @@
  * Help: http://laraadmin.com
  */
 
-namespace App;
+namespace App\Models;
 
-use Zizaco\Entrust\EntrustPermission;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Permission extends EntrustPermission
+class Order_Misc extends Model
 {
-    // use SoftDeletes;
+    use SoftDeletes;
 	
-	protected $table = 'permissions';
+	protected $table = 'order_miscs';
 	
 	protected $hidden = [
         

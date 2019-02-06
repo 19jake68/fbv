@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use Auth;
+use App\Models\Order;
 
 
 /**
@@ -40,6 +41,11 @@ class DashboardController extends Controller
     if (!Auth::user()->isAdministrator()) {
       return redirect(config('laraadmin.adminRoute') . "/orders");
     }
-    return view('la.dashboard');
+
+    $orderCount = Order::where('deleted_at', null)->count();
+
+    return view('la.dashboard', [
+      'totalOrders' => $orderCount
+    ]);
   }
 }
