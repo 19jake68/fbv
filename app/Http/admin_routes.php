@@ -107,5 +107,5 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 
 	/* ================== Order_Miscs ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/order_miscs', 'LA\Order_MiscsController');
-	Route::get(config('laraadmin.adminRoute') . '/order_misc_dt_ajax', 'LA\Order_MiscsController@dtajax');
+	Route::get(config('laraadmin.adminRoute') . '/order_misc_dt_ajax/{id}', 'LA\Order_MiscsController@dtajax');
 });

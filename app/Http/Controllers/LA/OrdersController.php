@@ -13,6 +13,7 @@ use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Unit;
+use App\Models\Order_Misc;
 use Collective\Html\FormFacade as Form;
 use Datatables;
 use DB;
@@ -154,11 +155,13 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
+        $otherCharges = Module::get('Order_Miscs');
         $module->row = $order;
         $activities = Activity::lists('name', 'id');
         
         return view('la.orders.show', [
           'module' => $module,
+          'other_charges' => $otherCharges,
           'view_col' => $this->view_col,
           'no_header' => true,
           'no_padding' => "no-padding",
@@ -427,10 +430,16 @@ class OrdersController extends Controller
       $order = Order::find($request->id);
 
       if (isset($order->id)) {
-        $invoice = Invoice::make()->template('fbv')->number($order->job_number)->accountName($order->user->name)
-          ->area($order->area->name)->dateDone($order->date)->timeStart($order->timeStart)->timeEnd($order->timeEnd)
-          ->tax(0)->decimals(2)->customer([])->currency('&#8369;');
-        
+        $invoice = Invoice::make()
+          ->template('fbv')
+          ->number($order->job_number)
+          ->accountName($order->user->name)
+          ->area($order->area->name)
+          ->dateDone($order->date)
+          ->timeStart($order->timeStart)
+          ->timeEnd($order->timeEnd)
+          ->totalInvoice($order->total)
+          ->currency('&#8369;');
 
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
@@ -443,6 +452,14 @@ class OrdersController extends Controller
 
         foreach ($items as $index => $item) {
           $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->measurement, $item->unit);
+        }
+
+        $misc = Order_Misc::where('order_id', $request->id)
+          ->whereNull('deleted_at')
+          ->get();
+
+        foreach($misc as $index => $item) {
+          $invoice->addMisc($item->activity, $item->quantity, $item->unit, $item->amount);
         }
 
         // Generate Invoice

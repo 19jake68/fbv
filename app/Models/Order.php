@@ -7,9 +7,9 @@
 namespace App\Models;
 
 use App\Models\Item;
+use App\Models\Order_Misc;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Datatables;
 class Order extends BaseModel
 {
   // use SoftDeletes;
@@ -27,6 +27,11 @@ class Order extends BaseModel
     return $this->hasMany('App\Models\Item');
   }
 
+  public function orderMiscs()
+  {
+    return $this->hasMany('App\Models\Order_Misc');
+  }
+
   public function area()
   {
     return $this->belongsTo('App\Models\Area');
@@ -38,11 +43,13 @@ class Order extends BaseModel
   }
 
   public function calcTotalAmount($id) {
-    $total = Item::where('order_id', $id)
+    $itemTotal = Item::where('order_id', $id)
       ->sum('subtotal');
+    $miscTotal = Order_Misc::where('order_id', $id)
+      ->sum('amount');
     $order =$this->where('id', $id)
       ->first();
-    $order->total = $total;
+    $order->total = $itemTotal + $miscTotal;
     return $order->save();
   }
 }

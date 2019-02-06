@@ -223,7 +223,7 @@ class ItemsController extends Controller
       $orderId = $model->order_id;
       $model->delete();
 			$order = new Order;
-			$order->calcTotalAmount($orderId);			
+			$order->calcTotalAmount($orderId);
 			return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
