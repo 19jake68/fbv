@@ -105,55 +105,6 @@
       <div class="dats1"><i class="fa fa-envelope-o"></i> {{ $order->user->email }}</div>
 		</div>
 		<div class="col-md-4">
-			
-			<!--<div class="teamview">
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user1-128x128.jpg') }}" alt=""><i class="status-online"></i></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user2-160x160.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user3-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user4-128x128.jpg') }}" alt=""><i class="status-online"></i></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user5-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user6-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user7-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user8-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user5-128x128.jpg') }}" alt=""></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user6-128x128.jpg') }}" alt=""><i class="status-online"></i></a>
-				<a class="face" data-toggle="tooltip" data-placement="top" title="John Doe"><img src="{{ asset('la-assets/img/user7-128x128.jpg') }}" alt=""></a>
-			</div>
-			
-			<div class="dats1 pb">
-				<div class="clearfix">
-					<span class="pull-left">Task #1</span>
-					<small class="pull-right">20%</small>
-				</div>
-				<div class="progress progress-xs active">
-					<div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-						<span class="sr-only">20% Complete</span>
-					</div>
-				</div>
-			</div>
-			<div class="dats1 pb">
-				<div class="clearfix">
-					<span class="pull-left">Task #2</span>
-					<small class="pull-right">90%</small>
-				</div>
-				<div class="progress progress-xs active">
-					<div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 90%" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
-						<span class="sr-only">90% Complete</span>
-					</div>
-				</div>
-			</div>
-			<div class="dats1 pb">
-				<div class="clearfix">
-					<span class="pull-left">Task #3</span>
-					<small class="pull-right">60%</small>
-				</div>
-				<div class="progress progress-xs active">
-					<div class="progress-bar progress-bar-warning progress-bar-striped" style="width: 60%" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
-						<span class="sr-only">60% Complete</span>
-					</div>
-				</div>
-			</div>-->
-
       <div class="dats1 mt10">Total:</div>
       <div class="dats1"><div class="label2 success total">&#8369;{{ number_format($order->total, 2) }}</div></div>
 		</div>
@@ -175,8 +126,7 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/orders') }}" data-toggle="tooltip" data-placement="right" title="Back to Orders"><i class="fa fa-chevron-left"></i></a></li>
     <li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-items" data-target="#tab-items"><i class="fa fa-list-ol"></i> Items</a></li>
-		<!-- <li class=""><a role="tab" data-toggle="tab" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-    <li class=""><a role="tab" data-toggle="tab" href="#tab-timeline" data-target="#tab-timeline"><i class="fa fa-clock-o"></i> Timeline</a></li> -->
+    <li><a role="tab" data-toggle="tab" href="#tab-misc" data-target="#tab-misc"><i class="fa fa-list-ul"></i> Other Charges</a></li>
 	</ul>
 
 	<div class="tab-content">
@@ -217,123 +167,38 @@
 				</div>
 			</div>
     </div>
-		<div role="tabpanel" class="tab-pane fade in" id="tab-info">
+		<div role="tabpanel" class="tab-pane fade in" id="tab-misc">
 			<div class="tab-content">
 				<div class="panel infolist">
 					<div class="panel-default panel-heading">
-						<h4>General Info</h4>
+						<h4 class="title-item">Other Charges</h4>
+            <div class="pull-right">
+            @la_access("Orders", "create")
+              <button class="btn btn-success btn-sm btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addOtherChargesModal">Add Other Charges</button>
+            @endla_access
+            </div>
 					</div>
-					<div class="panel-body">
-						@la_display($module, 'job_number')
-						@la_display($module, 'team_leader')
-						@la_display($module, 'area_id')
-						@la_display($module, 'date')
-						@la_display($module, 'time_start')
-						@la_display($module, 'time_finished')
-						@la_display($module, 'user_id')
-						@la_display($module, 'total')
+					<div class="panel-body box-body">
+						<table id="otherCharges" class="table table-bordered table-striped table-hover">
+              <thead>
+                <tr class="success">
+                  <th>Activity</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Amount</th>
+                  @la_access("Orders", "delete")
+									<th style="width:60px">&nbsp;</th>
+                  @endla_access
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
 					</div>
 				</div>
 			</div>
 		</div>
-    
-		<div role="tabpanel" class="tab-pane fade in p20 bg-white" id="tab-timeline">
-			<ul class="timeline timeline-inverse">
-				<!-- timeline time label -->
-				<li class="time-label">
-					<span class="bg-red">
-						10 Feb. 2014
-					</span>
-				</li>
-				<!-- /.timeline-label -->
-				<!-- timeline item -->
-				<li>
-				<i class="fa fa-envelope bg-blue"></i>
-
-				<div class="timeline-item">
-					<span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
-
-					<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
-
-					<div class="timeline-body">
-					Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-					weebly ning heekya handango imeem plugg dopplr jibjab, movity
-					jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-					quora plaxo ideeli hulu weebly balihoo...
-					</div>
-					<div class="timeline-footer">
-					<a class="btn btn-primary btn-xs">Read more</a>
-					<a class="btn btn-danger btn-xs">Delete</a>
-					</div>
-				</div>
-				</li>
-				<!-- END timeline item -->
-				<!-- timeline item -->
-				<li>
-				<i class="fa fa-user bg-aqua"></i>
-
-				<div class="timeline-item">
-					<span class="time"><i class="fa fa-clock-o"></i> 5 mins ago</span>
-
-					<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request
-					</h3>
-				</div>
-				</li>
-				<!-- END timeline item -->
-				<!-- timeline item -->
-				<li>
-				<i class="fa fa-comments bg-yellow"></i>
-
-				<div class="timeline-item">
-					<span class="time"><i class="fa fa-clock-o"></i> 27 mins ago</span>
-
-					<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-
-					<div class="timeline-body">
-					Take me to your leader!
-					Switzerland is small and neutral!
-					We are more like Germany, ambitious and misunderstood!
-					</div>
-					<div class="timeline-footer">
-					<a class="btn btn-warning btn-flat btn-xs">View comment</a>
-					</div>
-				</div>
-				</li>
-				<!-- END timeline item -->
-				<!-- timeline time label -->
-				<li class="time-label">
-					<span class="bg-green">
-						3 Jan. 2014
-					</span>
-				</li>
-				<!-- /.timeline-label -->
-				<!-- timeline item -->
-				<li>
-				<i class="fa fa-camera bg-purple"></i>
-
-				<div class="timeline-item">
-					<span class="time"><i class="fa fa-clock-o"></i> 2 days ago</span>
-
-					<h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
-
-					<div class="timeline-body">
-					<img src="http://placehold.it/150x100" alt="..." class="margin">
-					<img src="http://placehold.it/150x100" alt="..." class="margin">
-					<img src="http://placehold.it/150x100" alt="..." class="margin">
-					<img src="http://placehold.it/150x100" alt="..." class="margin">
-					</div>
-				</div>
-				</li>
-				<!-- END timeline item -->
-				<li>
-				<i class="fa fa-clock-o bg-gray"></i>
-				</li>
-			</ul>
-			<!--<div class="text-center p30"><i class="fa fa-list-alt" style="font-size: 100px;"></i> <br> No posts to show</div>-->
-		</div>
-		
-	</div>
-	</div>
 	</div>
 </div>
 
@@ -441,13 +306,27 @@ $(document).ready(function() {
         { targets: 0, searchable: false, visible: false },
         { data: 'name' },
         { data: 'activity' },
-        { className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
-        { searchable: false, targets: 4 },
-        { searchable: false, targets: 5 },
-        { className: 'width-45', searchable: false, targets: 6 },
-        { className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
-        { className: 'text-center', searchable: false, orderable: false, targets: [-1] }
+        {  width: "80px", className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
+        { width: "80px", searchable: false, targets: 4 },
+        { width: "80px", searchable: false, targets: 5 },
+        { width: "80px", searchable: false, targets: 6 },
+        { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+        { width: "50px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
+    }),
+    otherChargesTable = $('#otherCharges').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: "",
+      searching: false,
+      language: {
+        lengthMenu: "_MENU_",
+        search: "_INPUT_",
+        searchPlaceholder: "Search"
+      },
+      pageLength: 50,
+      select: false,
+      columnDefs: []
     }),
     addItemModal = $('#addItemModal'),
     calcAmount = function() {

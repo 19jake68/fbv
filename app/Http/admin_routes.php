@@ -104,4 +104,8 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
   Route::get(config('laraadmin.adminRoute') . '/password/set', 'Auth\PasswordController@setPasswordPage');
   Route::post(config('laraadmin.adminRoute') . '/setpass', 'Auth\PasswordController@setPassword');
 
+
+	/* ================== Order_Miscs ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/order_miscs', 'LA\Order_MiscsController');
+	Route::get(config('laraadmin.adminRoute') . '/order_misc_dt_ajax', 'LA\Order_MiscsController@dtajax');
 });
