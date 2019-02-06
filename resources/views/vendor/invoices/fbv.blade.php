@@ -76,6 +76,14 @@
                 <tr>
                     <td colspan="4" style="text-align:left;padding-left:5px">Other Charges:</td>
                 </tr>
+                @foreach ($invoice->miscs as $loop => $item)
+                    <tr>
+                        <td>{{ $item->get('quantity') }}</td>
+                        <td>{{ $item->get('unit') }}</td>
+                        <td>{{ $item->get('activity') }}</td>
+                        <td>{{ $invoice->currency }}{{ $item->get('amount') }}</td>
+                    </tr>
+                @endforeach
                 <tr>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -84,7 +92,7 @@
                 </tr>
                 <tr>
                     <td colspan="3">Total Invoice</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->totalInvoice }}</td>
                 </tr>
             <table>
         </div>

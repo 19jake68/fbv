@@ -16,13 +16,13 @@ use Datatables;
 use Collective\Html\FormFacade as Form;
 use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
-
+use App\Models\Order;
 use App\Models\Order_Misc;
 
 class Order_MiscsController extends Controller
 {
 	public $show_action = true;
-	public $view_col = 'activity';
+	public $view_col = '';
 	public $listing_cols = ['id', 'activity', 'quantity', 'unit', 'amount', 'order_id'];
 	
 	public function __construct() {
@@ -86,9 +86,10 @@ class Order_MiscsController extends Controller
 			}
 			
 			$insert_id = Module::insert("Order_Miscs", $request);
-			
-			return redirect()->route(config('laraadmin.adminRoute') . '.order_miscs.index');
-			
+			$order = new Order;
+      $order->calcTotalAmount($request->order_id);
+
+			return redirect(config('laraadmin.adminRoute') . "/orders/" . $request->order_id . '#tab-misc');			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -193,8 +194,11 @@ class Order_MiscsController extends Controller
 	public function destroy($id)
 	{
 		if(Module::hasAccess("Order_Miscs", "delete")) {
-			Order_Misc::find($id)->delete();
-			
+      $model = Order_Misc::find($id);
+      $orderId = $model->order_id;
+      $model->delete();
+			$order = new Order;
+			$order->calcTotalAmount($orderId);	
 			// Redirecting to index() method
 			return redirect()->route(config('laraadmin.adminRoute') . '.order_miscs.index');
 		} else {
@@ -207,9 +211,12 @@ class Order_MiscsController extends Controller
 	 *
 	 * @return
 	 */
-	public function dtajax()
+	public function dtajax($orderId)
 	{
-		$values = DB::table('order_miscs')->select($this->listing_cols)->whereNull('deleted_at');
+    $values = DB::table('order_miscs')
+      ->select($this->listing_cols)
+      ->where('order_id', $orderId)
+      ->whereNull('deleted_at');
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 
@@ -224,9 +231,6 @@ class Order_MiscsController extends Controller
 				if($col == $this->view_col) {
 					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/order_miscs/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
 				}
-				// else if($col == "author") {
-				//    $data->data[$i][$j];
-				// }
 			}
 			
 			if($this->show_action) {
@@ -237,7 +241,7 @@ class Order_MiscsController extends Controller
 				
 				if(Module::hasAccess("Order_Miscs", "delete")) {
 					$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.order_miscs.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
-					$output .= ' <button class="btn btn-danger btn-xs" type="submit"><i class="fa fa-times"></i></button>';
+					$output .= ' <button class="btn btn-danger btn-xs btn-delete" type="submit"><i class="fa fa-times"></i></button>';
 					$output .= Form::close();
 				}
 				$data->data[$i][] = (string)$output;

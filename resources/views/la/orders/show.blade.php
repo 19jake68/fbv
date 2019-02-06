@@ -179,13 +179,15 @@
             </div>
 					</div>
 					<div class="panel-body box-body">
-						<table id="otherCharges" class="table table-bordered table-striped table-hover">
+						<table id="otherCharges" class="table table-bordered table-striped table-hover" style="width:100%">
               <thead>
                 <tr class="success">
+                  <th>ID</th>
                   <th>Activity</th>
                   <th>Quantity</th>
                   <th>Unit</th>
                   <th>Amount</th>
+                  <th>Order</th>
                   @la_access("Orders", "delete")
 									<th style="width:60px">&nbsp;</th>
                   @endla_access
@@ -203,6 +205,32 @@
 </div>
 
 @la_access("Orders", "create")
+<div class="modal fade" id="addOtherChargesModal" role="dialog" aria-labelledby="addOtherChargesModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="addItemsModal">Add Other Charges</h4>
+			</div>
+			{!! Form::open(['action' => 'LA\Order_MiscsController@store', 'id' => 'other-charges-form', 'method' => 'post']) !!}
+			<div class="modal-body">
+				<div class="box-body">
+          @la_input($other_charges, 'activity')
+					@la_input($other_charges, 'quantity')
+					@la_input($other_charges, 'unit')
+          @la_input($other_charges, 'amount')
+          <input type="hidden" name="order_id" value="{{$order->id}}">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {!! Form::submit( 'Save', ['class'=>'btn btn-success btn-add-other-charges']) !!}
+				{!! Form::submit( 'Save and Close', ['class'=>'btn btn-success']) !!}
+			</div>
+			{!! Form::close() !!}
+		</div>
+  </div>
+</div>
+
 <div class="modal fade" id="addItemModal" role="dialog" aria-labelledby="addItemsModal">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
@@ -317,7 +345,7 @@ $(document).ready(function() {
     otherChargesTable = $('#otherCharges').DataTable({
       processing: true,
       serverSide: true,
-      ajax: "",
+      ajax: "{{ url(config('laraadmin.adminRoute') . '/order_misc_dt_ajax/' . $order->id) }}",
       searching: false,
       language: {
         lengthMenu: "_MENU_",
@@ -326,12 +354,22 @@ $(document).ready(function() {
       },
       pageLength: 50,
       select: false,
-      columnDefs: []
+      columnDefs: [
+        { targets: 0, searchable: false, visible: false },
+        { width: "80px", targets: 2 },
+        { width: "80px", targets: 3 },
+        { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 4 },
+        { targets: 5, searchable: false, visible: false },
+        { width: "80px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
+      ]
     }),
     addItemModal = $('#addItemModal'),
     calcAmount = function() {
-      let sum = orderItems.column(7).data().sum();
-      $('.total').html('&#8369;' + sum.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+      let itemSum = orderItems.column(7).data().sum(),
+        miscSum = otherChargesTable.column(4).data().sum(),
+        total = itemSum + miscSum;
+
+      $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
     };
 
   addItemModal.modal({
@@ -420,20 +458,27 @@ $(document).ready(function() {
   });
 
   // Add order items without closing the modal
-  $('.btn-add-items-ajax').click(function(e) {
+  $('.btn-add-items-ajax, .btn-add-other-charges').click(function(e) {
     e.preventDefault();
 
-    let form = $('#order-add-items-form'),
-      url = form.attr('action');
+    let form = $(this).parents('form:first')[0],
+      url = $(form).attr('action'),
+      method = $(form).attr('method');
 
     $.ajax({
-      type: 'POST',
+      type: method,
       url: url,
-      data: form.serialize(),
+      data: $(form).serialize(),
       success: function(result) {
-        orderItems.ajax.reload(function() {
-          calcAmount();
-        }, false);
+        if (form.id === 'other-charges-form') {
+          otherChargesTable.ajax.reload(function() {
+            calcAmount();
+          }, false);
+        } else if (form.id === 'order-add-items-form') {
+          orderItems.ajax.reload(function() {
+            calcAmount();
+          }, false);
+        }
       }
     });
   });
@@ -490,6 +535,29 @@ $(document).ready(function() {
       type: 'pdf',
       showModal: true
     });
+  });
+
+  // Delete item
+  $('body').on('click', 'button.btn-delete', function(e) {
+    let result = confirm('Are you sure you want to delete this item?');
+
+    if (result) {
+      let form = $(this).parent().get(0),
+        url = $(form).attr('action');
+      
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: $(form).serialize(),
+        success: function(result) {   
+          otherChargesTable.ajax.reload(function() {
+            calcAmount();
+          }, false);
+        }
+      });
+    }
+    
+    e.preventDefault();
   });
 });
 </script>

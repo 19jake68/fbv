@@ -5,8 +5,8 @@
     overflow: hidden;
   }
 
-  #orderTable {
-    width: 100% !important;
+  table.dataTable {
+    width: 100%;
   }
 </style>
 @endpush

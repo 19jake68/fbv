@@ -11,15 +11,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order_Misc extends Model
 {
-    use SoftDeletes;
+  // use SoftDeletes;
 	
 	protected $table = 'order_miscs';
 	
-	protected $hidden = [
-        
-    ];
+	protected $hidden = [];
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function order()
+  {
+    return $this->belongsTo('App\Models\Order');
+  }
 }

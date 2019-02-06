@@ -29,6 +29,13 @@ class Invoice
     public $items;
 
     /**
+     * Invoice misc collection.
+     *
+     * @var Illuminate\Support\Collection
+     */
+    public $miscs;
+
+    /**
      * Invoice currency.
      *
      * @var string
@@ -155,6 +162,13 @@ class Invoice
     public $timeEnd;
 
     /**
+     * totalInvoice
+     * 
+     * @var Integer
+     */
+    public $totalInvoice;
+
+    /**
      * Stores the PDF object.
      *
      * @var Dompdf\Dompdf
@@ -172,6 +186,7 @@ class Invoice
     {
         $this->name = $name;
         $this->items = Collection::make([]);
+        $this->miscs = Collection::make([]);
         $this->currency = config('invoices.currency');
         $this->tax = config('invoices.tax');
         $this->tax_type = config('invoices.tax_type');
@@ -182,6 +197,7 @@ class Invoice
         $this->business_details = Collection::make(config('invoices.business_details'));
         $this->customer_details = Collection::make([]);
         $this->footnote = config('invoices.footnote');
+        $this->totalInvoice = 0;
     }
 
     /**
@@ -226,6 +242,31 @@ class Invoice
     }
 
     /**
+     * Adds other chargers to the invoice.
+     *
+     * @method addMisc
+     *
+     * @param string $activity
+     * @param int    $quantity
+     * @param string $unit
+     * @param int    $amount
+     * @param string $id
+     *
+     * @return self
+     */
+    public function addMisc($activity, $quantity, $unit, $amount)
+    {
+        $this->miscs->push(Collection::make([
+            'activity'    => $activity,
+            'quantity'    => $quantity,
+            'unit'        => $unit,
+            'amount'      => number_format($amount, $this->decimals)
+        ]));
+
+        return $this;
+    }
+
+    /**
      * Pop the last invoice item.
      *
      * @method popItem
@@ -235,6 +276,20 @@ class Invoice
     public function popItem()
     {
         $this->items->pop();
+
+        return $this;
+    }
+
+    /**
+     * Pop the last invoice misc.
+     *
+     * @method popMisc
+     *
+     * @return self
+     */
+    public function popMisc()
+    {
+        $this->miscs->pop();
 
         return $this;
     }
@@ -290,6 +345,19 @@ class Invoice
     private function totalPrice()
     {
         return bcadd($this->subTotalPrice(), $this->taxPrice(), $this->decimals);
+    }
+
+    /**
+     * Total Invoice
+     * 
+     * @method totalInvoice
+     * 
+     * @return self
+     */
+    public function totalInvoice($totalInvoice) {
+        $this->totalInvoice = number_format($totalInvoice, $this->decimals);
+
+        return $this;
     }
 
     /**
