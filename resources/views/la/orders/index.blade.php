@@ -90,6 +90,8 @@
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<script src="{{ asset('la-assets/plugins/datatables/datetime.js') }}"></script>
+
 <script>
 $(function () {
 	let datatable = $("#orderTable").DataTable({
@@ -104,6 +106,8 @@ $(function () {
 		@if($show_actions)
 		columnDefs: [
       { visible: false, searchable: false, targets: [0] },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 4 },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 6 },
       { className: 'text-center', orderable: false, targets: [-1] }
     ]
 		@endif

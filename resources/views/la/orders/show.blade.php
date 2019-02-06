@@ -213,11 +213,21 @@
 			</div>
 			{!! Form::open(['action' => 'LA\Order_MiscsController@store', 'id' => 'other-charges-form', 'method' => 'post']) !!}
 			<div class="modal-body">
-				<div class="box-body">
-          @la_input($other_charges, 'activity')
-					@la_input($other_charges, 'quantity')
-					@la_input($other_charges, 'unit')
-          @la_input($other_charges, 'amount')
+        <div class="box-body">
+          <div class="form-group">
+            <label for="activity">Activity* :</label>
+            <input class="form-control" placeholder="Enter Activity" data-rule-maxlength="255" required="1" name="activity" type="text" value="" required="required">
+          </div>
+          <div class="form-group">
+            <label for="quantity">Quantity* :</label>
+            <input class="form-control" placeholder="Enter Quantity" required="1" name="quantity" type="number" value="" required="required"></div>
+          <div class="form-group">
+            <label for="unit">Unit* :</label>
+            <input class="form-control" placeholder="Enter Unit" data-rule-maxlength="100" required="1" name="unit" type="text" value="" required="required"></div>
+          <div class="form-group">
+            <label for="amount">Amount* :</label>
+            <input class="form-control" placeholder="Enter Amount" required="1" data-rule-currency="true" min="0" name="amount" type="number" value="" required="required">
+          </div>
           <input type="hidden" name="order_id" value="{{$order->id}}">
 				</div>
 			</div>
