@@ -40,7 +40,7 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/employees') }}" data-toggle="tooltip" data-placement="right" title="Back to Employees"><i class="fa fa-chevron-left"></i></a></li>
 		<li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN"))
+    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
 			<li class=""><a role="tab" data-toggle="tab" href="#tab-account-settings" data-target="#tab-account-settings"><i class="fa fa-key"></i> Account settings</a></li>
 		@endif
 	</ul>
@@ -63,7 +63,7 @@
 			</div>
 		</div>
 		
-    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN"))
+    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
 		<div role="tabpanel" class="tab-pane fade" id="tab-account-settings">
 			<div class="tab-content">
 				<form action="{{ url(config('laraadmin.adminRoute') . '/change_password/'.$employee->id) }}" id="password-reset-form" class="general-form dashed-row white" method="post" accept-charset="utf-8">
@@ -104,7 +104,7 @@
 					</div>
 				</form>
 
-        @if(Entrust::hasRole("SUPER_ADMIN"))
+        @if(Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
         {!! Form::model($employee, ['route' => [config('laraadmin.adminRoute') . '.users.update', $employee->id ], 'method'=>'PUT', 'id' => 'employee-edit-form', 'class' => 'general-form dashed-row white']) !!}
 					{{ csrf_field() }}
 					<div class="panel" style="border-top: 1px solid #ddd">

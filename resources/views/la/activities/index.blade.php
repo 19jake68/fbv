@@ -83,9 +83,10 @@
 <script>
 $(function () {
 	let datatable = $("#activityTable").DataTable({
+    pageLength: 100,
 		processing: true,
-        serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/activity_dt_ajax') }}",
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/activity_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",

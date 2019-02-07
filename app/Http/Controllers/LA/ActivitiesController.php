@@ -23,7 +23,8 @@ class ActivitiesController extends Controller
 {
 	public $show_action = true;
 	public $view_col = 'name';
-	public $listing_cols = ['id', 'name'];
+  public $listing_cols = ['id', 'name'];
+  public $item_listing_cols = ['id', 'name', 'amount', 'area', 'activity_id'];
 	
 	public function __construct() {
     parent::__construct();
@@ -55,8 +56,8 @@ class ActivitiesController extends Controller
 				'module' => $module
 			]);
 		} else {
-            return redirect(config('laraadmin.adminRoute')."/");
-        }
+      return redirect(config('laraadmin.adminRoute')."/");
+    }
 	}
 
 	/**
@@ -115,7 +116,8 @@ class ActivitiesController extends Controller
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
-					'no_padding' => "no-padding"
+          'no_padding' => "no-padding",
+          'items_cols' => $this->item_listing_cols
 				])->with('activity', $activity);
 			} else {
 				return view('errors.404', [
@@ -167,20 +169,14 @@ class ActivitiesController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		if(Module::hasAccess("Activities", "edit")) {
-			
+		if (Module::hasAccess("Activities", "edit")) {
 			$rules = Module::validateRules("Activities", $request, true);
-			
 			$validator = Validator::make($request->all(), $rules);
-			
 			if ($validator->fails()) {
 				return redirect()->back()->withErrors($validator)->withInput();;
 			}
-			
 			$insert_id = Module::updateRow("Activities", $request, $id);
-			
 			return redirect()->route(config('laraadmin.adminRoute') . '.activities.index');
-			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
@@ -211,7 +207,9 @@ class ActivitiesController extends Controller
 	 */
 	public function dtajax()
 	{
-		$values = DB::table('activities')->select($this->listing_cols)->whereNull('deleted_at');
+    $values = DB::table('activities')
+      ->select($this->listing_cols)
+      ->whereNull('deleted_at');
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 

@@ -24,7 +24,8 @@ class AreasController extends Controller
 {
 	public $show_action = true;
 	public $view_col = 'name';
-	public $listing_cols = ['id', 'name'];
+  public $listing_cols = ['id', 'name'];
+  public $item_listing_cols = ['id', 'name', 'amount', 'area_id', 'activity'];
 	
 	public function __construct() {
     parent::__construct();
@@ -129,7 +130,8 @@ class AreasController extends Controller
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
-					'no_padding' => "no-padding"
+          'no_padding' => "no-padding",
+          'items_cols' => $this->item_listing_cols
 				])->with('area', $area);
 			} else {
 				return view('errors.404', [

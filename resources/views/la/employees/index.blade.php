@@ -100,9 +100,10 @@
 <script>
 $(function () {
 	let datatable = $("#employeeTable").DataTable({
+    pageLength: 100,
 		processing: true,
-        serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/employee_dt_ajax') }}",
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/employee_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",

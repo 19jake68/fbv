@@ -95,6 +95,7 @@
 <script>
 $(function () {
 	let datatable = $("#orderTable").DataTable({
+    pageLength: 100,
 		processing: true,
     serverSide: true,
     ajax: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",

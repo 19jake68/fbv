@@ -255,7 +255,6 @@ class EmployeesController extends Controller
       }
 
 			return redirect()->route(config('laraadmin.adminRoute') . '.employees.index');
-			
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
