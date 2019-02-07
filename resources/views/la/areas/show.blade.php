@@ -4,6 +4,9 @@
 	Area View
 @endsection
 
+@push('styles')
+<link rel="stylesheet" type="text/css" href="{{ asset('la-assets/plugins/datatables/datatables.min.css') }}"/>
+@endpush
 
 @section('main-content')
 <div id="page-content" class="profile2">
@@ -39,6 +42,7 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/areas') }}" data-toggle="tooltip" data-placement="right" title="Back to Areas"><i class="fa fa-chevron-left"></i></a></li>
 		<li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
+    <li class=""><a role="tab" data-toggle="tab" class="" href="#tab-items" data-target="#tab-items"><i class="fa fa-list-ul"></i> Items</a></li>
 	</ul>
 
 	<div class="tab-content">
@@ -54,6 +58,61 @@
 				</div>
 			</div>
 		</div>
+
+    <div role="tabpanel" class="tab-pane fade in" id="tab-items">
+      <div class="tab-content">
+				<div class="panel infolist">
+					<div class="panel-default panel-heading">
+						<h4 class="title-item">Items</h4>
+					</div>
+					<div class="panel-body box-body">
+            {{ Form::open(['action' => 'LA\OrdersController@editItems', 'id' => 'order-edit-items-form', 'method' => 'post']) }}
+						<table id="items" class="table table-bordered table-striped table-hover" style="width:100%">
+              <thead>
+                <tr class="success">
+                  @foreach( $items_cols as $col )
+                  <th class="th-{{$col}}">{{ ucfirst($col) }}</th>
+                  @endforeach
+                  @la_access("Items", "delete")
+									<th style="width:60px">&nbsp;</th>
+                  @endla_access
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+            {{ Form::hidden('areaId', $area->id) }}
+            {{ Form::close() }}
+					</div>
+				</div>
+			</div>
+    </div>
 	</div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+  $('#items').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/item_details/dt_ajax_relation/area/' . $area->id) }}",
+    pageLength: 100,
+    select: false,
+    searching: false,
+    language: {
+      lengthMenu: "_MENU_",
+      search: "_INPUT_",
+      searchPlaceholder: "Search"
+    },
+    columnDefs: [
+      { targets: [3,5], searchable: false, visible: false },
+      { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 2 },
+    ]
+  });
+});
+</script>
+@endpush

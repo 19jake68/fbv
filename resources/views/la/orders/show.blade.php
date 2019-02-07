@@ -82,7 +82,7 @@
 
 @section('main-content')
 <div id="page-content" class="profile2">
-	<div class="bg-primary clearfix">
+	<div class="bg-primary clearfix" style="padding-bottom:10px">
 		<div class="col-md-4">
 			<div class="row">
 			  <div class="col-md-3">
@@ -94,7 +94,9 @@
           <ul class="list-unstyled">
             <li>Area: {{ $order->area->name }}</li>
             <li>Team Leader: {{ $order->team_leader }}</li>
-            <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('F d, Y') }}</li>
+            <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('M d, Y') }}</li>
+            <li>Time Start: {{ \Carbon\Carbon::parse($order->time_start)->format('M d, Y g:i a') }}</li>
+            <li>Time End: {{ \Carbon\Carbon::parse($order->time_end)->format('M d, Y g:i a') }}</li>
           </ul>
 				</div>
 			</div>
@@ -126,7 +128,7 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/orders') }}" data-toggle="tooltip" data-placement="right" title="Back to Orders"><i class="fa fa-chevron-left"></i></a></li>
     <li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-items" data-target="#tab-items"><i class="fa fa-list-ol"></i> Items</a></li>
-    <li><a role="tab" data-toggle="tab" href="#tab-misc" data-target="#tab-misc"><i class="fa fa-list-ul"></i> Other Charges</a></li>
+    <!-- <li><a role="tab" data-toggle="tab" href="#tab-misc" data-target="#tab-misc"><i class="fa fa-list-ul"></i> Other Charges</a></li> -->
 	</ul>
 
 	<div class="tab-content">
@@ -352,32 +354,33 @@ $(document).ready(function() {
         { width: "50px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
     }),
-    otherChargesTable = $('#otherCharges').DataTable({
-      processing: true,
-      serverSide: true,
-      ajax: "{{ url(config('laraadmin.adminRoute') . '/order_misc_dt_ajax/' . $order->id) }}",
-      searching: false,
-      language: {
-        lengthMenu: "_MENU_",
-        search: "_INPUT_",
-        searchPlaceholder: "Search"
-      },
-      pageLength: 50,
-      select: false,
-      columnDefs: [
-        { targets: 0, searchable: false, visible: false },
-        { width: "80px", targets: 2 },
-        { width: "80px", targets: 3 },
-        { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 4 },
-        { targets: 5, searchable: false, visible: false },
-        { width: "80px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
-      ]
-    }),
+    // otherChargesTable = $('#otherCharges').DataTable({
+    //   processing: true,
+    //   serverSide: true,
+    //   ajax: "{{ url(config('laraadmin.adminRoute') . '/order_misc_dt_ajax/' . $order->id) }}",
+    //   searching: false,
+    //   language: {
+    //     lengthMenu: "_MENU_",
+    //     search: "_INPUT_",
+    //     searchPlaceholder: "Search"
+    //   },
+    //   pageLength: 50,
+    //   select: false,
+    //   columnDefs: [
+    //     { targets: 0, searchable: false, visible: false },
+    //     { width: "80px", targets: 2 },
+    //     { width: "80px", targets: 3 },
+    //     { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 4 },
+    //     { targets: 5, searchable: false, visible: false },
+    //     { width: "80px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
+    //   ]
+    // }),
     addItemModal = $('#addItemModal'),
     calcAmount = function() {
       let itemSum = orderItems.column(7).data().sum(),
-        miscSum = otherChargesTable.column(4).data().sum(),
-        total = itemSum + miscSum;
+        // miscSum = otherChargesTable.column(4).data().sum(),
+        // total = itemSum + miscSum;
+        total = itemSum;
 
       $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
     };
@@ -481,9 +484,9 @@ $(document).ready(function() {
       data: $(form).serialize(),
       success: function(result) {
         if (form.id === 'other-charges-form') {
-          otherChargesTable.ajax.reload(function() {
-            calcAmount();
-          }, false);
+          // otherChargesTable.ajax.reload(function() {
+          //   calcAmount();
+          // }, false);
         } else if (form.id === 'order-add-items-form') {
           orderItems.ajax.reload(function() {
             calcAmount();
@@ -560,9 +563,9 @@ $(document).ready(function() {
         url: url,
         data: $(form).serialize(),
         success: function(result) {   
-          otherChargesTable.ajax.reload(function() {
-            calcAmount();
-          }, false);
+          // otherChargesTable.ajax.reload(function() {
+          //   calcAmount();
+          // }, false);
         }
       });
     }

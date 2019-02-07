@@ -93,7 +93,8 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 
 	/* ================== Item_Details ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/item_details', 'LA\Item_DetailsController');
-	Route::get(config('laraadmin.adminRoute') . '/item_detail_dt_ajax', 'LA\Item_DetailsController@dtajax');
+  Route::get(config('laraadmin.adminRoute') . '/item_detail_dt_ajax', 'LA\Item_DetailsController@dtajax');
+  Route::get(config('laraadmin.adminRoute') . '/item_details/dt_ajax_relation/{key}/{id}', 'LA\Item_Detailscontroller@dtAjaxByRelation');
 
 	/* ================== Items ================== */
   Route::resource(config('laraadmin.adminRoute') . '/items', 'LA\ItemsController');

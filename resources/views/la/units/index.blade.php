@@ -85,9 +85,10 @@
 <script>
 $(function () {
 	let datatable = $("#unitTable").DataTable({
+    pageLength: 100,
 		processing: true,
-        serverSide: true,
-        ajax: "{{ url(config('laraadmin.adminRoute') . '/unit_dt_ajax') }}",
+    serverSide: true,
+    ajax: "{{ url(config('laraadmin.adminRoute') . '/unit_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",

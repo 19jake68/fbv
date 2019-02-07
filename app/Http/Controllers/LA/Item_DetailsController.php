@@ -245,5 +245,55 @@ class Item_DetailsController extends Controller
 		}
 		$out->setData($data);
 		return $out;
+  }
+  
+  /**
+	 * Datatable Ajax fetch
+	 *
+	 * @return
+	 */
+	public function dtAjaxByRelation(Request $request)
+	{
+    $values = DB::table('item_details')
+      ->select($this->listing_cols)
+      ->whereNull('deleted_at');
+
+    if (isset($request->key)) {
+      $key = $request->key . '_id';
+      $values->where($key, $request->id);
+    }
+
+		$out = Datatables::of($values)->make();
+		$data = $out->getData();
+
+		$fields_popup = ModuleFields::getModuleFields('Item_Details');
+		
+		for($i=0; $i < count($data->data); $i++) {
+			for ($j=0; $j < count($this->listing_cols); $j++) { 
+				$col = $this->listing_cols[$j];
+				if($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+					$data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+				}
+				if($col == $this->view_col) {
+					$data->data[$i][$j] = '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0]).'">'.$data->data[$i][$j].'</a>';
+				}
+			}
+			
+			if($this->show_action) {
+				$output = '';
+				if(Module::hasAccess("Item_Details", "edit")) {
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+				}
+				
+				if(Module::hasAccess("Item_Details", "delete")) {
+					$output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.item_details.destroy', $data->data[$i][0]], 'method' => 'delete', 'style'=>'display:inline']);
+					$output .= ' <button class="btn btn-danger btn-xs btn-delete" type="submit"><i class="fa fa-times"></i></button>';
+					$output .= Form::close();
+				}
+				$data->data[$i][] = (string)$output;
+			}
+		}
+		$out->setData($data);
+		return $out;
 	}
 }

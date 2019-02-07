@@ -87,6 +87,7 @@
 <script>
 $(document).ready(function() {
 	let table = $("#itemDetailTable").DataTable({
+    pageLength: 100,
 		processing: true,
     serverSide: true,
     ajax: "{{ url(config('laraadmin.adminRoute') . '/item_detail_dt_ajax') }}",

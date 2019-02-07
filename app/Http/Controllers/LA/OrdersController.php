@@ -52,7 +52,6 @@ class OrdersController extends Controller
   public function index()
   {
     $module = Module::get('Orders');
-    // return $this->generateInvoice();
 
     if (Module::hasAccess($module->id)) {
       return View('la.orders.index', [
@@ -433,18 +432,20 @@ class OrdersController extends Controller
         $invoice = Invoice::make()
           ->template('fbv')
           ->number($order->job_number)
-          ->accountName($order->user->name)
+          ->accountName($order->team_leader)
           ->area($order->area->name)
-          ->dateDone($order->date)
-          ->timeStart($order->timeStart)
-          ->timeEnd($order->timeEnd)
+          ->dateDone(date("M j, Y", strtotime($order->date)))
+          ->timeStart(date("M j, Y g:i a", strtotime($order->time_start)))
+          ->timeEnd(date("M j, Y g:i a", strtotime($order->time_finished)))
           ->totalInvoice($order->total)
           ->currency('&#8369;');
 
+        // Items
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
           ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'unit.unit')
           ->where('order_id', '=', $order->id)
+          ->where('items.activity_id', '<>', 11)
           ->whereNull('items.deleted_at')
           ->whereNull('item_detail.deleted_at')
           ->orderBy('items.id', 'ASC')
@@ -458,8 +459,18 @@ class OrdersController extends Controller
           ->whereNull('deleted_at')
           ->get();
 
-        foreach($misc as $index => $item) {
-          $invoice->addMisc($item->activity, $item->quantity, $item->unit, $item->amount);
+        $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
+          ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
+          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.subtotal', 'unit.unit')
+          ->where('order_id', '=', $order->id)
+          ->where('items.activity_id', '=', 11)
+          ->whereNull('items.deleted_at')
+          ->whereNull('item_detail.deleted_at')
+          ->orderBy('items.id', 'ASC')
+          ->get();
+
+        foreach($others as $index => $item) {
+          $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal);
         }
 
         // Generate Invoice
