@@ -241,6 +241,7 @@ class OrdersController extends Controller
   public function destroy($id)
   {
     if (Module::hasAccess("Orders", "delete")) {
+      Item::where('order_id', $id)->delete();
       Order::find($id)->delete();
 
       // Redirecting to index() method
