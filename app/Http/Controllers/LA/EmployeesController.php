@@ -240,11 +240,12 @@ class EmployeesController extends Controller
 				return redirect()->back()->withErrors($validator)->withInput();;
 			}
 			
-			$employee_id = Module::updateRow("Employees", $request, $id);
+      $employee_id = Module::updateRow("Employees", $request, $id);
         	
 			// Update User
 			$user = User::where('context_id', $employee_id)->first();
-			$user->name = $request->name;
+      $user->name = $request->name;
+      $user->email = $request->email;
       $user->save();
       
       // update user role
