@@ -18,6 +18,7 @@ use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
 
 use App\Models\Activity;
+use App\Models\Item_Detail;
 
 class ActivitiesController extends Controller
 {
@@ -191,6 +192,7 @@ class ActivitiesController extends Controller
 	public function destroy($id)
 	{
 		if(Module::hasAccess("Activities", "delete")) {
+      Item_Detail::where('activity_id', $id)->delete();
 			Activity::find($id)->delete();
 			
 			// Redirecting to index() method
