@@ -96,7 +96,7 @@
             <li>Team Leader: {{ $order->team_leader }}</li>
             <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('M d, Y') }}</li>
             <li>Time Start: {{ \Carbon\Carbon::parse($order->time_start)->format('M d, Y g:i a') }}</li>
-            <li>Time End: {{ \Carbon\Carbon::parse($order->time_end)->format('M d, Y g:i a') }}</li>
+            <li>Time End: {{ \Carbon\Carbon::parse($order->time_finished)->format('M d, Y g:i a') }}</li>
           </ul>
 				</div>
 			</div>
