@@ -90,10 +90,11 @@
 					<div class="profile-icon text-primary"><i class="fa {{ $module->fa_icon }}"></i></div>
 				</div>
 				<div class="col-md-9">
-					<h4 class="name">Job #: {{ $order->$view_col }}</h4>
+					<h4 class="name">Job Order: {{ $order->$view_col }}</h4>
           <ul class="list-unstyled">
+            <li>Company: {{ $order->company }}
             <li>Area: {{ $order->area->name }}</li>
-            <li>Team Leader: {{ $order->team_leader }}</li>
+            <li>Account Name: {{ $order->account_name }}</li>
             <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('M d, Y') }}</li>
             <li>Time Start: {{ \Carbon\Carbon::parse($order->time_start)->format('M d, Y g:i a') }}</li>
             <li>Time End: {{ \Carbon\Carbon::parse($order->time_finished)->format('M d, Y g:i a') }}</li>
@@ -442,19 +443,21 @@ $(document).ready(function() {
 
   // Get previous value
   $('body').on('focusin', 'input[type=number]', function() {
-    let value = $(this).val();
-    if (value <= 0) return
+    let value = $(this).val(),
+      min = $(this).attr('min');
+    if (value < min) return;
     $(this).data('val', value);
   });
 
   // Change subtotal - Add Item Modal
   $('body').on('change', 'input[type=number]', function() {
-    let value = $(this).val();
+    let value = $(this).val(),
+      min = $(this).attr('min');
 
-    if (value <= 0) {
+    if (value < min) {
       value = $(this).data('val');
       $(this).val(value).focus();
-      alert('Value should not be equal to or less than 0.');
+      alert('Value should not be equal to or less than ' + min);
     }
 
     // Compute subtotal for quantity

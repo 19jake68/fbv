@@ -27,7 +27,7 @@ class OrdersController extends Controller
 {
   public $show_action = true;
   public $view_col = 'job_number';
-  public $listing_cols = ['id', 'job_number', 'team_leader', 'area_id', 'date', 'user_id', 'total'];
+  public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total'];
   public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
 
   public function __construct()
@@ -311,8 +311,9 @@ class OrdersController extends Controller
   public function dtajax()
   {
     $values = DB::table('orders')
-      ->select($this->listing_cols)
-      ->whereNull('deleted_at');
+      ->leftJoin('employees', 'employees.id', '=', 'orders.user_id')
+      ->select(['employees.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total'])
+      ->whereNull('orders.deleted_at');
     
     // List user created order if not admin, otherwise display all orders
     if (!Auth::user()->isAdministrator()) {
@@ -388,8 +389,9 @@ class OrdersController extends Controller
     $hasModifications = false;
     // Update quantity
     if ($request->get('quantity')) {
+      $minlength = (int) Module::get('Items')->fields['quantity']['minlength'];
       array_map(function($value, $id) use ($request) {
-        if (!$value || $value <= 0) return;
+        if ($value < $minlength) return;
         $item = Item::find($id);
         $item->quantity = (int) $value;
         $item->subtotal = $item->amount * $value;
@@ -402,8 +404,9 @@ class OrdersController extends Controller
 
     // Update measurement
     if ($request->get('measurement')) {
-      array_map(function ($value, $id) {
-        if (!$value || $value <= 0) return;
+      $minlength = (int) Module::get('Items')->fields['measurement']['minlength'];
+      array_map(function ($value, $id) use ($minlength) {
+        if ($value < $minlength) return;
         $item = Item::find($id);
         $item->measurement = (int) $value;
         $item->save();        
@@ -432,8 +435,11 @@ class OrdersController extends Controller
       if (isset($order->id)) {
         $invoice = Invoice::make()
           ->template('fbv')
+          ->id($order->id)
+          ->business(['name' => $order->company])
+          ->biller(['name' => $order->user->name, 'email' => $order->user->email])
+          ->customer(['name' => $order->account_name])
           ->number($order->job_number)
-          ->accountName($order->team_leader)
           ->area($order->area->name)
           ->dateDone(date("M j, Y", strtotime($order->date)))
           ->timeStart(date("M j, Y g:i a", strtotime($order->time_start)))

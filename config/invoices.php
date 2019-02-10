@@ -82,7 +82,7 @@ return [
 
   'business_details' => [
       'name'        => 'FBV Waterworks & General Services',
-      'id'          => '', 
+      'id'          => '',
       'phone'       => '',
       'location'    => '',
       'zip'         => '',
