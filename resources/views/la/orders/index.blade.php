@@ -64,9 +64,10 @@
 			<div class="modal-body">
 				<div class="box-body">
           {{-- @la_form($module) --}}
+          @la_input($module, 'company')
           @la_input($module, 'area_id')
 					@la_input($module, 'job_number')
-					@la_input($module, 'team_leader')
+					@la_input($module, 'account_name')
 					@la_input($module, 'date')
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
@@ -106,9 +107,8 @@ $(function () {
 		},
 		@if($show_actions)
 		columnDefs: [
-      { visible: false, searchable: false, targets: [0] },
-      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 4 },
-      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 6 },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
       { className: 'text-center', orderable: false, targets: [-1] }
     ]
 		@endif

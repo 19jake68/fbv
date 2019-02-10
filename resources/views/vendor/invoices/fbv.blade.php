@@ -31,10 +31,11 @@
         <div class="wrapper">
             <table>
                 <tr>
-                    <td colspan="5" class="font-weight-bold text-uppercase">{{ env('RECEIPT_NAME') }}</td>
+                    <td colspan="4" class="font-weight-bold">JOB ORDER RECEIPT</td>
+                    <td class="font-weight-bold">Invoice No: {{ $invoice->id }}</td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="font-weight-bold">JOB ORDER RECEIPT</td>
+                    <td colspan="5" class="font-weight-bold text-uppercase">{{ $invoice->business_details['name'] }}</td>
                 </tr>
                 <tr>
                     <td class="font-weight-bold">J.O. #</td>
@@ -45,7 +46,7 @@
                 </tr>
                 <tr>
                     <td class="font-weight-bold">Account Name</td>
-                    <td>{{ $invoice->accountName }}</td>
+                    <td>{{ $invoice->customer_details['name'] }}</td>
                     <td></td>
                     <td class="font-weight-bold">Time Started</td>
                     <td>{{ $invoice->timeStart }}</td>
@@ -73,6 +74,7 @@
                         <td>{{ $invoice->currency }}{{ $item->get('totalPrice') }}</td>
                     </tr>
                 @endforeach
+                @if (!$invoice->miscs->isEmpty())
                 <tr>
                     <td colspan="4" style="text-align:left;padding-left:5px">Other Charges:</td>
                 </tr>
@@ -84,6 +86,7 @@
                         <td>{{ $invoice->currency }}{{ $item->get('amount') }}</td>
                     </tr>
                 @endforeach
+                @endif
                 <tr>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -91,8 +94,12 @@
                     <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td colspan="3">Total Invoice</td>
+                    <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
                     <td>{{ $invoice->currency }}{{ $invoice->totalInvoice }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right" style="padding-right:5px">Billed By</td>
+                    <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
             <table>
         </div>

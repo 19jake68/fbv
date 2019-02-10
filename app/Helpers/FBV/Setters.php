@@ -13,6 +13,21 @@ use Illuminate\Support\Collection;
 trait Setters
 {
     /**
+     * Set the invoice id
+     * 
+     * @method id
+     * 
+     * @param integer $id
+     * 
+     * @return self
+     */
+    public function id($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
      * Set the invoice name.
      *
      * @method name
@@ -40,21 +55,6 @@ trait Setters
     public function number($number)
     {
         $this->number = $number;
-
-        return $this;
-    }
-
-    /**
-     * Set Account Name
-     * 
-     * @method accountName
-     * 
-     * @param string $accountName
-     * 
-     * @return self
-     */
-    public function accountName($accountName) {
-        $this->accountName = $accountName;
 
         return $this;
     }
@@ -167,6 +167,22 @@ trait Setters
     public function business($details)
     {
         $this->business_details = Collection::make($details);
+
+        return $this;
+    }
+
+    /**
+     * Set the invoice biller details
+     * 
+     * @method biller
+     * 
+     * @param array $details
+     * 
+     * @return self
+     */
+    public function biller($details)
+    {
+        $this->biller_details = Collection::make($details);
 
         return $this;
     }

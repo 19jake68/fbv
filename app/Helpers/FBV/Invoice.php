@@ -15,6 +15,13 @@ class Invoice
     use Setters;
 
     /**
+     * Invoice ID.
+     * 
+     * @var integer
+     */
+    public $id;
+
+    /**
      * Invoice name.
      *
      * @var string
@@ -62,13 +69,6 @@ class Invoice
      * @var int
      */
     public $number = null;
-
-    /**
-     * Account name
-     * 
-     * @var string
-     */
-    public $accountName;
 
     /**
      * Area name
@@ -125,6 +125,13 @@ class Invoice
      * @var array
      */
     public $customer_details;
+
+    /**
+     * Invoice biller
+     * 
+     * @var array
+     */
+    public $biller_details;
 
     /**
      * Invoice Footnote.
@@ -196,6 +203,7 @@ class Invoice
         $this->date = Carbon::now();
         $this->business_details = Collection::make(config('invoices.business_details'));
         $this->customer_details = Collection::make([]);
+        $this->biller_details = Collection::make([]);
         $this->footnote = config('invoices.footnote');
         $this->totalInvoice = 0;
     }
