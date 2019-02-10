@@ -110,14 +110,15 @@ class OrdersController extends Controller
     if (Module::hasAccess("Items", "create")) {
       $orderId = $request->order_id;
       $activityId = $request->activity_id;
+      $itemModule = Module::get('Items');
 
       foreach ($request->items as $itemId => $item) {
         $quantity = (int) $item['quantity'];
         $measurement = (int) $item['measurement'];
 
         // Check quantity and measurement
-        if (!$quantity || $quantity <= 0) continue;        
-        if (!$measurement || $measurement <= 0) continue;
+        if ($quantity < (int) $itemModule->fields['quantity']['minlength']) continue;        
+        if ($measurement < (int) $itemModule->fields['measurement']['minlength']) continue;
 
         $amount = (float) $item['amount'];
         $subtotal = (float) $quantity * $amount;
@@ -275,7 +276,7 @@ class OrdersController extends Controller
         $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
 
         // Measurement
-        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="0" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
 
         $options = '';
         for ($j = 0; $j < count($units); $j++) {
@@ -312,7 +313,7 @@ class OrdersController extends Controller
   {
     $values = DB::table('orders')
       ->leftJoin('employees', 'employees.id', '=', 'orders.user_id')
-      ->select(['employees.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total'])
+      ->select(['orders.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total'])
       ->whereNull('orders.deleted_at');
     
     // List user created order if not admin, otherwise display all orders
@@ -377,7 +378,7 @@ class OrdersController extends Controller
       // Add unit selection
       $row->amount = number_format($row->amount, 2);
       $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="1">';
-      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="1">';
+      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="0">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
       $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }
