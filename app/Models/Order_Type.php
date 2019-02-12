@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order_Type extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 	
 	protected $table = 'order_types';
 	
@@ -25,6 +25,6 @@ class Order_Type extends Model
 
 	public function orders()
 	{
-		return $this->hasMany('App\Models\Order');
+		return $this->belongsToMany('App\Models\Order');
 	}
 }

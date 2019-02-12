@@ -18,9 +18,11 @@ class CreateOrdersTable extends Migration
     public function up()
     {
         Module::generate("Orders", 'orders', 'job_number', 'fa-cube', [
-            ["job_number", "Job #", "String", false, "", 0, 255, true],
-            ["team_leader", "Team Leader", "String", false, "", 0, 256, true],
             ["area_id", "Area", "Dropdown", false, "", 0, 0, true, "@areas"],
+            ["order_type_id", "Order Type", "Dropdown", false, "", 0, 0, true, "@order_types"],
+            ["company", "Company", "Dropdown", false, "FBV Waterworks & General Services", 0, 0, true, ["FBV Waterworks & General Services","JSGP Plumbing Services"]],
+            ["job_number", "Job #", "String", false, "", 0, 255, true],
+            ["account_name", "Account Name", "String", false, "", 0, 256, true],
             ["date", "Date", "Date", false, "", 0, 0, false],
             ["time_start", "Time Start", "Datetime", false, "", 0, 0, false],
             ["time_finished", "Time Finished", "Datetime", false, "", 0, 0, false],
