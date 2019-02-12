@@ -50,7 +50,7 @@
 					</div>
 					<div class="panel-body">
 						@la_display($module, 'name')
-						@la_display($module, 'amount')
+						<div class="form-group"><label for="amount" class="col-md-2">Amount :</label><div class="col-md-10 fvalue">&#8369;{{$item_detail->amount}}</div></div>
 						@la_display($module, 'area_id')
 						@la_display($module, 'activity_id')
 					</div>

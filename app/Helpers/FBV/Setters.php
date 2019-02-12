@@ -302,4 +302,17 @@ trait Setters
 
         return $this;
     }
+
+    /**
+     * Set Order Type
+     * 
+     * @method orderType
+     * 
+     * @return self
+     */
+    public function orderType($orderType) {
+        $this->orderType = $orderType;
+
+        return $this;
+    }
 }
