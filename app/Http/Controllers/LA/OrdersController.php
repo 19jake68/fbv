@@ -13,7 +13,7 @@ use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Unit;
-use App\Models\Order_Misc;
+use App\Models\Order_Type;
 use Collective\Html\FormFacade as Form;
 use Datatables;
 use DB;
@@ -54,10 +54,12 @@ class OrdersController extends Controller
     $module = Module::get('Orders');
 
     if (Module::hasAccess($module->id)) {
+      $orderType = Order_Type::lists('name', 'id');
       return View('la.orders.index', [
         'show_actions' => $this->show_action,
         'listing_cols' => $this->listing_cols,
         'module' => $module,
+        'orderType' => $orderType
       ]);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
@@ -191,12 +193,13 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
-
+        $orderType = Order_Type::lists('name', 'id');
         $module->row = $order;
 
         return view('la.orders.edit', [
           'module' => $module,
           'view_col' => $this->view_col,
+          'orderType' => $orderType
         ])->with('order', $order);
       } else {
         return view('errors.404', [

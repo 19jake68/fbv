@@ -64,7 +64,10 @@
 			<div class="modal-body">
 				<div class="box-body">
           {{-- @la_form($module) --}}
-          @la_input($module, 'order_type_id')
+          <div class="form-group">
+          {!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
+          {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
+          </div>
           @la_input($module, 'company')
           @la_input($module, 'area_id')
 					@la_input($module, 'job_number')

@@ -30,7 +30,10 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				{!! Form::model($order, ['route' => [config('laraadmin.adminRoute') . '.orders.update', $order->id ], 'method'=>'PUT', 'id' => 'order-edit-form']) !!}
-					@la_input($module, 'order_type_id')
+					<div class="form-group">
+					{!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
+					{!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
+					</div>
 					@la_input($module, 'company')
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
