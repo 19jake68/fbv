@@ -29,7 +29,12 @@ class Order extends BaseModel
 
   public function orderMiscs()
   {
-    return $this->hasMany('App\Models\Order_Misc');
+    return $this->belongsTo('App\Models\Order_Misc');
+  }
+
+  public function orderType()
+  {
+    return $this->belongsTo('App\Models\Order_Type');
   }
 
   public function area()

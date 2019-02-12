@@ -97,11 +97,15 @@
                     <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
                     <td>{{ $invoice->currency }}{{ $invoice->totalInvoice }}</td>
                 </tr>
+            <table>
+            <table>
                 <tr>
-                    <td colspan="3" class="text-right" style="padding-right:5px">Billed By</td>
+                    <td>J.O. Type</td>
+                    <td>{{ $invoice->orderType }}
+                    <td>Billed by</td>
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
-            <table>
+            </table>
         </div>
     </body>
 </html>

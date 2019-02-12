@@ -30,6 +30,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				{!! Form::model($order, ['route' => [config('laraadmin.adminRoute') . '.orders.update', $order->id ], 'method'=>'PUT', 'id' => 'order-edit-form']) !!}
+					@la_input($module, 'order_type_id')
 					@la_input($module, 'company')
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')

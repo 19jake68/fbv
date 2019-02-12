@@ -212,12 +212,15 @@ class Item_DetailsController extends Controller
 	 */
 	public function dtajax()
 	{
-		$values = DB::table('item_details')->select($this->listing_cols)->whereNull('deleted_at');
+		$values = DB::table('item_details')
+			->leftJoin('areas', 'areas.id', '=', 'item_details.area_id')
+			->leftJoin('activities', 'activities.id', '=', 'item_details.activity_id')
+			->select(['item_details.id', 'item_details.name', 'amount', 'areas.name as area', 'activities.name as activity'])
+			->whereNull('item_details.deleted_at');
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 
 		$fields_popup = ModuleFields::getModuleFields('Item_Details');
-		
 		for($i=0; $i < count($data->data); $i++) {
 			for ($j=0; $j < count($this->listing_cols); $j++) { 
 				$col = $this->listing_cols[$j];
@@ -232,7 +235,7 @@ class Item_DetailsController extends Controller
 			if($this->show_action) {
 				$output = '';
 				if(Module::hasAccess("Item_Details", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-edit btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
 				}
 				
 				if(Module::hasAccess("Item_Details", "delete")) {
@@ -295,5 +298,10 @@ class Item_DetailsController extends Controller
 		}
 		$out->setData($data);
 		return $out;
+	}
+
+	public function updateAjax(Request $request)
+	{
+		dd($request);
 	}
 }

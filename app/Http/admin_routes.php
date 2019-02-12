@@ -93,6 +93,7 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 
 	/* ================== Item_Details ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/item_details', 'LA\Item_DetailsController');
+	Route::post(config('laraadmin.adminRoute') . '/item_details/update_ajax', 'LA\Item_DetailsController@updateAjax');
   Route::get(config('laraadmin.adminRoute') . '/item_detail_dt_ajax', 'LA\Item_DetailsController@dtajax');
   Route::get(config('laraadmin.adminRoute') . '/item_details/dt_ajax_relation/{key}/{id}', 'LA\Item_DetailsController@dtAjaxByRelation');
 
@@ -109,4 +110,8 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Order_Miscs ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/order_miscs', 'LA\Order_MiscsController');
 	Route::get(config('laraadmin.adminRoute') . '/order_misc_dt_ajax/{id}', 'LA\Order_MiscsController@dtajax');
+
+	/* ================== Order_Types ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/order_types', 'LA\Order_TypesController');
+	Route::get(config('laraadmin.adminRoute') . '/order_type_dt_ajax', 'LA\Order_TypesController@dtajax');
 });

@@ -92,6 +92,7 @@
 				<div class="col-md-9">
 					<h4 class="name">Job Order: {{ $order->$view_col }}</h4>
           <ul class="list-unstyled">
+            <li>Order Type: {{ $order->orderType->name }}</li>
             <li>Company: {{ $order->company }}
             <li>Area: {{ $order->area->name }}</li>
             <li>Account Name: {{ $order->account_name }}</li>

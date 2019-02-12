@@ -22,6 +22,13 @@ class Invoice
     public $id;
 
     /**
+     * Order Type
+     * 
+     * @var string
+     */
+    public $orderType;
+
+    /**
      * Invoice name.
      *
      * @var string

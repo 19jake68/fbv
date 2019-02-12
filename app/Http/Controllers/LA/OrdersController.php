@@ -113,12 +113,12 @@ class OrdersController extends Controller
       $itemModule = Module::get('Items');
 
       foreach ($request->items as $itemId => $item) {
-        $quantity = (int) $item['quantity'];
-        $measurement = (int) $item['measurement'];
+        $quantity = (float) $item['quantity'];
+        $measurement = (float) $item['measurement'];
 
         // Check quantity and measurement
-        if ($quantity < (int) $itemModule->fields['quantity']['minlength']) continue;        
-        if ($measurement < (int) $itemModule->fields['measurement']['minlength']) continue;
+        if ($quantity < (float) $itemModule->fields['quantity']['minlength']) continue;        
+        if ($measurement < (float) $itemModule->fields['measurement']['minlength']) continue;
 
         $amount = (float) $item['amount'];
         $subtotal = (float) $quantity * $amount;
@@ -437,6 +437,7 @@ class OrdersController extends Controller
         $invoice = Invoice::make()
           ->template('fbv')
           ->id($order->id)
+          ->orderType($order->orderType->name)
           ->business(['name' => $order->company])
           ->biller(['name' => $order->user->name, 'email' => $order->user->email])
           ->customer(['name' => $order->account_name])

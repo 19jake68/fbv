@@ -64,6 +64,7 @@
 			<div class="modal-body">
 				<div class="box-body">
           {{-- @la_form($module) --}}
+          @la_input($module, 'order_type_id')
           @la_input($module, 'company')
           @la_input($module, 'area_id')
 					@la_input($module, 'job_number')

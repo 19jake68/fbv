@@ -76,6 +76,37 @@
 </div>
 @endla_access
 
+@la_access('Item_Details', 'edit')
+<div class="modal fade" id="EditModal" role="dialog" aria-labelledby="EditModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="EditModalLabel">Edit Item Detail</h4>
+			</div>
+			{!! Form::open(['action' => 'LA\Item_DetailsController@updateAjax', 'id' => 'item_detail-edit-form']) !!}
+			<div class="modal-body">
+				<div class="box-body">
+          @la_form($module)
+					{{--
+					@la_input($module, 'name')
+					@la_input($module, 'amount')
+					@la_input($module, 'area_id')
+					@la_input($module, 'activity_id')
+					--}}
+				</div>
+			</div>
+			<div class="modal-footer">
+        <input type="hidden" name="page">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
+			</div>
+			{!! Form::close() !!}
+		</div>
+	</div>
+</div>
+@endla_access
+
 @endsection
 
 @push('styles')
@@ -98,6 +129,7 @@ $(document).ready(function() {
 		},
 		@if($show_actions)
 		columnDefs: [ 
+			{ width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 2},
       { className: 'text-center', orderable: false, targets: [-1] }
     ]
 		@endif
@@ -119,6 +151,11 @@ $(document).ready(function() {
       }
     });
   });
+
+	$('body').on('click', '.btn-edit', function(e) {
+		e.preventDefault();
+
+	});
 
   $('body').on('click', '.btn-danger', function(e) {
     e.preventDefault();
