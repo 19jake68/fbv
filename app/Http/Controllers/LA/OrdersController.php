@@ -157,13 +157,11 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
-        $otherCharges = Module::get('Order_Miscs');
         $module->row = $order;
         $activities = Activity::lists('name', 'id');
         
         return view('la.orders.show', [
           'module' => $module,
-          'other_charges' => $otherCharges,
           'view_col' => $this->view_col,
           'no_header' => true,
           'no_padding' => "no-padding",
@@ -466,10 +464,6 @@ class OrdersController extends Controller
         foreach ($items as $index => $item) {
           $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->measurement, $item->unit);
         }
-
-        $misc = Order_Misc::where('order_id', $request->id)
-          ->whereNull('deleted_at')
-          ->get();
 
         $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
