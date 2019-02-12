@@ -96,6 +96,7 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	Route::post(config('laraadmin.adminRoute') . '/item_details/update_ajax', 'LA\Item_DetailsController@updateAjax');
   Route::get(config('laraadmin.adminRoute') . '/item_detail_dt_ajax', 'LA\Item_DetailsController@dtajax');
   Route::get(config('laraadmin.adminRoute') . '/item_details/dt_ajax_relation/{key}/{id}', 'LA\Item_DetailsController@dtAjaxByRelation');
+  Route::get(config('laraadmin.adminRoute') . '/item_detail_ajax/{id}', 'LA\Item_DetailsController@getItemDetail');
 
 	/* ================== Items ================== */
   Route::resource(config('laraadmin.adminRoute') . '/items', 'LA\ItemsController');

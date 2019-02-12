@@ -127,7 +127,21 @@ class Item_DetailsController extends Controller
 		} else {
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
-	}
+  }
+  
+  public function getItemDetail($id)
+  {
+    if (Module::hasAccess('Item_Details', 'edit')) {
+      $item_detail = Item_Detail::select('id', 'name', 'amount', 'area_id', 'activity_id')->find($id);
+      if (isset($item_detail->id)) {
+        return response()->json($item_detail);
+      } else {
+        return response()->json(['code' => 404, 'message' => 'Item not found.'], 404);
+      }
+    } else {
+      return response()->json(['code' => 403, 'message' => 'Unauthorized access.'], 403);
+    }
+  }
 
 	/**
 	 * Show the form for editing the specified item_detail.
@@ -168,21 +182,27 @@ class Item_DetailsController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		if(Module::hasAccess("Item_Details", "edit")) {
-			
+		if (Module::hasAccess("Item_Details", "edit")) {
 			$rules = Module::validateRules("Item_Details", $request, true);
-			
 			$validator = Validator::make($request->all(), $rules);
 			
 			if ($validator->fails()) {
+        if ($request->isAjax) {
+          return response()->json($validator);
+        }
 				return redirect()->back()->withErrors($validator)->withInput();;
 			}
 			
-			$insert_id = Module::updateRow("Item_Details", $request, $id);
-			
+      $insert_id = Module::updateRow("Item_Details", $request, $id);
+      
+      if ($request->isAjax) {
+        return response()->json(['id' => $insert_id]);
+      }
 			return redirect()->route(config('laraadmin.adminRoute') . '.item_details.index');
-			
 		} else {
+      if ($request->isAjax) {
+        return response()->json(['code' => 403, 'message' => 'Unauthorized access.'], 403);
+      }
 			return redirect(config('laraadmin.adminRoute')."/");
 		}
 	}
@@ -235,7 +255,7 @@ class Item_DetailsController extends Controller
 			if($this->show_action) {
 				$output = '';
 				if(Module::hasAccess("Item_Details", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-edit btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-edit btn-xs" data-id="' . $data->data[$i][0] . '" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
 				}
 				
 				if(Module::hasAccess("Item_Details", "delete")) {
@@ -285,7 +305,7 @@ class Item_DetailsController extends Controller
 			if($this->show_action) {
 				$output = '';
 				if(Module::hasAccess("Item_Details", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/item_details/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-edit btn-xs" data-id="' . $data->data[$i][0] . '" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
 				}
 				
 				if(Module::hasAccess("Item_Details", "delete")) {
@@ -302,6 +322,7 @@ class Item_DetailsController extends Controller
 
 	public function updateAjax(Request $request)
 	{
-		dd($request);
+    $request->isAjax = true;
+    return $this->update($request, $request->id);
 	}
 }
