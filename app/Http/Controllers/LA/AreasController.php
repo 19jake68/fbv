@@ -124,14 +124,16 @@ class AreasController extends Controller
 			$area = Area::find($id);
 			if(isset($area->id)) {
 				$module = Module::get('Areas');
-				$module->row = $area;
+        $module->row = $area;
+        $itemDetailsModule = Module::get('Item_Details');
 				
 				return view('la.areas.show', [
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
           'no_padding' => "no-padding",
-          'items_cols' => $this->item_listing_cols
+          'items_cols' => $this->item_listing_cols,
+          'itemDetailsModule' => $itemDetailsModule
 				])->with('area', $area);
 			} else {
 				return view('errors.404', [

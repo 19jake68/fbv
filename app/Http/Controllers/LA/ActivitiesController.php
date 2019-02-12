@@ -111,14 +111,16 @@ class ActivitiesController extends Controller
 			$activity = Activity::find($id);
 			if(isset($activity->id)) {
 				$module = Module::get('Activities');
-				$module->row = $activity;
+        $module->row = $activity;
+        $itemDetailsModule = Module::get('Item_Details');
 				
 				return view('la.activities.show', [
 					'module' => $module,
 					'view_col' => $this->view_col,
 					'no_header' => true,
           'no_padding' => "no-padding",
-          'items_cols' => $this->item_listing_cols
+          'items_cols' => $this->item_listing_cols,
+          'itemDetailsModule' => $itemDetailsModule
 				])->with('activity', $activity);
 			} else {
 				return view('errors.404', [

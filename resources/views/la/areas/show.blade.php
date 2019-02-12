@@ -90,13 +90,43 @@
     </div>
 	</div>
 </div>
+@la_access('Item_Details', 'edit')
+<div class="modal fade" id="EditModal" role="dialog" aria-labelledby="EditModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="EditModalLabel">Edit Item Detail</h4>
+			</div>
+			{!! Form::open(['action' => 'LA\Item_DetailsController@updateAjax', 'id' => 'item_detail-edit-form']) !!}
+			<div class="modal-body">
+				<div class="box-body">
+          {{--@la_form($module)--}}
+					
+					@la_input($itemDetailsModule, 'name')
+					@la_input($itemDetailsModule, 'amount', null, true, 'form-control', ['step' => '0.01'])
+					@la_input($itemDetailsModule, 'area_id')
+					@la_input($itemDetailsModule, 'activity_id')
+          <input type="hidden" name="id">
+				</div>
+			</div>
+			<div class="modal-footer">
+        <input type="hidden" name="page">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				{!! Form::submit( 'Submit', ['class'=>'btn btn-success']) !!}
+			</div>
+			{!! Form::close() !!}
+		</div>
+	</div>
+</div>
+@endla_access
 @endsection
 
 @push('scripts')
 <script src="{{ asset('la-assets/plugins/datatables/datatables.min.js') }}"></script>
 <script>
 $(document).ready(function() {
-  $('#items').DataTable({
+  let datatable = $('#items').DataTable({
     processing: true,
     serverSide: true,
     ajax: "{{ url(config('laraadmin.adminRoute') . '/item_details/dt_ajax_relation/area/' . $area->id) }}",
@@ -109,9 +139,74 @@ $(document).ready(function() {
       searchPlaceholder: "Search"
     },
     columnDefs: [
-      { targets: [3,5], searchable: false, visible: false },
+      { targets: [3], searchable: false, visible: false },
       { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 2 },
+      { targets: [-1], className: 'text-center' }
     ]
+  });
+
+  $('body').on('click', '.btn-edit', function(e) {
+    e.preventDefault();
+    let id  = $(this).data('id');
+    $.ajax({
+      url: "{{ url(config('laraadmin.adminRoute') . '/item_detail_ajax/') }}/" + id,
+      success: function(object) {
+        let form = $('#item_detail-edit-form');
+        form[0].reset();
+        for (param in object) {
+          let node = form.find('[name=' + param + ']'),
+            value = object[param];
+
+          if ($(node[0]).attr('rel') === 'select2') {
+            node.val(value).trigger('change');
+          } else {
+            node.val(value);
+          }
+        }
+        $('#EditModal').modal('toggle');
+      }
+    });
+  });
+  
+  $('#item_detail-edit-form').submit(function(e) {
+    e.preventDefault();
+    
+    let form = $(this);
+
+    $.ajax({
+      type: form.attr('method'),
+      url: form.attr('action'),
+      data: form.serialize(),
+      success: function(response) {
+        if (response.id) {
+          datatable.ajax.reload(null, false);
+          $('#EditModal').modal('toggle');
+        }
+      }
+    });
+  });
+
+  // Delete item
+  $('body').on('click', 'button.btn-delete', function(e) {
+    let result = confirm('Are you sure you want to delete this item?');
+
+    if (result) {
+      let form = $(this).parent().get(0),
+        url = $(form).attr('action');
+      
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: $(form).serialize(),
+        success: function(result) {   
+          datatable.ajax.reload(function() {
+            // callback
+          }, false);
+        }
+      });
+    }
+    
+    e.preventDefault();
   });
 });
 </script>

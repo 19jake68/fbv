@@ -87,13 +87,13 @@
 			{!! Form::open(['action' => 'LA\Item_DetailsController@updateAjax', 'id' => 'item_detail-edit-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-          @la_form($module)
-					{{--
+          {{--@la_form($module)--}}
+					
 					@la_input($module, 'name')
-					@la_input($module, 'amount')
+					@la_input($module, 'amount', null, true, 'form-control', ['step' => '0.01'])
 					@la_input($module, 'area_id')
 					@la_input($module, 'activity_id')
-					--}}
+          <input type="hidden" name="id">
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -153,9 +153,45 @@ $(document).ready(function() {
   });
 
 	$('body').on('click', '.btn-edit', function(e) {
-		e.preventDefault();
+    e.preventDefault();
+    let id  = $(this).data('id');
+    $.ajax({
+      url: "{{ url(config('laraadmin.adminRoute') . '/item_detail_ajax/') }}/" + id,
+      success: function(object) {
+        let form = $('#item_detail-edit-form');
+        form[0].reset();
+        for (param in object) {
+          let node = form.find('[name=' + param + ']'),
+            value = object[param];
 
-	});
+          if ($(node[0]).attr('rel') === 'select2') {
+            node.val(value).trigger('change');
+          } else {
+            node.val(value);
+          }
+        }
+        $('#EditModal').modal('toggle');
+      }
+    });
+  });
+  
+  $('#item_detail-edit-form').submit(function(e) {
+    e.preventDefault();
+    
+    let form = $(this);
+
+    $.ajax({
+      type: form.attr('method'),
+      url: form.attr('action'),
+      data: form.serialize(),
+      success: function(response) {
+        if (response.id) {
+          table.ajax.reload(null, false);
+          $('#EditModal').modal('toggle');
+        }
+      }
+    });
+  });
 
   $('body').on('click', '.btn-danger', function(e) {
     e.preventDefault();
