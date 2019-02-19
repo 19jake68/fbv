@@ -32,8 +32,9 @@
 				{!! Form::model($employee, ['route' => [config('laraadmin.adminRoute') . '.employees.update', $employee->id ], 'method'=>'PUT', 'id' => 'employee-edit-form']) !!}
 					{{-- @la_form($module) --}}
 					@la_input($module, 'name')
-          @la_input($module, 'email')
+          {{-- @la_input($module, 'email') --}}
 					@la_input($module, 'designation')
+          @la_input($module, 'areas', $employee->areas, true, 'form-control', ['id' => 'select2-areas'])
 					@la_input($module, 'gender')
 					@la_input($module, 'mobile')
 					@la_input($module, 'dept')
@@ -53,6 +54,7 @@
 <script>
 $(function () {
 	$("#employee-edit-form").validate({});
+  $('#select2-areas').val({!! $employee->areas !!}).trigger('change');
 });
 </script>
 @endpush

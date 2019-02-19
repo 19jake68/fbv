@@ -27,7 +27,7 @@ use Log;
 
 class EmployeesController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
   public $listing_cols = ['id', 'name', 'designation', 'mobile', 'email', 'dept'];
 	
@@ -42,7 +42,9 @@ class EmployeesController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Employees', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Employees", "edit") || Module::hasAccess("Employees", "delete");
 	}
 	
 	/**
@@ -245,7 +247,7 @@ class EmployeesController extends Controller
 			// Update User
 			$user = User::where('context_id', $employee_id)->first();
       $user->name = $request->name;
-      $user->email = $request->email;
+      // $user->email = $request->email;
       $user->save();
       
       // update user role
@@ -307,7 +309,7 @@ class EmployeesController extends Controller
 			if($this->show_action) {
 				$output = '';
 				if(Module::hasAccess("Employees", "edit")) {
-					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/employees/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs" style="display:inline;padding:2px 5px 3px 5px;"><i class="fa fa-edit"></i></a>';
+					$output .= '<a href="'.url(config('laraadmin.adminRoute') . '/employees/'.$data->data[$i][0].'/edit').'" class="btn btn-warning btn-xs btn-edit" style="display:inline;padding:2px 5px 3px 5px;" data-id="'.$data->data[$i][0].'"><i class="fa fa-edit"></i></a>';
 				}
 				
 				if(Module::hasAccess("Employees", "delete")) {

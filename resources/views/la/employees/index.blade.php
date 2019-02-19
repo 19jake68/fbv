@@ -59,6 +59,7 @@
 					@la_input($module, 'name')
           @la_input($module, 'email')
 					@la_input($module, 'designation')
+          @la_input($module, 'areas')
 					@la_input($module, 'gender')
 					@la_input($module, 'mobile')
 					@la_input($module, 'dept')
@@ -114,6 +115,13 @@ $(function () {
 		@endif
 	});
 	$("#employee-add-form").validate({});
+
+  // Edit item
+  $('body').on('click', '.btn-edit', function(e) {
+    // e.preventDefault();
+    let id  = $(this).data('id');
+    
+  });
   // Delete item
   $('body').on('click', 'button.btn-delete', function(e) {
     let result = confirm('Are you sure you want to delete this item?');

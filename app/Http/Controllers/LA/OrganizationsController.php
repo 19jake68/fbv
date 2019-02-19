@@ -21,7 +21,7 @@ use App\Models\Organization;
 
 class OrganizationsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'profile_image', 'name', 'email', 'phone', 'website', 'assigned_to', 'city'];
 	
@@ -36,7 +36,10 @@ class OrganizationsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Organizations', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Organizations", "edit") || Module::hasAccess("Organizations", "delete");
+
 	}
 	
 	/**

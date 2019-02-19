@@ -64,7 +64,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
   public function employee()
   {
-    return $this->belongsTo('App\Models\Employee');
+    return $this->belongsTo('App\Models\Employee', 'context_id');
   }
 
   public function isAdministrator()

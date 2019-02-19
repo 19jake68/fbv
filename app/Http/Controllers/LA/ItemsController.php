@@ -24,7 +24,7 @@ use App\Models\Unit;
 
 class ItemsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'order_id';
 	public $listing_cols = ['id', 'amount', 'order_id', 'activity_id', 'item_detail_id', 'quantity', 'measurement', 'unit_id', 'subtotal'];
 	
@@ -39,7 +39,9 @@ class ItemsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Items', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Items", "edit") || Module::hasAccess("Items", "delete");
 	}
 	
 	/**

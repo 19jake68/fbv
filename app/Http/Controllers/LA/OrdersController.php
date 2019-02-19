@@ -9,6 +9,7 @@ namespace App\Http\Controllers\LA;
 use Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Area;
 use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
@@ -25,7 +26,7 @@ use App\Helpers\FBV\Invoice;
 
 class OrdersController extends Controller
 {
-  public $show_action = true;
+  public $show_action;
   public $view_col = 'job_number';
   public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total'];
   public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
@@ -42,6 +43,9 @@ class OrdersController extends Controller
     } else {
       $this->listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->listing_cols);
     }
+
+    $this->show_action = Module::hasAccess("Orders", "edit") || Module::hasAccess("Orders", "delete");
+
   }
 
   /**
@@ -54,13 +58,22 @@ class OrdersController extends Controller
     $module = Module::get('Orders');
 
     if (Module::hasAccess($module->id)) {
-      $orderType = Order_Type::lists('name', 'id');
-      return View('la.orders.index', [
+      $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
+      $params = [
         'show_actions' => $this->show_action,
         'listing_cols' => $this->listing_cols,
         'module' => $module,
         'orderType' => $orderType
-      ]);
+      ];
+
+      if (!Auth::user()->isAdministrator()) {
+        $areas = Auth::user()->employee()->first()->areas;
+        $areas = json_decode($areas);
+        $areas = Area::whereIn('id', $areas)->lists('name', 'id');
+        $params['areas'] = $areas;
+      }
+
+      return View('la.orders.index', $params);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
     }
@@ -191,7 +204,7 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
-        $orderType = Order_Type::lists('name', 'id');
+        $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
         $module->row = $order;
 
         return view('la.orders.edit', [
@@ -269,15 +282,19 @@ class OrdersController extends Controller
 
     // Get units
     $units = Unit::all();
+
+    $itemFields = Module::get('Items')->fields;
+    $quantityMinLength = $itemFields['quantity']['minlength'];
+    $measurementMinLength = $itemFields['measurement']['minlength'];
     
     for ($i = 0; $i < count($data->data); $i++) {
       $output = '';
       if (Module::hasAccess('Items', 'edit')) {
         // Quantity
-        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit disabled" min="1" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
+        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
 
         // Measurement
-        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="0" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="' . $measurementMinLength . '" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
 
         $options = '';
         for ($j = 0; $j < count($units); $j++) {
@@ -375,11 +392,15 @@ class OrdersController extends Controller
       $unitOptions .= '<option value="' . $id . '">' . $unit . '</option>';
     }
 
+    $itemFields = Module::get('Items')->fields;
+    $quantityMinLength = $itemFields['quantity']['minlength'];
+    $measurementMinLength = $itemFields['measurement']['minlength'];
+
     foreach ($model as $row) {
       // Add unit selection
       $row->amount = number_format($row->amount, 2);
-      $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="1">';
-      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="0">';
+      $row->quantity = '<input style="width: 100px" type="number" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
+      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="' . $measurementMinLength . '">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
       $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
     }

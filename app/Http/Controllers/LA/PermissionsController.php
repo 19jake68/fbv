@@ -24,7 +24,7 @@ use App\Role;
 
 class PermissionsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'display_name'];
 	
@@ -39,7 +39,10 @@ class PermissionsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Permissions', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Permissions", "edit") || Module::hasAccess("Permissions", "delete");
+
 	}
 	
 	/**

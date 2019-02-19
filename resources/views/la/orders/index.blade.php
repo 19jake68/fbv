@@ -34,6 +34,10 @@
   </div>
 @endif
 
+@if(!empty($areas))
+<h1>HELLOWORLD</h1>
+@endif
+
 <div class="box box-success">
 	<!--<div class="box-header"></div>-->
 	<div class="box-body">
@@ -69,7 +73,15 @@
           {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
           </div>
           @la_input($module, 'company')
+          @if(!empty($areas))
+          <div class="form-group">
+          {!! Form::label('area_id', 'Area', ['for' => 'area_id']) !!}
+          {!! Form::select('area_id', $areas, null, ['id' => 'area_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
+          </div>
+          @else
           @la_input($module, 'area_id')
+          @endif
+          
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
 					@la_input($module, 'date')
@@ -126,6 +138,7 @@ $(function () {
 
 	$("#order-add-form").validate({});
 
+  @if($show_actions)
   // Delete item
   $('body').on('click', 'button.btn-delete', function(e) {
     let result = confirm('Are you sure you want to delete this item?');
@@ -148,6 +161,7 @@ $(function () {
     
     e.preventDefault();
   });
+  @endif
 });
 </script>
 @endpush

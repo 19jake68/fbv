@@ -150,7 +150,10 @@ $(function () {
 	
 	$('input[name=icon]').iconpicker();
 	$("#dt_modules").DataTable({
-		
+		pageLength: 100,
+    order: [
+      1, 'asc'
+    ]
 	});
 	$("#module-add-form").validate({
 		

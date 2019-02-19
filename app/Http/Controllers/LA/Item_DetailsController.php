@@ -21,7 +21,7 @@ use App\Models\Item_Detail;
 
 class Item_DetailsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'amount', 'area_id', 'activity_id'];
 	
@@ -36,7 +36,10 @@ class Item_DetailsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Item_Details', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Item_Details", "edit") || Module::hasAccess("Item_Details", "delete");
+
 	}
 	
 	/**

@@ -21,7 +21,7 @@ use App\Models\Order_Type;
 
 class Order_TypesController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name'];
 	
@@ -34,7 +34,10 @@ class Order_TypesController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Order_Types', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Order_Types", "edit") || Module::hasAccess("Order_Types", "delete");
+
 	}
 	
 	/**

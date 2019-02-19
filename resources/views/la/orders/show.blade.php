@@ -260,21 +260,25 @@
             {{ Form::select('activity_id', $activities, null, ['id' => 'activityList', 'class' => 'form-control']) }}
             {{ Form::hidden('order_id', $order->id) }}
           </div>
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Type a keyword to search for an item">
+          </div>
           
-          	<table id="itemList" class="table table-bordered table-striped">
-              <thead>
-                <tr class="success">
-                  <th>Name</th>
-                  <th class="th-add-item-110">Amount</th>
-                  <th class="th-add-item-110">Quantity</th>
-                  <th class="th-add-item-110">Measurement</th>
-                  <th class="th-add-item-110">Unit</th>
-                  <th class="th-add-item-110">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
+          
+          <table id="itemList" class="table table-bordered table-striped">
+            <thead>
+              <tr class="success">
+                <th>Name</th>
+                <th class="th-add-item-110">Amount</th>
+                <th class="th-add-item-110">Quantity</th>
+                <th class="th-add-item-110">Measurement</th>
+                <th class="th-add-item-110">Unit</th>
+                <th class="th-add-item-110">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
 				</div>
 			</div>
 			<div class="modal-footer">

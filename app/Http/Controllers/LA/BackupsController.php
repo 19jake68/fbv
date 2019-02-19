@@ -22,7 +22,7 @@ use App\Models\Backup;
 
 class BackupsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'file_name'];
 	public $backup_filepath = "/storage/app/http---localhost/";
@@ -38,7 +38,9 @@ class BackupsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Backups', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Backups", "edit") || Module::hasAccess("Backups", "delete");
 	}
 	
 	/**
