@@ -128,8 +128,10 @@ class OrdersController extends Controller
       $itemModule = Module::get('Items');
 
       foreach ($request->items as $itemId => $item) {
-        $quantity = (float) $item['quantity'];
-        $measurement = (float) $item['measurement'];
+        if ($item['quantity'] === '' || $item['measurement'] === '') continue;
+
+        $quantity = $item['quantity'];
+        $measurement = $item['measurement'];
 
         // Check quantity and measurement
         if ($quantity < (float) $itemModule->fields['quantity']['minlength']) continue;        
