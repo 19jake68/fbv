@@ -66,13 +66,13 @@
           {{-- @la_form($module) --}}
           <div class="form-group">
           {!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
-          {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
+          {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
           </div>
           @la_input($module, 'company')
           @if(!empty($areas))
           <div class="form-group">
-          {!! Form::label('area_id', 'Area', ['for' => 'area_id']) !!}
-          {!! Form::select('area_id', $areas, null, ['id' => 'area_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
+          {!! Form::label('area_id', 'Area* :', ['for' => 'area_id']) !!}
+          {!! Form::select('area_id', $areas, null, ['id' => 'area_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
           </div>
           @else
           @la_input($module, 'area_id')
@@ -117,13 +117,13 @@ $(function () {
 			search: "_INPUT_",
 			searchPlaceholder: "Search"
 		},
-		@if($show_actions)
-		columnDefs: [
+    columnDefs: [
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+      @if($show_actions)
       { className: 'text-center', orderable: false, targets: [-1] }
+      @endif
     ]
-		@endif
 	});
 
   $('#AddModal').modal({
