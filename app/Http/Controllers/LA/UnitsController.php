@@ -21,7 +21,7 @@ use App\Models\Unit;
 
 class UnitsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'unit';
 	public $listing_cols = ['id', 'unit', 'description'];
 	
@@ -36,7 +36,10 @@ class UnitsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Units', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Units", "edit") || Module::hasAccess("Units", "delete");
+
 	}
 	
 	/**

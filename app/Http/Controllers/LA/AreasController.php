@@ -19,10 +19,11 @@ use Dwij\Laraadmin\Models\ModuleFields;
 
 use App\Models\Area;
 use App\Models\Item_Detail;
+use App\Models\Employee;
 
 class AreasController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
   public $listing_cols = ['id', 'name'];
   public $item_listing_cols = ['id', 'name', 'amount', 'area_id', 'activity'];
@@ -38,7 +39,9 @@ class AreasController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Areas', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Areas", "edit") || Module::hasAccess("Areas", "delete");
 	}
 	
 	/**
@@ -224,7 +227,16 @@ class AreasController extends Controller
 	 */
 	public function dtajax()
 	{
-		$values = DB::table('areas')->select($this->listing_cols)->whereNull('deleted_at');
+    $values = DB::table('areas')
+      ->select($this->listing_cols)
+      ->whereNull('deleted_at');
+
+    if (!Auth::user()->isAdministrator()) {
+      $areas = Auth::user()->employee()->first()->areas;
+      $areas = json_decode($areas);
+      $values->whereIn('id', $areas);
+    }
+
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 

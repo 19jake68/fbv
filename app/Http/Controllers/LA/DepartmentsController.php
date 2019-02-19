@@ -21,7 +21,7 @@ use App\Models\Department;
 
 class DepartmentsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name'];
 	
@@ -36,7 +36,10 @@ class DepartmentsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Departments', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Departments", "edit") || Module::hasAccess("Departments", "delete");
+
 	}
 	
 	/**

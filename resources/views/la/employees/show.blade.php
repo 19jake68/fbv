@@ -20,12 +20,12 @@
 		</div>
 		<div class="col-md-3">
 			<div class="dats1"><div class="label2">{{ $user->type }}</div></div>
-			<div class="dats1"><i class="fa fa-envelope-o"></i> {{ $user->email }}</div>
+			<div class="dats1"><i class="fa fa-envelope-o"></i> {{ $employee->email }}</div>
 		</div>
 		<div class="col-md-4">
 		</div>
 		<div class="col-md-1 actions">
-			@if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN"))
+			@if($employee->id == Auth::user()->context_id || Auth::user()->isAdministrator())
 				<a href="{{ url(config('laraadmin.adminRoute') . '/employees/'.$employee->id.'/edit') }}" class="btn btn-xs btn-edit btn-default"><i class="fa fa-pencil"></i></a><br>
 			@endif
 			
@@ -40,7 +40,7 @@
 	<ul data-toggle="ajax-tab" class="nav nav-tabs profile" role="tablist">
 		<li class=""><a href="{{ url(config('laraadmin.adminRoute') . '/employees') }}" data-toggle="tooltip" data-placement="right" title="Back to Employees"><i class="fa fa-chevron-left"></i></a></li>
 		<li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-general-info" data-target="#tab-info"><i class="fa fa-bars"></i> General Info</a></li>
-    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
+    @if($employee->id == Auth::user()->context_id || Auth::user()->isAdministrator())
 			<li class=""><a role="tab" data-toggle="tab" href="#tab-account-settings" data-target="#tab-account-settings"><i class="fa fa-key"></i> Account settings</a></li>
 		@endif
 	</ul>
@@ -55,6 +55,7 @@
 					<div class="panel-body">
 						@la_display($module, 'name')
 						@la_display($module, 'designation')
+            @la_display($module, 'areas')
 						@la_display($module, 'gender')
 						@la_display($module, 'mobile')
 						@la_display($module, 'email')
@@ -63,7 +64,7 @@
 			</div>
 		</div>
 		
-    @if($employee->id == Auth::user()->context_id || Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
+    @if($employee->id == Auth::user()->context_id || Auth::user()->isAdministrator())
 		<div role="tabpanel" class="tab-pane fade" id="tab-account-settings">
 			<div class="tab-content">
 				<form action="{{ url(config('laraadmin.adminRoute') . '/change_password/'.$employee->id) }}" id="password-reset-form" class="general-form dashed-row white" method="post" accept-charset="utf-8">
@@ -104,7 +105,7 @@
 					</div>
 				</form>
 
-        @if(Entrust::hasRole("SUPER_ADMIN") || Entrust::hasRole('ADMIN'))
+        @if(Auth::user()->isAdministrator())
         {!! Form::model($employee, ['route' => [config('laraadmin.adminRoute') . '.users.update', $employee->id ], 'method'=>'PUT', 'id' => 'employee-edit-form', 'class' => 'general-form dashed-row white']) !!}
 					{{ csrf_field() }}
 					<div class="panel" style="border-top: 1px solid #ddd">
@@ -121,8 +122,8 @@
 									</ul>
 								</div>
 							@endif
-							@if(Session::has('success_message'))
-								<p class="alert {{ Session::get('alert-class', 'alert-success') }}">{{ Session::get('success_message') }}</p>
+							@if(Session::has('success_message2'))
+								<p class="alert {{ Session::get('alert-class', 'alert-success') }}">{{ Session::get('success_message2') }}</p>
 							@endif
               
               <div class="form-group">

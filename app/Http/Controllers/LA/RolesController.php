@@ -23,7 +23,7 @@ use App\Permission;
 
 class RolesController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'display_name', 'parent', 'dept'];
 	
@@ -38,7 +38,10 @@ class RolesController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Roles', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Roles", "edit") || Module::hasAccess("Roles", "delete");
+
 	}
 	
 	/**

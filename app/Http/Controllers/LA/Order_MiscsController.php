@@ -21,7 +21,7 @@ use App\Models\Order_Misc;
 
 class Order_MiscsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = '';
 	public $listing_cols = ['id', 'activity', 'quantity', 'unit', 'amount', 'order_id'];
 	
@@ -34,7 +34,9 @@ class Order_MiscsController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Order_Miscs', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Order_Miscs", "edit") || Module::hasAccess("Order_Miscs", "delete");
 	}
 	
 	/**

@@ -96,6 +96,8 @@ $(function () {
 		@endif
 	});
 	$("#area-add-form").validate({});
+
+  @if($show_actions)
   // Delete item
   $('body').on('click', 'button.btn-delete', function(e) {
     let result = confirm('Are you sure you want to delete this item?');
@@ -118,6 +120,7 @@ $(function () {
     
     e.preventDefault();
   });
+  @endif
 });
 </script>
 @endpush

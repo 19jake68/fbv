@@ -21,7 +21,7 @@ use App\User;
 
 class UsersController extends Controller
 {
-	public $show_action = false;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'email', 'type'];
 	
@@ -36,7 +36,10 @@ class UsersController extends Controller
 			});
 		} else {
 			$this->listing_cols = ModuleFields::listingColumnAccessScan('Users', $this->listing_cols);
-		}
+    }
+    
+    $this->show_action = Module::hasAccess("Users", "edit") || Module::hasAccess("Users", "delete");
+
 	}
 	
 	/**
@@ -100,6 +103,7 @@ class UsersController extends Controller
         $user->password = bcrypt($password);
       }
 
+      \Session::flash('success_message2', 'Account Settings is successfully updated');
       $user->save();
       return redirect(config('laraadmin.adminRoute'). '/employees/' . $id . '#' . $request->_tab);
     } else {

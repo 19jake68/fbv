@@ -28,7 +28,7 @@ use App\Models\Upload;
 
 class UploadsController extends Controller
 {
-	public $show_action = true;
+	public $show_action;
 	public $view_col = 'name';
 	public $listing_cols = ['id', 'name', 'path', 'extension', 'caption', 'user_id'];
 	
@@ -47,7 +47,10 @@ class UploadsController extends Controller
 				$listing_cols_temp[] = $col;
 			}
 		}
-		$this->listing_cols = $listing_cols_temp;
+    $this->listing_cols = $listing_cols_temp;
+    
+    $this->show_action = Module::hasAccess("Uploads", "edit") || Module::hasAccess("Uploads", "delete");
+
 	}
 	
 	/**

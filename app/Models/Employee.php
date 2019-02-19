@@ -15,11 +15,19 @@ class Employee extends Model
 	
 	protected $table = 'employees';
 	
-	protected $hidden = [
-        
-    ];
+	protected $hidden = [];
 
 	protected $guarded = [];
 
-	protected $dates = ['deleted_at'];
+  protected $dates = ['deleted_at'];
+  
+  public function areas()
+  {
+    return $this->belongsTo('App\Models\Area', 'areas');
+  }
+
+  public function user()
+  {
+    return $this->hasOne('App\User', 'context_id', 'id');
+  }
 }
