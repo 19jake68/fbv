@@ -171,40 +171,6 @@
 				</div>
 			</div>
     </div>
-		<div role="tabpanel" class="tab-pane fade in" id="tab-misc">
-			<div class="tab-content">
-				<div class="panel infolist">
-					<div class="panel-default panel-heading">
-						<h4 class="title-item">Other Charges</h4>
-            <div class="pull-right">
-            @la_access("Orders", "create")
-              <button class="btn btn-success btn-sm btn-add-item" style="margin-top: 7px" data-toggle="modal" data-target="#addOtherChargesModal">Add Other Charges</button>
-            @endla_access
-            </div>
-					</div>
-					<div class="panel-body box-body">
-						<table id="otherCharges" class="table table-bordered table-striped table-hover" style="width:100%">
-              <thead>
-                <tr class="success">
-                  <th>ID</th>
-                  <th>Activity</th>
-                  <th>Quantity</th>
-                  <th>Unit</th>
-                  <th>Amount</th>
-                  <th>Order</th>
-                  @la_access("Orders", "delete")
-									<th style="width:60px">&nbsp;</th>
-                  @endla_access
-                </tr>
-              </thead>
-              <tbody>
-                
-              </tbody>
-            </table>
-					</div>
-				</div>
-			</div>
-		</div>
 	</div>
 </div>
 
