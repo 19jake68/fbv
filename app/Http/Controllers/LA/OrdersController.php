@@ -400,11 +400,12 @@ class OrdersController extends Controller
 
     foreach ($model as $row) {
       // Add unit selection
-      $row->amount = number_format($row->amount, 2, '.', '');
-      $row->quantity = '<input style="width: 100px" type="number" step=".01" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $row->amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
+      $amount = number_format($row->amount, 2, '.', '');
+      $row->amount = number_format($row->amount, 2);
+      $row->quantity = '<input style="width: 100px" type="number" step=".01" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
       $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="' . $measurementMinLength . '">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
-      $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $row->amount . '">';
+      $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
     }
     return $model->toJson();
   }
