@@ -386,8 +386,14 @@ class OrdersController extends Controller
     $model = Item_Detail::where('activity_id', $request->id)
       ->where('area_id', $request->areaId)
       ->whereNull('deleted_at')
-      ->orderBy('name', 'ASC')
-      ->get();
+      ->orderBy('name', 'ASC');
+
+    if ($request->search) {
+      $model->where('name', 'like', '%'.$request->search.'%');
+    }
+
+    $model = $model->get();
+
     $units = Unit::pluck('unit', 'id')->toArray();
     $unitOptions = '';
     foreach ($units as $id => $unit) {
