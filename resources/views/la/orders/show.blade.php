@@ -181,6 +181,7 @@
 			<div class="modal-header">
 				<h4 class="modal-title" id="addItemsModal">Add Items</h4>
 			</div>
+
 			{!! Form::open(['action' => 'LA\OrdersController@addItems', 'id' => 'order-add-items-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
@@ -191,9 +192,8 @@
             {{ Form::hidden('order_id', $order->id) }}
           </div>
           <div class="form-group">
-            <input type="text" class="form-control" placeholder="Type a keyword to search for an item">
+            <input type="text" class="form-control" id="searchbox" placeholder="Type a keyword to search for an item">
           </div>
-          
           
           <table id="itemList" class="table table-bordered table-striped">
             <thead>
@@ -228,6 +228,7 @@
 <script src="{{ asset('la-assets/plugins/datatables/sum().js') }}"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/currency.js"></script>
 <script src="{{ asset('vendor/Print.js-1.0.54/print.min.js') }}"></script>
+<script src="//cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
 <script>
 
 $(document).ready(function() {
@@ -235,12 +236,17 @@ $(document).ready(function() {
   let searchParams = new URLSearchParams(window.location.search),
     csrfToken = $('meta[name="csrf-token"]').attr('content'),
     selectedActivity = $('#activityList').val(),
-    listItems = function() {
+    listItems = function(keyword) {
       let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
-        tableBody = $('#itemList tbody');
+        tableBody = $('#itemList tbody'),
+        fullUrl = url + '/' + selectedActivity + '/' + {{ $order->area_id }};
+
+      if (keyword) {
+        fullUrl = fullUrl + '?search=' + keyword;
+      }
 
       $.ajax({
-        url: url + '/' + selectedActivity + '/' + {{ $order->area_id }},
+        url: fullUrl,
         type: 'GET',
         dataType: 'html',
         beforeSend: function() {
@@ -282,7 +288,7 @@ $(document).ready(function() {
         { targets: 0, searchable: false, visible: false },
         { data: 'name' },
         { data: 'activity' },
-        {  width: "80px", className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
+        { width: "80px", className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
         { width: "80px", searchable: false, targets: 4 },
         { width: "80px", searchable: false, targets: 5 },
         { width: "80px", searchable: false, targets: 6 },
@@ -444,6 +450,11 @@ $(document).ready(function() {
     
     $(this).data('toggle', newToggle);
   });
+
+  $('#searchbox').on('keyup', _.debounce(function(e) {
+    let keyword = $(this).val();
+    listItems(keyword);
+  }, 300));
 
   // Open modal after order creation
   if (searchParams.has('additem')) {
