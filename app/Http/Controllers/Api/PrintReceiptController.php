@@ -21,11 +21,10 @@ class PrintReceiptController extends Controller
             'job_order_number' => $order->job_number,
             'area' => $order->area->name,
             'account_name' => $order->account_name,
-            'qty' => $order->item_id
-            ]);
+        ]);
+
         $this->print($receipt);
     }
-
 
     private function createReceipt($dictionary = [])
     {
@@ -37,8 +36,6 @@ JOB ORDER NO: :job_order_number:
 AREA: :area:
 
 ADDRESSED TO: :account_name:
-
-QTY: :qty:
 ";
 
         foreach($dictionary as $search => $replace) {
@@ -71,7 +68,6 @@ QTY: :qty:
         // $job->addAttribute('media', 'Custom.58x500mm');
         // $job->addAttribute('fit-to-page', true);
         // $job->addAttribute('cpi', 2);
-//       $result = $jobManager->send($printer, $job);
-        print($text);
+        $result = $jobManager->send($printer, $job);
     }
 }
