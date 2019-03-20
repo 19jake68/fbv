@@ -176,7 +176,7 @@ class OrdersController extends Controller
         $activities = Activity::lists('name', 'id');
 
         if ($order->has_tax) {
-          $order->tax = $order->total * (env('tax') / 100);
+          $order->tax = $order->total * (env('TAX') / 100);
           $order->totalAmount = $order->total + $order->tax;
         }
         
@@ -250,7 +250,7 @@ class OrdersController extends Controller
       // Calculate Tax
       if ($request->get('has_tax')) {
         $order = Order::find($id);
-        $percentage = env('tax');
+        $percentage = env('TAX');
         $tax = $order->total * ($percentage / 100);
       } else {
         $tax = 0;
@@ -363,7 +363,7 @@ class OrdersController extends Controller
     for ($i = 0; $i < count($data->data); $i++) {
       // Calculate Tax
       if ($data->data[$i][8]) { // has tax
-        $data->data[$i][7] += round($data->data[$i][7] * (env('tax') / 100), 2);
+        $data->data[$i][7] += round($data->data[$i][7] * (env('TAX') / 100), 2);
       }
 
       for ($j = 0; $j < count($this->listing_cols); $j++) {
