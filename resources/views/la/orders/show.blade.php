@@ -313,7 +313,7 @@ $(document).ready(function() {
         total = itemSum;
 
       @if ($order->has_tax)
-      let tax = total * ({{env('tax')}} / 100),
+      let tax = total * ({{env('TAX')}} / 100),
         totalAmount = total + tax;
       $('.tax').html('&#8369;' + tax.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
       $('.totalAmount').html('&#8369;' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
