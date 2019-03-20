@@ -315,4 +315,12 @@ trait Setters
 
         return $this;
     }
+
+    /**
+     * Set Has Tax
+     */
+    public function hasTax($hasTax) {
+        $this->hasTax = $hasTax;
+        return $this;
+    }
 }

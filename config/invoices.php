@@ -33,7 +33,7 @@ return [
     | You can change it on each invoice individually.
     */
 
-    'tax' => 0,
+    'tax' => env('tax'),
 
     /*
     |--------------------------------------------------------------------------

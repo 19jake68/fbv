@@ -6,7 +6,11 @@
   }
 
   table.dataTable {
-    width: 100%;
+    width: 100% !important;
+  }
+
+  .actions {
+    min-width: 55px;
   }
 </style>
 @endpush
@@ -80,6 +84,7 @@
           
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
+          @la_input($module, 'has_tax')
 					@la_input($module, 'date')
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
@@ -121,7 +126,8 @@ $(function () {
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
       @if($show_actions)
-      { className: 'text-center', orderable: false, targets: [-1] }
+      { visible: false, targets: [8] },
+      { className: 'actions text-center', orderable: false, targets: [-1] }
       @endif
     ]
 	});

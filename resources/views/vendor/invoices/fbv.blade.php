@@ -93,10 +93,26 @@
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 </tr>
+
+                @if ($invoice->hasTax)
+                <tr>
+                    <td colspan="3" class="text-right" style="padding-right:5px">Subtotal</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right" style="padding-right:5px">Tax ({{ $invoice->tax }}%)</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
+                </tr>
                 <tr>
                     <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->totalInvoice }}</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
                 </tr>
+                @else
+                <tr>
+                    <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
+                    <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                </tr>
+                @endif
             <table>
             <table>
                 <tr>
