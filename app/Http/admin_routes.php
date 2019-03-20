@@ -116,3 +116,7 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	Route::resource(config('laraadmin.adminRoute') . '/order_types', 'LA\Order_TypesController');
 	Route::get(config('laraadmin.adminRoute') . '/order_type_dt_ajax', 'LA\Order_TypesController@dtajax');
 });
+
+Route::group(['prefix' => config('laraadmin.adminRoute')], function () {
+	Route::get('/orders/{order}/print', 'Api\PrintReceiptController@index');
+});

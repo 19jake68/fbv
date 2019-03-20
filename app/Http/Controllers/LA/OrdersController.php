@@ -28,7 +28,7 @@ class OrdersController extends Controller
 {
   public $show_action;
   public $view_col = 'job_number';
-  public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total'];
+  public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
   public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
 
   public function __construct()
@@ -174,6 +174,11 @@ class OrdersController extends Controller
         $module = Module::get('Orders');
         $module->row = $order;
         $activities = Activity::lists('name', 'id');
+
+        if ($order->has_tax) {
+          $order->tax = $order->total * (env('tax') / 100);
+          $order->totalAmount = $order->total + $order->tax;
+        }
         
         return view('la.orders.show', [
           'module' => $module,
@@ -241,6 +246,16 @@ class OrdersController extends Controller
       if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
       }
+
+      // Calculate Tax
+      if ($request->get('has_tax')) {
+        $order = Order::find($id);
+        $percentage = env('tax');
+        $tax = $order->total * ($percentage / 100);
+      } else {
+        $tax = 0;
+      }
+      $request->tax = $tax;
 
       $insert_id = Module::updateRow("Orders", $request, $id);
       return redirect(config('laraadmin.adminRoute') . "/orders/" . $id);
@@ -333,7 +348,7 @@ class OrdersController extends Controller
   {
     $values = DB::table('orders')
       ->leftJoin('employees', 'employees.id', '=', 'orders.user_id')
-      ->select(['orders.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total'])
+      ->select(['orders.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
       ->whereNull('orders.deleted_at');
     
     // List user created order if not admin, otherwise display all orders
@@ -343,10 +358,14 @@ class OrdersController extends Controller
 
     $out = Datatables::of($values)->make();
     $data = $out->getData();
-
     $fields_popup = ModuleFields::getModuleFields('Orders');
 
     for ($i = 0; $i < count($data->data); $i++) {
+      // Calculate Tax
+      if ($data->data[$i][8]) { // has tax
+        $data->data[$i][7] += round($data->data[$i][7] * (env('tax') / 100), 2);
+      }
+
       for ($j = 0; $j < count($this->listing_cols); $j++) {
         $col = $this->listing_cols[$j];
         if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
@@ -478,6 +497,7 @@ class OrdersController extends Controller
           ->timeStart(date("M j, Y g:i a", strtotime($order->time_start)))
           ->timeEnd(date("M j, Y g:i a", strtotime($order->time_finished)))
           ->totalInvoice($order->total)
+          ->hasTax($order->has_tax)
           ->currency('&#8369;');
 
         // Items
@@ -508,6 +528,8 @@ class OrdersController extends Controller
         foreach($others as $index => $item) {
           $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal);
         }
+
+        // dd($invoice);
 
         // Generate Invoice
         $invoice->show();

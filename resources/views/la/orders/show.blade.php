@@ -73,6 +73,9 @@
     background: #398439;
     color: #fff;
   }
+  .label-regular {
+    font-weight: normal;
+  }
 </style>
 @endpush
   
@@ -109,8 +112,16 @@
       <div class="dats1"><i class="fa fa-envelope-o"></i> {{ $order->user->email }}</div>
 		</div>
 		<div class="col-md-4">
-      <div class="dats1 mt10">Total:</div>
-      <div class="dats1"><div class="label2 success total">&#8369;{{ number_format($order->total, 2) }}</div></div>
+      <div class="dats1 mt10"></div>
+      <ul class="list-unstyled">
+      @if ($order->has_tax)
+        <li>Subtotal: <span class="total">&#8369;{{ number_format($order->total, 2) }}</span></li>
+        <li>Tax: <span class="tax">&#8369;{{ number_format($order->tax, 2) }}</span></li>
+        <li class="mt10" style="font-size: 20px">Total: <span class="totalAmount label label-success label-regular">&#8369;{{ number_format($order->totalAmount, 2) }}</span>
+      @else
+        <li style="font-size: 20px">Total: <span class="total label label-success label-regular">&#8369;{{ number_format($order->total, 2) }}</span>
+      @endif
+      </ul>
 		</div>
 		<div class="col-md-1 actions">
       <button class="btn btn-xs btn-print btn-default" title="Print Job Order"><i class="fa fa-print"></i></button>
@@ -300,6 +311,13 @@ $(document).ready(function() {
     calcAmount = function() {
       let itemSum = orderItems.column(7).data().sum(),
         total = itemSum;
+
+      @if ($order->has_tax)
+      let tax = total * ({{env('tax')}} / 100),
+        totalAmount = total + tax;
+      $('.tax').html('&#8369;' + tax.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+      $('.totalAmount').html('&#8369;' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+      @endif
 
       $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
     };

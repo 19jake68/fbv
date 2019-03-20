@@ -57,6 +57,13 @@ class Invoice
     public $currency;
 
     /**
+     * Invoice has tax.
+     * 
+     * @var boolean
+     */
+    public $hasTax;
+
+    /**
      * Invoice tax.
      *
      * @var int
@@ -333,9 +340,10 @@ class Invoice
      */
     private function subTotalPrice()
     {
-        return $this->items->sum(function ($item) {
-            return bcmul($item['price'], $item['ammount'], $this->decimals);
-        });
+        return preg_replace("/([^0-9\\.])/i", "", $this->totalInvoice);
+        // return $this->items->sum(function ($item) {
+        //     return bcmul($item['price'], $item['ammount'], $this->decimals);
+        // });
     }
 
     /**
@@ -359,7 +367,8 @@ class Invoice
      */
     private function totalPrice()
     {
-        return bcadd($this->subTotalPrice(), $this->taxPrice(), $this->decimals);
+        return $this->subtotalPrice() + $this->taxPrice();
+        // return bcadd($this->subTotalPrice(), $this->taxPrice(), $this->decimals);
     }
 
     /**
@@ -397,7 +406,8 @@ class Invoice
     private function taxPrice()
     {
         if ($this->tax_type == 'percentage') {
-            return bcdiv(bcmul($this->tax, $this->subTotalPrice(), $this->decimals), 100, $this->decimals);
+            return $this->subTotalPrice() * ($this->tax / 100);
+            // return bcdiv(bcmul($this->tax, $this->subTotalPrice(), $this->decimals), 100, $this->decimals);
         }
 
         return $this->tax;
