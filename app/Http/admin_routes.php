@@ -22,6 +22,10 @@ if(\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
 	Route::get('/logout', 'Auth\LoginController@logout');
 }
 
+Route::group(['prefix' => config('laraadmin.adminRoute')], function () {
+    Route::get('/orders/{order}/print', 'Api\PrintReceiptController@index');
+});
+
 Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], function () {
 	/* ================== Dashboard ================== */	
 	Route::get(config('laraadmin.adminRoute'), 'LA\DashboardController@index');
@@ -115,8 +119,8 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
 	/* ================== Order_Types ================== */
 	Route::resource(config('laraadmin.adminRoute') . '/order_types', 'LA\Order_TypesController');
 	Route::get(config('laraadmin.adminRoute') . '/order_type_dt_ajax', 'LA\Order_TypesController@dtajax');
-});
 
-Route::group(['prefix' => config('laraadmin.adminRoute')], function () {
-	Route::get('/orders/{order}/print', 'Api\PrintReceiptController@index');
-});
+/* ================== Reports ================== */
+	Route::resource(config('laraadmin.adminRoute') . '/reports', 'LA\ReportsController');
+	Route::get(config('laraadmin.adminRoute') . '/report_dt_ajax', 'LA\ReportsController@dtajax');
+});	

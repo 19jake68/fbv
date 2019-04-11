@@ -96,6 +96,7 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         ),
         'J' => 
         array (
+            'Jimmyjs\\ReportGenerator\\' => 24,
             'JakubOnderka\\PhpConsoleColor\\' => 29,
         ),
         'I' => 
@@ -292,6 +293,10 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         array (
             0 => __DIR__ . '/..' . '/league/flysystem/src',
         ),
+        'Jimmyjs\\ReportGenerator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src',
+        ),
         'JakubOnderka\\PhpConsoleColor\\' => 
         array (
             0 => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src',
@@ -433,6 +438,10 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Events\\Event' => __DIR__ . '/../..' . '/app/Events/Event.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
+        'App\\Helpers\\FBV\\Invoice' => __DIR__ . '/../..' . '/app/Helpers/FBV/Invoice.php',
+        'App\\Helpers\\FBV\\PDF' => __DIR__ . '/../..' . '/app/Helpers/FBV/PDF.php',
+        'App\\Helpers\\FBV\\Setters' => __DIR__ . '/../..' . '/app/Helpers/FBV/Setters.php',
+        'App\\Http\\Controllers\\Api\\PrintReceiptController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/PrintReceiptController.php',
         'App\\Http\\Controllers\\Auth\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthController.php',
         'App\\Http\\Controllers\\Auth\\PasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/PasswordController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
@@ -446,6 +455,8 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         'App\\Http\\Controllers\\LA\\Item_DetailsController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/Item_DetailsController.php',
         'App\\Http\\Controllers\\LA\\ItemsController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/ItemsController.php',
         'App\\Http\\Controllers\\LA\\LAConfigController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/LAConfigController.php',
+        'App\\Http\\Controllers\\LA\\Order_MiscsController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/Order_MiscsController.php',
+        'App\\Http\\Controllers\\LA\\Order_TypesController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/Order_TypesController.php',
         'App\\Http\\Controllers\\LA\\OrdersController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/OrdersController.php',
         'App\\Http\\Controllers\\LA\\OrganizationsController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/OrganizationsController.php',
         'App\\Http\\Controllers\\LA\\PermissionsController' => __DIR__ . '/../..' . '/app/Http/Controllers/LA/PermissionsController.php',
@@ -470,6 +481,8 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         'App\\Models\\Item' => __DIR__ . '/../..' . '/app/Models/Item.php',
         'App\\Models\\Item_Detail' => __DIR__ . '/../..' . '/app/Models/Item_Detail.php',
         'App\\Models\\Order' => __DIR__ . '/../..' . '/app/Models/Order.php',
+        'App\\Models\\Order_Misc' => __DIR__ . '/../..' . '/app/Models/Order_Misc.php',
+        'App\\Models\\Order_Type' => __DIR__ . '/../..' . '/app/Models/Order_Type.php',
         'App\\Models\\Organization' => __DIR__ . '/../..' . '/app/Models/Organization.php',
         'App\\Models\\Unit' => __DIR__ . '/../..' . '/app/Models/Unit.php',
         'App\\Models\\Upload' => __DIR__ . '/../..' . '/app/Models/Upload.php',
@@ -527,6 +540,8 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         'CreateModuleFieldTypesTable' => __DIR__ . '/../..' . '/database/migrations/2014_05_26_055000_create_module_field_types_table.php',
         'CreateModuleFieldsTable' => __DIR__ . '/../..' . '/database/migrations/2014_05_26_060000_create_module_fields_table.php',
         'CreateModulesTable' => __DIR__ . '/../..' . '/database/migrations/2014_05_26_050000_create_modules_table.php',
+        'CreateOrderMiscsTable' => __DIR__ . '/../..' . '/database/migrations/2019_02_06_193628_create_order_miscs_table.php',
+        'CreateOrderTypesTable' => __DIR__ . '/../..' . '/database/migrations/2019_02_12_034508_create_order_types_table.php',
         'CreateOrdersTable' => __DIR__ . '/../..' . '/database/migrations/2018_11_18_162556_create_orders_table.php',
         'CreateOrganizationsTable' => __DIR__ . '/../..' . '/database/migrations/2016_07_06_140637_create_organizations_table.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
@@ -2211,6 +2226,14 @@ class ComposerStaticInit60679649ef36bd0b4a1f1de91e5e2342
         'JakubOnderka\\PhpConsoleColor\\ConsoleColor' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/ConsoleColor.php',
         'JakubOnderka\\PhpConsoleColor\\InvalidStyleException' => __DIR__ . '/..' . '/jakub-onderka/php-console-color/src/InvalidStyleException.php',
         'JakubOnderka\\PhpConsoleHighlighter\\Highlighter' => __DIR__ . '/..' . '/jakub-onderka/php-console-highlighter/src/JakubOnderka/PhpConsoleHighlighter/Highlighter.php',
+        'Jimmyjs\\ReportGenerator\\Facades\\CSVReportFacade' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/Facades/CSVReportFacade.php',
+        'Jimmyjs\\ReportGenerator\\Facades\\ExcelReportFacade' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/Facades/ExcelReportFacade.php',
+        'Jimmyjs\\ReportGenerator\\Facades\\PdfReportFacade' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/Facades/PdfReportFacade.php',
+        'Jimmyjs\\ReportGenerator\\ReportGenerator' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/ReportGenerator.php',
+        'Jimmyjs\\ReportGenerator\\ReportMedia\\CSVReport' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/ReportMedia/CSVReport.php',
+        'Jimmyjs\\ReportGenerator\\ReportMedia\\ExcelReport' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/ReportMedia/ExcelReport.php',
+        'Jimmyjs\\ReportGenerator\\ReportMedia\\PdfReport' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/ReportMedia/PdfReport.php',
+        'Jimmyjs\\ReportGenerator\\ServiceProvider' => __DIR__ . '/..' . '/jimmyjs/laravel-report-generator/src/ServiceProvider.php',
         'JsonSerializable' => __DIR__ . '/..' . '/nesbot/carbon/src/JsonSerializable.php',
         'League\\Flysystem\\AdapterInterface' => __DIR__ . '/..' . '/league/flysystem/src/AdapterInterface.php',
         'League\\Flysystem\\Adapter\\AbstractAdapter' => __DIR__ . '/..' . '/league/flysystem/src/Adapter/AbstractAdapter.php',
