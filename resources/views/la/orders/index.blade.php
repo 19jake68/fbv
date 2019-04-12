@@ -21,9 +21,12 @@
 @section("htmlheader_title", "Orders Listing")
 
 @section("headerElems")
+<div class="pull-right text-right">
 @la_access("Orders", "create")
-	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Order</button>
+&nbsp;<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#AddModal">Add Order</button>
 @endla_access
+<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#ReportModal">Reports</button>
+</div>
 @endsection
 
 @section("main-content")
@@ -99,6 +102,23 @@
 	</div>
 </div>
 @endla_access
+
+<div class="modal fade" id="ReportModal" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel">Generate Reports</h4>
+			</div>
+			<div class="modal-body">
+				<div class="box-body">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 @endsection
 
