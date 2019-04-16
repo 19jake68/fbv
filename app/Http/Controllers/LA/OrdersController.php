@@ -550,13 +550,25 @@ class OrdersController extends Controller
 
     $title = 'FBV Order Report';
     $meta = [
-      'Created on' => $startDate . ' to ' . $endDate
+      'Date' => date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)),
+      'Activity' => 'All',
+      'Area' => 'All',
+      'Created By' => 'All',
+      'Records Displayed' => 'First 100 data only'
+    ];
+    $columns = [
+      'Job #' => 'job_number',
+      'Account Name' => 'account_name',
+      'Area' => 'area',
+      'Created By' => 'employee',
+      'Date' => 'date',
+      'Total' => 'total'
     ];
 
     if ($activityId) {
-      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'total', DB::raw('SUM(subtotal) as total'), 'activity.name');
+      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', 'total', DB::raw('SUM(subtotal) as total', 'date'), 'activity.name');
     } else {
-      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', DB::raw('SUM(subtotal) as total'));
+      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
     }
 
     $query->leftJoin(Area::getTableName() . ' as area', 'area.id', '=', 'area_id')
@@ -564,29 +576,52 @@ class OrdersController extends Controller
       ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
       ->whereBetween('date', [$startDate, $endDate])
       ->groupBy('item.order_id')
-      ->orderBy('date', 'desc');
+      ->orderBy('date', 'desc')
+      ->limit(100);
 
-    if ($areaId) $query->where('area_id', $areaId);
-    if ($userId) $query->where('user_id', $userId);
-    if ($activityId)
+    // Area condition
+    if ($areaId) {
+      $query->where('area_id', $areaId);
+      $area = Area::find($areaId);
+      $meta['Area'] = $area->name;
+      unset($columns['Area']);
+    }
+
+    // User details
+    if ($userId) {
+      $query->where('user_id', $userId);
+      $user = Employee::find($userId);
+      $meta['Created By'] = $user->name;
+      unset($columns['Created By']);
+    }
+
+    // Activity
+    if ($activityId) {
       $query->leftJoin(Activity::getTableName() . ' as activity', 'activity.id', '=', 'item.activity_id')
         ->where('activity_id', $activityId);
-
-    $columns = [
-      'Job #' => 'job_number',
-      'Account Name' => 'account_name',
-      'Area' => 'area',
-      'Employee' => 'employee',
-      'Date' => 'date',
-      'Total' => 'total'
-    ];
+      $activity = Activity::find($activityId);
+      $meta['Activity'] = $activity->name;
+    }
+      
 
     // Generate
-    // return PdfReport::of($title, $meta, $query, $columns)
-    //   ->showTotal([
-    //     'Total' => 'point'
-    //   ])
-    //   ->stream();
+    return PdfReport::of($title, $meta, $query, $columns)
+      ->editColumn('Date', [
+        'displayAs' => function($result) {
+          return date("M d Y", strtotime($result->date));
+        }
+      ])
+      ->editColumn('Total', [
+        'class' => 'right bold',
+        'displayAs' => function($result) {
+          return "P".number_format($result->total, 2);
+        }
+      ])
+      ->showTotal([
+        'Total' => 'point'
+      ])
+      ->setOrientation('landscape')
+      ->stream();
   }
 
   /**

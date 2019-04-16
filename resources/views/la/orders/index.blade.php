@@ -105,7 +105,7 @@
 
 <div class="modal fade" id="ReportModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
-  {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form']) !!}
+  {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form', 'novalidate' => 'novalidate', 'target' => '_blank']) !!}
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="myModalLabel">Generate Reports</h4>
@@ -115,14 +115,14 @@
           <div class="row">
             <div class="col-sm-6">
               <div class="form-group">
-                {{ Form::label('start_date', 'Start Date:') }}
-                {{ Form::text('startDate', null, ['id' => 'start_date2', 'class' => 'datepicker form-control']) }}
+                {{ Form::label('start_date', 'Start Date *:') }}
+                {{ Form::text('startDate', null, ['id' => 'start_date2', 'class' => 'datepicker form-control', 'required' => 1]) }}
               </div>
             </div>
             <div class="col-sm-6">
               <div class="form-group">
-                {{ Form::label('end_date', 'End Date:') }}
-                {{ Form::text('endDate', null, ['id' => 'end_date2', 'class' => 'datepicker form-control']) }}
+                {{ Form::label('end_date', 'End Date *:') }}
+                {{ Form::text('endDate', null, ['id' => 'end_date2', 'class' => 'datepicker form-control', 'required' => 1]) }}
               </div>
             </div>
           </div>
@@ -193,6 +193,7 @@ $(function () {
   });
 
 	$("#order-add-form").validate({});
+  $("#order-generate-report-form").validate({});
 
   @if($show_actions)
   // Delete item
