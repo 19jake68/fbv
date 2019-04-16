@@ -10,6 +10,7 @@ use Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Area;
+use App\Models\Employee;
 use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
@@ -23,6 +24,7 @@ use Dwij\Laraadmin\Models\ModuleFields;
 use Illuminate\Http\Request;
 use Validator;
 use App\Helpers\FBV\Invoice;
+use PdfReport;
 
 class OrdersController extends Controller
 {
@@ -71,6 +73,11 @@ class OrdersController extends Controller
         $areas = json_decode($areas);
         $areas = Area::whereIn('id', $areas)->lists('name', 'id');
         $params['areas'] = $areas;
+      }
+
+      // Display report generator on admin
+      if (Auth::user()->isAdministrator()) {
+        $params['reports'] = $this->_setReportsCriteria();
       }
 
       return View('la.orders.index', $params);
@@ -529,11 +536,76 @@ class OrdersController extends Controller
           $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal);
         }
 
-        // dd($invoice);
-
         // Generate Invoice
         $invoice->show();
       }
     }
+  }
+
+  public function generateReport(Request $request)
+  {
+    foreach ($request->all() as $key => $value) {
+      $$key = $value;
+    }
+
+    $title = 'FBV Order Report';
+    $meta = [
+      'Created on' => $startDate . ' to ' . $endDate
+    ];
+
+    if ($activityId) {
+      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'total', DB::raw('SUM(subtotal) as total'), 'activity.name');
+    } else {
+      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', DB::raw('SUM(subtotal) as total'));
+    }
+
+    $query->leftJoin(Area::getTableName() . ' as area', 'area.id', '=', 'area_id')
+      ->leftJoin(Employee::getTableName() . ' as user', 'user.id', '=', 'user_id')
+      ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
+      ->whereBetween('date', [$startDate, $endDate])
+      ->groupBy('item.order_id')
+      ->orderBy('date', 'desc');
+
+    if ($areaId) $query->where('area_id', $areaId);
+    if ($userId) $query->where('user_id', $userId);
+    if ($activityId)
+      $query->leftJoin(Activity::getTableName() . ' as activity', 'activity.id', '=', 'item.activity_id')
+        ->where('activity_id', $activityId);
+
+    $columns = [
+      'Job #' => 'job_number',
+      'Account Name' => 'account_name',
+      'Area' => 'area',
+      'Employee' => 'employee',
+      'Date' => 'date',
+      'Total' => 'total'
+    ];
+
+    // Generate
+    // return PdfReport::of($title, $meta, $query, $columns)
+    //   ->showTotal([
+    //     'Total' => 'point'
+    //   ])
+    //   ->stream();
+  }
+
+  /**
+   *
+   */
+  public function _setReportsCriteria()
+  {
+    $criteria = new \stdClass;
+    $models = [
+      'areas' => 'App\Models\Area', 
+      'activities' => 'App\Models\Activity', 
+      'employees' => 'App\Models\Employee'
+    ];
+    foreach ($models as $key => $model) {
+      $criteria->$key = (new $model)->orderBy('name')
+        ->pluck('name', 'id')
+        ->prepend('-- All --', 0)
+        ->toArray();
+    }
+    return $criteria;
   }
 }
