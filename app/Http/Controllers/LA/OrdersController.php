@@ -548,13 +548,13 @@ class OrdersController extends Controller
       $$key = $value;
     }
 
+    $limit = 500;
     $title = 'FBV Order Report';
     $meta = [
       'Date' => date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)),
       'Activity' => 'All',
       'Area' => 'All',
-      'Created By' => 'All',
-      'Records Displayed' => 'First 100 data only'
+      'Created By' => 'All'
     ];
     $columns = [
       'Job #' => 'job_number',
@@ -576,8 +576,13 @@ class OrdersController extends Controller
       ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
       ->whereBetween('date', [$startDate, $endDate])
       ->groupBy('item.order_id')
-      ->orderBy('date', 'desc')
-      ->limit(100);
+      ->orderBy('date', 'desc');
+
+    // Add limit for generic reports
+    if (!$areaId && !$userId && !$activityId) {
+      $query->limit($limit);
+      $meta['Records Displayed'] = 'First ' . $limit . ' data only';
+    }
 
     // Area condition
     if ($areaId) {
