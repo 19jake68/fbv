@@ -21,9 +21,12 @@
 @section("htmlheader_title", "Orders Listing")
 
 @section("headerElems")
+<div class="pull-right text-right">
 @la_access("Orders", "create")
-	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Order</button>
+&nbsp;<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#AddModal">Add Order</button>
 @endla_access
+<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#ReportModal">Reports</button>
+</div>
 @endsection
 
 @section("main-content")
@@ -100,6 +103,53 @@
 </div>
 @endla_access
 
+<div class="modal fade" id="ReportModal" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+  {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form']) !!}
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel">Generate Reports</h4>
+			</div>
+			<div class="modal-body">
+				<div class="box-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                {{ Form::label('start_date', 'Start Date:') }}
+                {{ Form::text('startDate', null, ['id' => 'start_date2', 'class' => 'datepicker form-control']) }}
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                {{ Form::label('end_date', 'End Date:') }}
+                {{ Form::text('endDate', null, ['id' => 'end_date2', 'class' => 'datepicker form-control']) }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            {{ Form::label('activity2', 'Activity:') }}
+            {{ Form::select('activityId', $reports->activities, null, ['id' => 'activity2', 'class' => 'form-control']) }}
+          </div>
+          <div class="form-group">
+            {{ Form::label('area2', 'Area:') }}
+            {{ Form::select('areaId', $reports->areas, null, ['id' => 'area2', 'class' => 'form-control']) }}
+          </div>
+          <div class="form-group">
+            {{ Form::label('employee2', 'User:') }}
+            {{ Form::select('userId', $reports->employees, null, ['id' => 'employee2', 'class' => 'form-control']) }}
+          </div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {!! Form::submit( 'Generate Report', ['class'=>'btn btn-success']) !!}
+			</div>
+		</div>
+  {!! Form::close() !!}
+  </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -136,6 +186,10 @@ $(function () {
     backdrop: 'static',
     keyboard: false,
     show: false
+  });
+
+  $( ".datepicker" ).datetimepicker({
+    format: 'YYYY-MM-DD'
   });
 
 	$("#order-add-form").validate({});
