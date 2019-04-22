@@ -582,11 +582,11 @@ class OrdersController extends Controller
     ];
 
     // Generate
-    // return PdfReport::of($title, $meta, $query, $columns)
-    //   ->showTotal([
-    //     'Total' => 'point'
-    //   ])
-    //   ->stream();
+    return PdfReport::of($title, $meta, $query, $columns)
+      ->showTotal([
+        'Total' => 'point'
+      ])
+      ->stream();
   }
 
   /**
