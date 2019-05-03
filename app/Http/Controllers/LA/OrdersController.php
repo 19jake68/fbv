@@ -254,6 +254,7 @@ class OrdersController extends Controller
         return redirect()->back()->withErrors($validator)->withInput();
       }
 
+
       // Calculate Tax
       if ($request->get('has_tax')) {
         $order = Order::find($id);
@@ -649,3 +650,6 @@ class OrdersController extends Controller
     return $criteria;
   }
 }
+
+
+

@@ -12,7 +12,8 @@
         "verumconsilium/laravel-browsershot": "^1.1",
         "consoletvs/invoices": "^1.1",
         "jimmyjs/laravel-report-generator": "^1.1",
-        "barryvdh/laravel-dompdf" : "0.8.1"
+        "barryvdh/laravel-dompdf" : "0.8.1",
+	"khill/lavacharts" : "3.0.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

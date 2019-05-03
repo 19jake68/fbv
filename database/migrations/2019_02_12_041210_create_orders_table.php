@@ -8,7 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Dwij\Laraadmin\Models\Module;
 
-class CreateOrderMiscsTable extends Migration
+class CreateOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,12 +17,17 @@ class CreateOrderMiscsTable extends Migration
      */
     public function up()
     {
-        Module::generate("Order_miscs", 'order_miscs', 'activity', 'fa-list-ul', [
-            ["activity", "Activity", "String", false, "", 0, 255, true],
-            ["quantity", "Quantity", "Integer", false, "", 0, 11, true],
-            ["unit", "Unit", "String", false, "", 0, 100, true],
-            ["amount", "Amount", "Currency", false, "", 0, 11, true],
-            ["order_id", "Order", "Integer", false, "", 0, 10, true],
+        Module::generate("Orders", 'orders', 'job_number', 'fa-cube', [
+            ["area_id", "Area", "Dropdown", false, "", 0, 0, true, "@areas"],
+            ["order_type_id", "Order Type", "Dropdown", false, "", 0, 0, false, "@order_types"],
+            ["company", "Company", "Dropdown", false, "FBV Waterworks & General Services", 0, 0, true, ["FBV Waterworks & General Services","JSGP Plumbing Services"]],
+            ["job_number", "Job #", "String", false, "", 0, 255, true],
+            ["account_name", "Account Name", "String", false, "", 0, 256, true],
+            ["date", "Date", "Date", false, "", 0, 0, false],
+            ["time_start", "Time Start", "Datetime", false, "", 0, 0, false],
+            ["time_finished", "Time Finished", "Datetime", false, "", 0, 0, false],
+            ["user_id", "User", "Dropdown", false, "", 0, 0, false, "@employees"],
+            ["total", "Total", "Float", false, "00.00", 0, 11, true],
         ]);
 		
 		/*
@@ -68,8 +73,8 @@ class CreateOrderMiscsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasTable('order_miscs')) {
-            Schema::drop('order_miscs');
+        if (Schema::hasTable('orders')) {
+            Schema::drop('orders');
         }
     }
 }
