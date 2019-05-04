@@ -6,10 +6,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Order_Type extends Model
+class Order_Type extends BaseModel
 {
     // use SoftDeletes;
 	

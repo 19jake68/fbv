@@ -25,7 +25,9 @@
 @la_access("Orders", "create")
 &nbsp;<button class="btn btn-success btn-sm" data-toggle="modal" data-target="#AddModal">Add Order</button>
 @endla_access
+@if(Auth::user()->isAdministrator())
 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#ReportModal">Reports</button>
+@endif
 </div>
 @endsection
 
@@ -103,6 +105,7 @@
 </div>
 @endla_access
 
+@if(Auth::user()->isAdministrator())
 <div class="modal fade" id="ReportModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
   {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form', 'novalidate' => 'novalidate', 'target' => '_blank']) !!}
@@ -128,6 +131,10 @@
           </div>
           
           <div class="form-group">
+            {{ Form::label('order_type2', 'Order Type:') }}
+            {{ Form::select('orderTypeId', $reports->order_type, null, ['id' => 'order_type2', 'class' => 'form-control']) }}
+          </div>
+          <div class="form-group">
             {{ Form::label('activity2', 'Activity:') }}
             {{ Form::select('activityId', $reports->activities, null, ['id' => 'activity2', 'class' => 'form-control']) }}
           </div>
@@ -149,7 +156,7 @@
   {!! Form::close() !!}
   </div>
 </div>
-
+@endif
 @endsection
 
 @push('styles')

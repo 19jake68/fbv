@@ -559,6 +559,8 @@ class OrdersController extends Controller
     ];
     $columns = [
       'Job #' => 'job_number',
+      'Order Type' => 'order_type',
+      'Company' => 'company',
       'Account Name' => 'account_name',
       'Area' => 'area',
       'Created By' => 'employee',
@@ -567,14 +569,15 @@ class OrdersController extends Controller
     ];
 
     if ($activityId) {
-      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', 'total', DB::raw('SUM(subtotal) as total', 'date'), 'activity.name');
+      $query = Order::select('company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'), 'activity.name');
     } else {
-      $query = Order::select('job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
+      $query = Order::select('company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
     }
 
     $query->leftJoin(Area::getTableName() . ' as area', 'area.id', '=', 'area_id')
       ->leftJoin(Employee::getTableName() . ' as user', 'user.id', '=', 'user_id')
       ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
+      ->leftJoin(Order_Type::getTableName() . ' as order_type', 'order_type.id', '=', 'orders.order_type_id')
       ->whereBetween('date', [$startDate, $endDate])
       ->groupBy('item.order_id')
       ->orderBy('date', 'desc');
@@ -583,6 +586,14 @@ class OrdersController extends Controller
     if (!$areaId && !$userId && !$activityId) {
       $query->limit($limit);
       $meta['Records Displayed'] = 'First ' . $limit . ' data only';
+    }
+
+    // Order Type condition
+    if ($orderTypeId) {
+      $query->where('order_type_id', $orderTypeId);
+      $orderType = Order_Type::find($orderTypeId);
+      $meta['Order Type'] = $orderType->name;
+      unset($columns['Order Type']);
     }
 
     // Area condition
@@ -608,7 +619,6 @@ class OrdersController extends Controller
       $activity = Activity::find($activityId);
       $meta['Activity'] = $activity->name;
     }
-      
 
     // Generate
     return PdfReport::of($title, $meta, $query, $columns)
@@ -627,6 +637,8 @@ class OrdersController extends Controller
         'Total' => 'point'
       ])
       ->setOrientation('landscape')
+      // ->simple()
+      // ->download('filename');
       ->stream();
   }
 
@@ -639,7 +651,8 @@ class OrdersController extends Controller
     $models = [
       'areas' => 'App\Models\Area', 
       'activities' => 'App\Models\Activity', 
-      'employees' => 'App\Models\Employee'
+      'employees' => 'App\Models\Employee',
+      'order_type' => 'App\Models\Order_Type'
     ];
     foreach ($models as $key => $model) {
       $criteria->$key = (new $model)->orderBy('name')
