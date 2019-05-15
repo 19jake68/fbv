@@ -1244,6 +1244,98 @@
         ]
     },
     {
+        "name": "khill/lavacharts",
+        "version": "3.0.8",
+        "version_normalized": "3.0.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/kevinkhill/lavacharts.git",
+            "reference": "ab4aa8d8bc3d68d0e86b3d59383a0aaee384c6f5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/kevinkhill/lavacharts/zipball/ab4aa8d8bc3d68d0e86b3d59383a0aaee384c6f5",
+            "reference": "ab4aa8d8bc3d68d0e86b3d59383a0aaee384c6f5",
+            "shasum": ""
+        },
+        "require": {
+            "nesbot/carbon": "~1.14",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "illuminate/support": "5.0.*",
+            "mockery/mockery": "~0.9",
+            "mybuilder/phpunit-accelerator": "~1.1",
+            "phpunit/phpunit": "~4.5",
+            "satooshi/php-coveralls": "~1.0",
+            "squizlabs/php_codesniffer": "~2.5"
+        },
+        "suggest": {
+            "khill/datatableplus": "Adds extra features to DataTables such as csv and laravel collection parsing."
+        },
+        "time": "2017-03-14T13:36:30+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Khill\\Lavacharts\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Kevin Hill",
+                "email": "kevinkhill@gmail.com",
+                "role": "Creator"
+            },
+            {
+                "name": "deringer",
+                "homepage": "https://github.com/deringer",
+                "role": "Contributor"
+            },
+            {
+                "name": "stevebauman",
+                "homepage": "https://github.com/stevebauman",
+                "role": "Contributor"
+            },
+            {
+                "name": "rajivseelam",
+                "homepage": "https://github.com/rajivseelam",
+                "role": "Contributor"
+            },
+            {
+                "name": "tobias-kuendig",
+                "homepage": "https://github.com/tobias-kuendig",
+                "role": "Contributor"
+            },
+            {
+                "name": "Stonos",
+                "homepage": "https://github.com/Stonos",
+                "role": "Contributor"
+            },
+            {
+                "name": "MicahKV",
+                "email": "micah138@yahoo.com",
+                "role": "Contributor"
+            },
+            {
+                "name": "SendDerek",
+                "homepage": "https://github.com/SendDerek",
+                "role": "Contributor"
+            }
+        ],
+        "description": "PHP wrapper library for the Google Chart API",
+        "homepage": "http://lavacharts.com",
+        "keywords": [
+            "charts",
+            "google",
+            "graphs"
+        ]
+    },
+    {
         "name": "laravel/framework",
         "version": "v5.2.45",
         "version_normalized": "5.2.45.0",
@@ -1519,17 +1611,17 @@
     },
     {
         "name": "league/fractal",
-        "version": "0.17.0",
-        "version_normalized": "0.17.0.0",
+        "version": "0.18.0",
+        "version_normalized": "0.18.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/fractal.git",
-            "reference": "a0b350824f22fc2fdde2500ce9d6851a3f275b0e"
+            "reference": "4e553dae1a9402adbe11c81430a64675dc97b4fc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/fractal/zipball/a0b350824f22fc2fdde2500ce9d6851a3f275b0e",
-            "reference": "a0b350824f22fc2fdde2500ce9d6851a3f275b0e",
+            "url": "https://api.github.com/repos/thephpleague/fractal/zipball/4e553dae1a9402adbe11c81430a64675dc97b4fc",
+            "reference": "4e553dae1a9402adbe11c81430a64675dc97b4fc",
             "shasum": ""
         },
         "require": {
@@ -1540,7 +1632,7 @@
             "illuminate/contracts": "~5.0",
             "mockery/mockery": "~0.9",
             "pagerfanta/pagerfanta": "~1.0.0",
-            "phpunit/phpunit": "~4.0",
+            "phpunit/phpunit": "^4.8.35 || ^7.5",
             "squizlabs/php_codesniffer": "~1.5",
             "zendframework/zend-paginator": "~2.3"
         },
@@ -1549,7 +1641,7 @@
             "pagerfanta/pagerfanta": "Pagerfanta Paginator",
             "zendframework/zend-paginator": "Zend Framework Paginator"
         },
-        "time": "2017-06-12T11:04:56+00:00",
+        "time": "2019-05-10T02:16:43+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1921,17 +2013,17 @@
     },
     {
         "name": "nesbot/carbon",
-        "version": "1.36.2",
-        "version_normalized": "1.36.2.0",
+        "version": "1.37.1",
+        "version_normalized": "1.37.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/briannesbitt/Carbon.git",
-            "reference": "cd324b98bc30290f233dd0e75e6ce49f7ab2a6c9"
+            "reference": "5be4fdf97076a685b23efdedfc2b73ad0c5eab70"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/cd324b98bc30290f233dd0e75e6ce49f7ab2a6c9",
-            "reference": "cd324b98bc30290f233dd0e75e6ce49f7ab2a6c9",
+            "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/5be4fdf97076a685b23efdedfc2b73ad0c5eab70",
+            "reference": "5be4fdf97076a685b23efdedfc2b73ad0c5eab70",
             "shasum": ""
         },
         "require": {
@@ -1945,7 +2037,7 @@
             "friendsofphp/php-cs-fixer": "Needed for the `composer phpcs` command. Allow to automatically fix code style.",
             "phpstan/phpstan": "Needed for the `composer phpstan` command. Allow to detect potential errors."
         },
-        "time": "2018-12-28T10:07:33+00:00",
+        "time": "2019-04-19T10:27:42+00:00",
         "type": "library",
         "extra": {
             "laravel": {
@@ -2221,17 +2313,17 @@
     },
     {
         "name": "phpdocumentor/reflection-docblock",
-        "version": "4.3.0",
-        "version_normalized": "4.3.0.0",
+        "version": "4.3.1",
+        "version_normalized": "4.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-            "reference": "94fd0001232e47129dd3504189fa1c7225010d08"
+            "reference": "bdd9f737ebc2a01c06ea7ff4308ec6697db9b53c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/94fd0001232e47129dd3504189fa1c7225010d08",
-            "reference": "94fd0001232e47129dd3504189fa1c7225010d08",
+            "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/bdd9f737ebc2a01c06ea7ff4308ec6697db9b53c",
+            "reference": "bdd9f737ebc2a01c06ea7ff4308ec6697db9b53c",
             "shasum": ""
         },
         "require": {
@@ -2245,7 +2337,7 @@
             "mockery/mockery": "^1.0",
             "phpunit/phpunit": "^6.4"
         },
-        "time": "2017-11-30T07:14:17+00:00",
+        "time": "2019-04-30T17:48:53+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3603,17 +3695,17 @@
     },
     {
         "name": "spatie/image",
-        "version": "1.7.0",
-        "version_normalized": "1.7.0.0",
+        "version": "1.7.1",
+        "version_normalized": "1.7.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/spatie/image.git",
-            "reference": "19399b544ce1d78a3c675404791ab57a87eb8f55"
+            "reference": "04fc75fc203d5aa944f3c667d5b55f2203c9d64f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/spatie/image/zipball/19399b544ce1d78a3c675404791ab57a87eb8f55",
-            "reference": "19399b544ce1d78a3c675404791ab57a87eb8f55",
+            "url": "https://api.github.com/repos/spatie/image/zipball/04fc75fc203d5aa944f3c667d5b55f2203c9d64f",
+            "reference": "04fc75fc203d5aa944f3c667d5b55f2203c9d64f",
             "shasum": ""
         },
         "require": {
@@ -3629,7 +3721,7 @@
             "phpunit/phpunit": "^6.0|^7.0",
             "symfony/var-dumper": "^3.2"
         },
-        "time": "2019-02-22T10:24:29+00:00",
+        "time": "2019-04-17T06:45:22+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -4113,8 +4205,8 @@
     },
     {
         "name": "symfony/event-dispatcher",
-        "version": "v3.4.24",
-        "version_normalized": "3.4.24.0",
+        "version": "v3.4.27",
+        "version_normalized": "3.4.27.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/event-dispatcher.git",
@@ -4966,17 +5058,17 @@
     },
     {
         "name": "verumconsilium/laravel-browsershot",
-        "version": "v1.1.0",
-        "version_normalized": "1.1.0.0",
+        "version": "v1.1.1",
+        "version_normalized": "1.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/verumconsilium/laravel-browsershot.git",
-            "reference": "8876de74f519c457f68fcc366814b8920b2d3eb0"
+            "reference": "7ac097c0b948db6e8cd0eacd05d3c0e4e4c6e4bc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/verumconsilium/laravel-browsershot/zipball/8876de74f519c457f68fcc366814b8920b2d3eb0",
-            "reference": "8876de74f519c457f68fcc366814b8920b2d3eb0",
+            "url": "https://api.github.com/repos/verumconsilium/laravel-browsershot/zipball/7ac097c0b948db6e8cd0eacd05d3c0e4e4c6e4bc",
+            "reference": "7ac097c0b948db6e8cd0eacd05d3c0e4e4c6e4bc",
             "shasum": ""
         },
         "require": {
@@ -4986,7 +5078,7 @@
             "orchestra/testbench": "^3.6",
             "phpunit/phpunit": "^7.0"
         },
-        "time": "2018-12-12T05:10:43+00:00",
+        "time": "2019-04-15T22:36:04+00:00",
         "type": "library",
         "extra": {
             "laravel": {

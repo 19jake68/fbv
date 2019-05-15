@@ -45,6 +45,7 @@ return array(
     'League\\Glide\\' => array($vendorDir . '/league/glide/src'),
     'League\\Fractal\\' => array($vendorDir . '/league/fractal/src'),
     'League\\Flysystem\\' => array($vendorDir . '/league/flysystem/src'),
+    'Khill\\Lavacharts\\' => array($vendorDir . '/khill/lavacharts/src'),
     'Jimmyjs\\ReportGenerator\\' => array($vendorDir . '/jimmyjs/laravel-report-generator/src'),
     'JakubOnderka\\PhpConsoleColor\\' => array($vendorDir . '/jakub-onderka/php-console-color/src'),
     'Intervention\\Image\\' => array($vendorDir . '/intervention/image/src/Intervention/Image'),
