@@ -106,6 +106,10 @@ class OrdersController extends Controller
   {
     if (Module::hasAccess("Orders", "create")) {
       $rules = Module::validateRules("Orders", $request);
+      
+      // add custom rule
+      $rules['job_number'] = 'unique:orders|required|max:255';
+
       $validator = Validator::make($request->all(), $rules);
 
       if ($validator->fails()) {
@@ -249,11 +253,15 @@ class OrdersController extends Controller
     if (Module::hasAccess("Orders", "edit")) {
       $rules = Module::validateRules("Orders", $request, true);
       $validator = Validator::make($request->all(), $rules);
+      $validator->after(function($validator) use ($request, $id) {
+        if (!Order::checkUniqueJobNumberOnUpdate($request->job_number, $id)) {
+          $validator->errors()->add('job_number', 'The job number has already been taken.');
+        }
+      });
 
       if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
       }
-
 
       // Calculate Tax
       if ($request->get('has_tax')) {

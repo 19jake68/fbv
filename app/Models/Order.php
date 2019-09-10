@@ -57,4 +57,12 @@ class Order extends BaseModel
     $order->total = $itemTotal + $miscTotal;
     return $order->save();
   }
+
+  public static function checkUniqueJobNumberOnUpdate($jobNum, $id)
+  {
+    $model = Order::where('job_number', $jobNum);
+    if ($model->count() > 1) return false;
+    if ($model->count() == 1) return $model->first()->id == $id;
+    return true;
+  }
 }

@@ -51,15 +51,15 @@ class Item_DetailsController extends Controller
 	{
 		$module = Module::get('Item_Details');
 		
-		if(Module::hasAccess($module->id)) {
+		if (Module::hasAccess($module->id)) {
 			return View('la.item_details.index', [
 				'show_actions' => $this->show_action,
 				'listing_cols' => $this->listing_cols,
 				'module' => $module
 			]);
 		} else {
-            return redirect(config('laraadmin.adminRoute')."/");
-        }
+      return redirect(config('laraadmin.adminRoute')."/");
+    }
 	}
 
 	/**
@@ -238,8 +238,15 @@ class Item_DetailsController extends Controller
 		$values = DB::table('item_details')
 			->leftJoin('areas', 'areas.id', '=', 'item_details.area_id')
 			->leftJoin('activities', 'activities.id', '=', 'item_details.activity_id')
-			->select(['item_details.id', 'item_details.name', 'amount', 'areas.name as area', 'activities.name as activity'])
-			->whereNull('item_details.deleted_at');
+      ->select(['item_details.id', 'item_details.name', 'amount', 'areas.name as area', 'activities.name as activity'])
+      ->whereNull('item_details.deleted_at');
+    
+    if (!Auth::user()->isAdministrator()) {
+      $areas = Auth::user()->employee()->first()->areas;
+      $areas = json_decode($areas);
+      $values->whereIn('item_details.area_id', $areas);
+    }
+
 		$out = Datatables::of($values)->make();
 		$data = $out->getData();
 

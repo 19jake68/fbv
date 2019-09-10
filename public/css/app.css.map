@@ -1,0 +1,1 @@
+{"version":3,"sources":["app.scss"],"names":[],"mappings":"AAEA;EAGM,WAAW,EAIZ;EAPL;IAKQ,iBAAiB,EAClB","file":"app.css","sourcesContent":["// @import \"node_modules/bootstrap-sass/assets/stylesheets/bootstrap\";\r\n\r\n.alert {\r\n  &.alert-danger {\r\n    ul {\r\n      padding: 0;\r\n      li {\r\n        list-style: none;\r\n      }\r\n    }\r\n  }\r\n}"]}
