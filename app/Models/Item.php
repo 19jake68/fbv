@@ -46,7 +46,7 @@ class Item extends BaseModel
     return $this->hasOne('App\Models\Activity', 'id', 'activity_id')->select('id', 'name');
   }
 
-  public function createOrUpdate($orderId, $itemId, $activityId, $quantity, $measurement, $unit, $amount, $subtotal)
+  public function createOrUpdate($orderId, $itemId, $activityId, $quantity, $measurement, $unit, $amount, $subtotal, $remarks)
   {
     $model = $this->where('order_id', $orderId)
       ->where('item_detail_id', $itemId)
@@ -58,6 +58,7 @@ class Item extends BaseModel
       $model->unit_id = $unit;
       $model->amount += $amount;
       $model->subtotal += $subtotal;
+      $model->remarks = $remarks;
       return $model->save();
     } else {
       return $this->create([
@@ -69,6 +70,7 @@ class Item extends BaseModel
         'quantity' => $quantity,
         'amount' => $amount,
         'subtotal' => $subtotal,
+        'remarks' => $remarks
       ]);
     }
   }

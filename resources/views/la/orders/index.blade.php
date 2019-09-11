@@ -93,6 +93,7 @@
 					@la_input($module, 'date')
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
+          @la_input($module, 'remarks')
 				</div>
 			</div>
 			<div class="modal-footer">

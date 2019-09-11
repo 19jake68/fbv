@@ -88,8 +88,7 @@
 	<div class="bg-primary clearfix" style="padding-bottom:10px">
 		<div class="col-md-4">
 			<div class="row">
-			  <div class="col-md-3">
-					<!-- <img class="profile-image" src="{{ asset('la-assets/img/avatar5.png') }}" alt=""> -->
+			  <div class="col-md-3 hidden-xs">
 					<div class="profile-icon text-primary"><i class="fa {{ $module->fa_icon }}"></i></div>
 				</div>
 				<div class="col-md-9">
@@ -107,9 +106,11 @@
 			</div>
 		</div>
 		<div class="col-md-3">
-      <div class="dats1 mt10">Added by:</div>
-			<div class="dats1"><div class="label2">{{ $order->user->name }}</div></div>
-      <div class="dats1"><i class="fa fa-envelope-o"></i> {{ $order->user->email }}</div>
+      <div class="hidden-xs" style="margin-top:25px">&nbsp;</div>
+      <ul class="list-unstyled">
+        <li>Added by: {{ $order->user->name }} &lt;{{ $order->user->email }}&gt;</li>
+        <li>Remarks: {{ $order->remarks }}</li>
+      </ul>
 		</div>
 		<div class="col-md-4">
       <div class="dats1 mt10"></div>

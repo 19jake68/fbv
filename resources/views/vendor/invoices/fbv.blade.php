@@ -122,6 +122,7 @@
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
             </table>
+            <div style="min-height: 100px;display:block;font-size:10px;margin:5px;">Remarks: {{ $invoice->notes }}</div>
         </div>
     </body>
 </html>

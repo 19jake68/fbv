@@ -155,11 +155,12 @@ class OrdersController extends Controller
         $itemModel->order_id = $orderId;
         $itemModel->item_detail_id = $itemId;
         $itemModel->activity_id = $activityId;
-        $itemModel->measurement = $item['measurement'];
+        $itemModel->measurement = $measurement;
         $itemModel->unit_id = $item['unit'];
         $itemModel->quantity = $quantity;
         $itemModel->amount = $amount;
         $itemModel->subtotal = $subtotal;
+        $itemModel->remarks = $item['remarks'];
         $itemModel->save();
       }
 
@@ -514,6 +515,7 @@ class OrdersController extends Controller
           ->timeEnd(date("M j, Y g:i a", strtotime($order->time_finished)))
           ->totalInvoice($order->total)
           ->hasTax($order->has_tax)
+          ->notes($order->remarks)
           ->currency('&#8369;');
 
         // Items

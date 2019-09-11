@@ -18,7 +18,7 @@ class Order extends BaseModel
 	
 	protected $hidden = [];
 
-	protected $guarded = [];
+  protected $guarded = [];
 
   protected $dates = ['deleted_at'];
   
