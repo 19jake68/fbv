@@ -8,7 +8,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 class ReportGenerator
 {
 	protected $applyFlush;
-	protected $headers;
+  protected $headers;
+  protected $footers;
 	protected $columns;
 	protected $query;
 	protected $limit = null;
@@ -21,26 +22,34 @@ class ReportGenerator
 	protected $styles = [];
 	protected $simpleVersion = false;
 	protected $withoutManipulation = false;
-    protected $showMeta = true;
-    protected $showHeader = true;
+  protected $showMeta = true;
+  protected $showHeader = true;
+  protected $showFooter = true;
 
 	public function __construct()
 	{
 		$this->applyFlush = (bool) Config::get('report-generator.flush', true);
 	}
 
-	public function of($title, Array $meta = [], $query, Array $columns)
+	public function of($title, Array $meta = [], $query, Array $columns, Array $footers = [])
 	{
 		$this->headers = [
 			'title' => $title,
 			'meta'  => $meta
-		];
+    ];
+    $this->footers = $footers;
 
 		$this->query = $query;
 		$this->columns = $this->mapColumns($columns);
 
 		return $this;
-	}
+  }
+  
+    public function showFooter($value = true)
+    {
+      $this->showFooter = $value;
+      return $this;
+    }
 
     public function showHeader($value = true)
     {
