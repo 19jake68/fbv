@@ -567,6 +567,11 @@ class OrdersController extends Controller
       'Area' => 'All',
       'Created By' => 'All'
     ];
+    $footer = [
+      'Prepared by' => '',
+      'Approved by' => 'Gilea Bernice Bebita',
+      'Noted by' => ''
+    ];
     $columns = [
       'Job #' => 'job_number',
       'Order Type' => 'order_type',
@@ -631,7 +636,7 @@ class OrdersController extends Controller
     }
 
     // Generate
-    return PdfReport::of($title, $meta, $query, $columns)
+    return PdfReport::of($title, $meta, $query, $columns, $footer)
       ->editColumn('Date', [
         'displayAs' => function($result) {
           return date("M d Y", strtotime($result->date));
