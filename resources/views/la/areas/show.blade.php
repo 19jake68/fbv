@@ -138,6 +138,10 @@ $(document).ready(function() {
       search: "_INPUT_",
       searchPlaceholder: "Search"
     },
+    order: [
+      [3, 'asc'],
+      [1, 'asc']
+    ],
     columnDefs: [
       { targets: [3], searchable: false, visible: false },
       { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 2 },

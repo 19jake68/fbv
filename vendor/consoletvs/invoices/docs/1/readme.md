@@ -8,7 +8,7 @@ composer require consoletvs/invoices
 Example Usage:
 
 ```php
-$invoice = ConsoleTVs\Invoices\Classes\Invoice::make()
+$invoice = \ConsoleTVs\Invoices\Classes\Invoice::make()
                 ->addItem('Test Item', 10.25, 2, 1412)
                 ->addItem('Test Item 2', 5, 2, 923)
                 ->addItem('Test Item 3', 15.55, 5, 42)
@@ -16,8 +16,11 @@ $invoice = ConsoleTVs\Invoices\Classes\Invoice::make()
                 ->addItem('Test Item 5', 3.12, 1, 3142)
                 ->addItem('Test Item 6', 6.41, 3, 452)
                 ->addItem('Test Item 7', 2.86, 1, 1526)
+                ->addItem('Test Item 8', 5, 2, 923, 'https://dummyimage.com/64x64/000/fff')
                 ->number(4021)
-                ->tax(21)
+                ->with_pagination(true)
+                ->duplicate_header(true)
+                ->due_date(Carbon::now()->addMonths(1))
                 ->notes('Lrem ipsum dolor sit amet, consectetur adipiscing elit.')
                 ->customer([
                     'name'      => 'Èrik Campobadal Forés',
@@ -84,7 +87,6 @@ Bootstrap any application services.
     void ConsoleTVs\Invoices\InvoicesServiceProvider::register()
 
 Register any application services.
-
 
 
 * Visibility: **public**
@@ -214,6 +216,17 @@ Properties
     public string $name
 
 Invoice name.
+
+
+
+* Visibility: **public**
+
+
+### $template
+
+    public string $template
+
+Invoice template.
 
 
 
@@ -410,6 +423,18 @@ Return a new instance of Invoice.
 * $name **string**
 
 
+### template
+
+    \ConsoleTVs\Invoices\Classes\Invoice ConsoleTVs\Invoices\Classes\Invoice::template(string $template)
+
+Select template for invoice.
+
+* Visibility: **public**
+* Default: **default**
+
+
+#### Arguments
+* $name **template**
 
 ### addItem
 
@@ -521,6 +546,19 @@ Downloads the generated PDF.
 
 #### Arguments
 * $name **string**
+
+
+
+### shouldDisplayImageColumn
+
+    \ConsoleTVs\Invoices\Classes\response ConsoleTVs\Invoices\Classes\Invoice::shouldDisplayImageColumn()
+
+Return true/false if one item contains image.
+Determine if we should display or not the image column on the invoice.
+
+
+
+* Visibility: **public**
 
 
 
@@ -715,3 +753,58 @@ Set the invoice footnote.
 * $footnote **string**
 
 
+
+### due_date
+
+    \ConsoleTVs\Invoices\Classes\Invoice ConsoleTVs\Invoices\Classes\Invoice::due_date(Carbon $due_date)
+
+Set the invoice due date.
+
+
+
+* Visibility: **public**
+
+
+#### Arguments
+* $due_date **Carbon**
+
+
+
+### tax_rates
+
+Array of tax rates for invoices.
+
+
+
+* Visibility: **public**
+
+
+### with_pagination
+
+    \ConsoleTVs\Invoices\Classes\Invoice ConsoleTVs\Invoices\Classes\Invoice::with_pagination(boolean $with_pagination)
+
+If true and page count are higher than 1, pagination will show at the bottom.
+
+
+
+* Visibility: **public**
+
+
+
+#### Arguments
+* $duplicate_header **boolean**
+
+
+### with_pagination
+
+    \ConsoleTVs\Invoices\Classes\Invoice ConsoleTVs\Invoices\Classes\Invoice::duplicate_header(boolean $duplicate_header)
+
+If true header will be duplicated on each page.
+
+
+
+* Visibility: **public**
+
+
+#### Arguments
+* $duplicate_header **boolean**

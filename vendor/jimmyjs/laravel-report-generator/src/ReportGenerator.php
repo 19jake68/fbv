@@ -3,13 +3,11 @@
 namespace Jimmyjs\ReportGenerator;
 
 use Config;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 
 class ReportGenerator
 {
 	protected $applyFlush;
-  protected $headers;
-  protected $footers;
+	protected $headers;
 	protected $columns;
 	protected $query;
 	protected $limit = null;
@@ -22,34 +20,26 @@ class ReportGenerator
 	protected $styles = [];
 	protected $simpleVersion = false;
 	protected $withoutManipulation = false;
-  protected $showMeta = true;
-  protected $showHeader = true;
-  protected $showFooter = true;
+    protected $showMeta = true;
+    protected $showHeader = true;
 
 	public function __construct()
 	{
 		$this->applyFlush = (bool) Config::get('report-generator.flush', true);
 	}
 
-	public function of($title, Array $meta = [], $query, Array $columns, Array $footers = [])
+	public function of($title, Array $meta = [], $query, Array $columns)
 	{
 		$this->headers = [
 			'title' => $title,
 			'meta'  => $meta
-    ];
-    $this->footers = $footers;
+		];
 
 		$this->query = $query;
 		$this->columns = $this->mapColumns($columns);
 
 		return $this;
-  }
-  
-    public function showFooter($value = true)
-    {
-      $this->showFooter = $value;
-      return $this;
-    }
+	}
 
     public function showHeader($value = true)
     {
@@ -64,7 +54,7 @@ class ReportGenerator
 
         return $this;
     }
-	
+
     public function showNumColumn($value = true)
     {
         $this->showNumColumn = $value;

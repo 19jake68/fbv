@@ -1,13 +1,16 @@
-<?php namespace Creativeorange\Gravatar;
+<?php
+
+namespace Creativeorange\Gravatar;
 
 use Creativeorange\Gravatar\Exceptions\InvalidEmailException;
+use Illuminate\Support\Arr;
 
 /**
  * Class Gravatar
  * @package Creativeorange\Gravatar
  */
-class Gravatar {
-
+class Gravatar
+{
 	/**
 	 * Gravatar base url
 	 *
@@ -47,18 +50,16 @@ class Gravatar {
 	 * @param string $fallback
 	 * @return $this
 	 */
-	public function fallback ($fallback)
+	public function fallback($fallback)
 	{
-
 		if (
 			filter_var($fallback, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)
-			||
-			in_array( $fallback, array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank') )
-		)
+			|| in_array($fallback, array('mm', 'identicon', 'monsterid', 'wavatar', 'retro', 'blank'))
+		) {
 			$this->fallback = $fallback;
-
-		else
+		} else {
 			$this->fallback = false;
+		}
 
 		return $this;
 	}
@@ -70,7 +71,7 @@ class Gravatar {
 	 * @return bool
 	 * @throws InvalidEmailException
 	 */
-	public function exists ($email)
+	public function exists($email)
 	{
 		$this->checkEmail($email);
 		$this->email = $email;
@@ -79,7 +80,7 @@ class Gravatar {
 
 		$headers = @get_headers($this->buildUrl());
 
-		return (boolean) strpos($headers[0], '200');
+		return (bool) strpos($headers[0], '200');
 	}
 
 	/**
@@ -109,14 +110,18 @@ class Gravatar {
 	 * @param string|array|null $group
 	 * @return $this
 	 */
-	private function setConfig ($group = null)
+	private function setConfig($group = null)
 	{
-		if (is_string($group) && $group != 'default')
-			$this->config = array_dot( array_replace_recursive( config('gravatar.default'), config('gravatar.'.$group) ) );
-		elseif (is_array($group))
-			$this->config = array_dot( array_replace_recursive( config('gravatar.default'), $group) );
-		else
-			$this->config = array_dot( config('gravatar.default') );
+		if (
+			is_string($group)
+			&& $group != 'default'
+		) {
+			$this->config = Arr::dot(array_replace_recursive(config('gravatar.default'), config('gravatar.' . $group)));
+		} elseif (is_array($group)) {
+			$this->config = Arr::dot(array_replace_recursive(config('gravatar.default'), $group));
+		} else {
+			$this->config = Arr::dot(config('gravatar.default'));
+		}
 
 		return $this;
 	}
@@ -128,7 +133,7 @@ class Gravatar {
 	 * @param null $default
 	 * @return null
 	 */
-	protected function c ($value, $default = null)
+	protected function c($value, $default = null)
 	{
 		return array_key_exists($value, $this->config) ? $this->config[$value] : $default;
 	}
@@ -140,13 +145,13 @@ class Gravatar {
 	 */
 	private function hashEmail()
 	{
-		return md5( strtolower( trim( $this->email ) ) );
+		return md5(strtolower(trim($this->email)));
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getExtension ()
+	private function getExtension()
 	{
 		$v = $this->c('forceExtension');
 
@@ -169,29 +174,34 @@ class Gravatar {
 	/**
 	 * @return string
 	 */
-	private function getUrlParameters ()
+	private function getUrlParameters()
 	{
-		$build = array ();
+		$build = array();
 
-		foreach ( get_class_methods($this) as $method)
-		{
-			if ( substr($method, -strlen('Parameter')) !== 'Parameter')
+		foreach (get_class_methods($this) as $method) {
+			if (substr($method, -strlen('Parameter')) !== 'Parameter') {
 				continue;
+			}
 
-			if ($called = call_user_func(array($this, $method)))
+			if ($called = call_user_func(array($this, $method))) {
 				$build = array_replace($build, $called);
+			}
 		}
 
-		return '?'.http_build_query($build);
+		return '?' . http_build_query($build);
 	}
 
 	/**
 	 * @return array|null
 	 */
-	private function sizeParameter ()
+	private function sizeParameter()
 	{
-		if ( ! $this->c('size') || ! is_integer($this->c('size')) )
+		if (
+			!$this->c('size')
+			|| !is_integer($this->c('size'))
+		) {
 			return null;
+		}
 
 		return array('s' => $this->c('size'));
 	}
@@ -199,25 +209,28 @@ class Gravatar {
 	/**
 	 * @return array|null
 	 */
-	private function defaultParameter ()
+	private function defaultParameter()
 	{
-		$this->fallback = $this->c( 'fallback' );
+		if (!$this->fallback) {
+            $this->fallback = $this->c('fallback') ? $this->c('fallback') : null;
+		}
 
-		if ( ! $this->fallback )
-			return null;
-
-		return array( 'd' => $this->fallback );
+		return array('d' => $this->fallback);
 	}
 
 	/**
 	 * @return array|null
 	 */
-	private function ratingParameter ()
+	private function ratingParameter()
 	{
 		$rating = $this->c('maximumRating');
 
-		if ( ! $rating || ! in_array($rating, array('g','pg','r','x') ) )
+		if (
+			!$rating
+			|| !in_array($rating, array('g', 'pg', 'r', 'x'))
+		) {
 			return null;
+		}
 
 		return array('r' => $rating);
 	}
@@ -225,10 +238,11 @@ class Gravatar {
 	/**
 	 * @return array|null
 	 */
-	private function forceDefaultParameter ()
+	private function forceDefaultParameter()
 	{
-		if ($this->c('forceDefault') === true)
+		if ($this->c('forceDefault') === true) {
 			return array('forcedefault' => 'y');
+		}
 
 		return null;
 	}
@@ -241,7 +255,7 @@ class Gravatar {
 	 */
 	private function checkEmail($email)
 	{
-		if ( ! filter_var($email, FILTER_VALIDATE_EMAIL))
-			throw new InvalidEmailException ('Please specify a valid email address');
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+			throw new InvalidEmailException('Please specify a valid email address');
 	}
 }

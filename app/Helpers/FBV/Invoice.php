@@ -43,6 +43,11 @@ class Invoice
     public $items;
 
     /**
+     * Invoice grouped item collection
+     */
+    public $groupedItems;
+
+    /**
      * Invoice misc collection.
      *
      * @var Illuminate\Support\Collection
@@ -214,7 +219,6 @@ class Invoice
         $this->decimals = config('invoices.decimals');
         $this->logo = config('invoices.logo');
         $this->logo_height = config('invoices.logo_height');
-        $this->date = Carbon::now();
         $this->business_details = Collection::make(config('invoices.business_details'));
         $this->customer_details = Collection::make([]);
         $this->biller_details = Collection::make([]);
@@ -264,6 +268,14 @@ class Invoice
     }
 
     /**
+     * Add Grouped Items to the invoice
+     */
+    public function addGroupedItems($groupedItems)
+    {
+        $this->groupedItems = Collection::make($groupedItems);
+    }
+
+    /**
      * Adds other chargers to the invoice.
      *
      * @method addMisc
@@ -276,13 +288,14 @@ class Invoice
      *
      * @return self
      */
-    public function addMisc($activity, $quantity, $unit, $amount)
+    public function addMisc($activity, $quantity, $unit, $amount, $remarks)
     {
         $this->miscs->push(Collection::make([
             'activity'    => $activity,
             'quantity'    => $quantity,
             'unit'        => $unit,
-            'amount'      => number_format($amount, $this->decimals)
+            'amount'      => number_format($amount, $this->decimals),
+            'remarks'     => $remarks
         ]));
 
         return $this;

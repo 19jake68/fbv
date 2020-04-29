@@ -17,7 +17,7 @@
 @section("contentheader_title", "Orders")
 @section("contentheader_description", "Orders listing")
 @section("section", "Orders")
-@section("sub_section", "Listing")
+@section("sub_section", "List ing")
 @section("htmlheader_title", "Orders Listing")
 
 @section("headerElems")
@@ -90,7 +90,6 @@
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
           @la_input($module, 'has_tax')
-					@la_input($module, 'date')
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
           @la_input($module, 'remarks')
@@ -179,7 +178,10 @@ $(function () {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
 			searchPlaceholder: "Search"
-		},
+    },
+    order: [
+      [ 0, 'desc' ]
+    ],
     columnDefs: [
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
       { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },

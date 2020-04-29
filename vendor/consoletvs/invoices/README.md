@@ -20,7 +20,7 @@ This is a sample invoice generated using this library:
 ![Sample Invoice](https://i.gyazo.com/768f5b59791162e432f9cdfa15f017bc.png)
 
 ```php
-$invoice = ConsoleTVs\Invoices\Classes\Invoice::make()
+$invoice = \ConsoleTVs\Invoices\Classes\Invoice::make()
                 ->addItem('Test Item', 10.25, 2, 1412)
                 ->addItem('Test Item 2', 5, 2, 923)
                 ->addItem('Test Item 3', 15.55, 5, 42)
@@ -28,8 +28,11 @@ $invoice = ConsoleTVs\Invoices\Classes\Invoice::make()
                 ->addItem('Test Item 5', 3.12, 1, 3142)
                 ->addItem('Test Item 6', 6.41, 3, 452)
                 ->addItem('Test Item 7', 2.86, 1, 1526)
+                ->addItem('Test Item 8', 5, 2, 923, 'https://dummyimage.com/64x64/000/fff')
                 ->number(4021)
-                ->tax(21)
+                ->with_pagination(true)
+                ->duplicate_header(true)
+                ->due_date(Carbon::now()->addMonths(1))
                 ->notes('Lrem ipsum dolor sit amet, consectetur adipiscing elit.')
                 ->customer([
                     'name'      => 'Èrik Campobadal Forés',
@@ -40,7 +43,7 @@ $invoice = ConsoleTVs\Invoices\Classes\Invoice::make()
                     'city'      => 'Manresa',
                     'country'   => 'Spain',
                 ])
-                ->download('demo');
+                ->download('demo')
                 //or save it somewhere
                 ->save('public/myinvoicename.pdf');
 ```
@@ -77,3 +80,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ```
+
+## Special thanks
+
+* [Codevio](https://github.com/codevio);

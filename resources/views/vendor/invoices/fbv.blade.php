@@ -5,7 +5,9 @@
         <title>{{ $invoice->name }}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- <link href="{{ asset('la-assets/css/bootstrap.css') }}" rel="stylesheet" type="text/css" /> -->
         <style>
+            body { font-size: 10px }
             h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; sans-serif; }
 
             .wrapper {
@@ -14,22 +16,23 @@
 
             table {
                 width: 100%;
-                text-align: center;
+                text-align: left;
             }
 
             td {
-                padding-bottom: 2px;
+                padding: auto 5px;
                 border: 1px solid #888;
             }
 
             .font-weight-bold {
                 font-weight: bold
             }
+
         </style>
     </head>
     <body>
         <div class="wrapper">
-            <table>
+            <table class="text-center">
                 <tr>
                     <td colspan="4" class="font-weight-bold">JOB ORDER RECEIPT</td>
                     <td class="font-weight-bold">Invoice No: {{ $invoice->id }}</td>
@@ -41,53 +44,63 @@
                     <td class="font-weight-bold">J.O. #</td>
                     <td>{{ $invoice->number }}</td>
                     <td></td>
-                    <td class="font-weight-bold">Date Done</td>
+                    <td class="font-weight-bold">Date</td>
                     <td>{{ $invoice->dateDone }}</td>
                 </tr>
                 <tr>
                     <td class="font-weight-bold">Account Name</td>
                     <td>{{ $invoice->customer_details['name'] }}</td>
                     <td></td>
-                    <td class="font-weight-bold">Time Started</td>
+                    <td class="font-weight-bold">Started</td>
                     <td>{{ $invoice->timeStart }}</td>
                 </tr>
                 <tr>
                     <td class="font-weight-bold">Area</td>
                     <td>{{ $invoice->area }}</td>
                     <td></td>
-                    <td class="font-weight-bold">Time Ended</td>
+                    <td class="font-weight-bold">Ended</td>
                     <td>{{ $invoice->timeEnd }}</td>
                 </tr>
             </table>
             <table style="margin-top:10px">
-                <tr>
-                    <td class="font-weight-bold">Qty</td>
-                    <td class="font-weight-bold">Unit</td>
-                    <td class="font-weight-bold">Activity</td>
-                    <td class="font-weight-bold">Amount</td>
+                <tr class="text-center">
+                    <td style="width:10%" class="font-weight-bold">Qty</td>
+                    <td style="width:10%" class="font-weight-bold">Unit</td>
+                    <td style="width:40%" class="font-weight-bold">Activity (Items)</td>
+                    <td style="width:15%" class="font-weight-bold">Amount</td>
+                    <td style="width:25%" class="font-weight-bold">Remarks</td>
                 </tr>
-                @foreach ($invoice->items as $loop => $item)
-                    <tr>
-                        <td>{{ $item->get('ammount') }}</td>
-                        <td>{{ $item->get('unit') }}</td>
-                        <td>{{ $item->get('name') }}</td>
-                        <td>{{ $invoice->currency }}{{ $item->get('totalPrice') }}</td>
+
+                @foreach ($invoice->groupedItems as $activity => $items)
+                    <tr class="text-center">
+                        <td colspan="5">{{ $activity }}</td>
                     </tr>
+                    @foreach ($items as $item)
+                    <tr class="text-center">
+                        <td>{{ $item->amount }}</td>
+                        <td>{{ $item->unit }}</td>
+                        <td>{{ $item->name }}</td>
+                        <td>{{ $item->totalPrice }}</td>
+                        <td>{{ $item->remarks }}</td>
+                    </tr>
+                    @endforeach
                 @endforeach
                 @if (!$invoice->miscs->isEmpty())
-                <tr>
-                    <td colspan="4" style="text-align:left;padding-left:5px">Other Charges:</td>
+                <tr class="text-center">
+                    <td colspan="5">Other Charges</td>
                 </tr>
                 @foreach ($invoice->miscs as $loop => $item)
-                    <tr>
+                    <tr class="text-center">
                         <td>{{ $item->get('quantity') }}</td>
                         <td>{{ $item->get('unit') }}</td>
                         <td>{{ $item->get('activity') }}</td>
                         <td>{{ $invoice->currency }}{{ $item->get('amount') }}</td>
+                        <td>{{ $item->get('remarks') }}</td>
                     </tr>
                 @endforeach
                 @endif
                 <tr>
+                    <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -96,33 +109,37 @@
 
                 @if ($invoice->hasTax)
                 <tr>
-                    <td colspan="3" class="text-right" style="padding-right:5px">Subtotal</td>
+                    <td colspan="3" class="text-right">Subtotal</td>
                     <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                    <td></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="text-right" style="padding-right:5px">Tax ({{ $invoice->tax }}%)</td>
+                    <td colspan="3" class="text-right">Tax ({{ $invoice->tax }}%)</td>
                     <td>{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
+                    <td></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
+                    <td colspan="3" class="text-right">Total Invoice</td>
                     <td>{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
+                    <td></td>
                 </tr>
                 @else
                 <tr>
-                    <td colspan="3" class="text-right" style="padding-right:5px">Total Invoice</td>
+                    <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
                     <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                    <td></td>
                 </tr>
                 @endif
             <table>
             <table>
                 <tr>
-                    <td>J.O. Type</td>
+                    <td class="font-weight-bold">J.O. Type</td>
                     <td>{{ $invoice->orderType }}
-                    <td>Billed by</td>
+                    <td class="font-weight-bold">Billed by</td>
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
             </table>
-            <div style="min-height: 100px;display:block;font-size:10px;margin:5px;">Remarks: {{ $invoice->notes }}</div>
+            <div style="min-height:500px;display:block;font-size:10px;margin:5px;">Remarks: {{ $invoice->notes }}</div>
         </div>
     </body>
 </html>

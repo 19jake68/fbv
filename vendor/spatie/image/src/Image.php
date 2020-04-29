@@ -3,9 +3,9 @@
 namespace Spatie\Image;
 
 use BadMethodCallException;
+use Intervention\Image\ImageManagerStatic as InterventionImage;
 use Spatie\Image\Exceptions\InvalidImageDriver;
 use Spatie\ImageOptimizer\OptimizerChainFactory;
-use Intervention\Image\ImageManagerStatic as InterventionImage;
 
 /** @mixin \Spatie\Image\Manipulations */
 class Image
@@ -124,7 +124,7 @@ class Image
         if (! is_null($this->temporaryDirectory)) {
             $glideConversion->setTemporaryDirectory($this->temporaryDirectory);
         }
-        
+
         $glideConversion->performManipulations($this->manipulations);
 
         $glideConversion->save($outputPath);
@@ -171,7 +171,7 @@ class Image
             return;
         }
 
-        $supportedFormats = ['jpg', 'png', 'gif'];
+        $supportedFormats = ['jpg', 'pjpg', 'png', 'gif', 'webp'];
 
         if (in_array($outputExtension, $supportedFormats)) {
             $this->manipulations->format($outputExtension);

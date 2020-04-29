@@ -69,38 +69,6 @@ trait Setters
     }
 
     /**
-     * Set the invoice tax.
-     *
-     * @method tax
-     *
-     * @param float $tax
-     *
-     * @return self
-     */
-    public function tax($tax)
-    {
-        $this->tax = $tax;
-
-        return $this;
-    }
-
-    /**
-     * Set the invoice tax type.
-     *
-     * @method taxType
-     *
-     * @param string $tax_type
-     *
-     * @return self
-     */
-    public function taxType($tax_type)
-    {
-        $this->tax_type = $tax_type;
-
-        return $this;
-    }
-
-    /**
      * Set the invoice logo URL.
      *
      * @method logo
@@ -211,4 +179,52 @@ trait Setters
 
         return $this;
     }
+
+    /**
+     * Set the invoice due date.
+     *
+     * @method due_date
+     *
+     * @param Carbon $due_date
+     *
+     * @return self
+     */
+    public function due_date(Carbon $due_date = null)
+    {
+        $this->due_date = $due_date;
+        return $this;
+    }
+
+    /**
+     * Show/hide the invoice pagination.
+     *
+     * @method with_pagination
+     *
+     * @param boolean $with_pagination
+     *
+     * @return self
+     */
+    public function with_pagination($with_pagination)
+    {
+        $this->with_pagination = $with_pagination;
+        return $this;
+    }
+
+    /**
+     * Duplicate the header on each page.
+     *
+     * @method duplicate_header
+     *
+     * @param boolean $duplicate_header
+     *
+     * @return self
+     */
+    public function duplicate_header($duplicate_header)
+    {
+        $this->duplicate_header = $duplicate_header;
+        return $this;
+    }
+
+
+    
 }

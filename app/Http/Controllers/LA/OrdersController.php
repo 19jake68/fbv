@@ -16,6 +16,7 @@ use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Unit;
 use App\Models\Order_Type;
+use Carbon\Carbon;
 use Collective\Html\FormFacade as Form;
 use Datatables;
 use DB;
@@ -31,7 +32,7 @@ class OrdersController extends Controller
   public $show_action;
   public $view_col = 'job_number';
   public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
-  public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal'];
+  public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal', 'remarks'];
 
   public function __construct()
   {
@@ -58,6 +59,10 @@ class OrdersController extends Controller
   public function index()
   {
     $module = Module::get('Orders');
+
+    // Rename time start and time finished
+    $module->fields['time_start']['label'] = 'Started';
+    $module->fields['time_finished']['label'] = 'Ended';
 
     if (Module::hasAccess($module->id)) {
       $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
@@ -223,6 +228,8 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
+        $module->fields['time_start']['label'] = 'Started';
+        $module->fields['time_finished']['label'] = 'Ended';
         $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
         $module->row = $order;
 
@@ -306,7 +313,7 @@ class OrdersController extends Controller
       ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
       ->leftJoin(Activity::getTableName() . ' AS activity', 'item.activity_id', '=', 'activity.id')
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
-      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal')
+      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal', 'item.remarks')
       ->where('item.order_id', $id)
       ->whereNull('item.deleted_at')
       ->whereNull('item_detail.deleted_at');
@@ -341,6 +348,9 @@ class OrdersController extends Controller
 
         // Unit
         $data->data[$i][6] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $data->data[$i][0] . '">' . $options . '</select>';
+
+        // Remarks
+        $data->data[$i][8] = '<textarea class="form-control input-sm inline-edit disabled" data-type="remarks" data-id="' . $data->data[$i][0] . '" style="resize:vertical;min-height:27px;">' . $data->data[$i][8] . '</textarea>';
       }
 
       if (Module::hasAccess("Items", "delete")) {
@@ -448,6 +458,7 @@ class OrdersController extends Controller
       $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="' . $measurementMinLength . '">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
       $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
+      $row->remarks = '<textarea style="resize: vertical;min-height:27px"name="items[' . $row->id . '][remarks]" class="form-control input-sm"></textarea>';
     }
     return $model->toJson();
   }
@@ -458,7 +469,7 @@ class OrdersController extends Controller
     // Update quantity
     if ($request->get('quantity')) {
       $minlength = (int) Module::get('Items')->fields['quantity']['minlength'];
-      array_map(function($value, $id) use ($request) {
+      array_map(function($value, $id) use ($request, $minlength) {
         if ($value < $minlength) return;
         $item = Item::find($id);
         $item->quantity = (int) $value;
@@ -492,6 +503,16 @@ class OrdersController extends Controller
       $hasModifications = true;
     }
 
+    // Remarks
+    if ($request->get('remarks')) {
+      array_map(function($value, $id) {
+        $item = Item::find($id);
+        $item->remarks = $value;
+        $item->save();
+      }, $request->get('remarks'), array_keys($request->get('remarks')));
+      $hasModifications = true;
+    }
+
     return response()->json(['has_modifications' => $hasModifications]);
   }
 
@@ -521,13 +542,23 @@ class OrdersController extends Controller
         // Items
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
-          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'unit.unit')
+          ->leftJoin(Activity::getTableName() . ' as activity', 'items.activity_id', '=', 'activity.id')
+          ->select('activity.name as activity_name', 'items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'unit.unit',  'items.remarks', 'items.activity_id')
           ->where('order_id', '=', $order->id)
           ->where('items.activity_id', '<>', 11)
           ->whereNull('items.deleted_at')
           ->whereNull('item_detail.deleted_at')
+          ->orderBy('activity.name', 'ASC')
           ->orderBy('items.id', 'ASC')
           ->get();
+
+        $groupedItems = [];
+        foreach ($items as $index => $item) {
+          $item->totalPrice = $invoice->currency . number_format(bcmul($item->amount, $item->quantity, $invoice->decimals), $invoice->decimals);
+          $groupedItems[$item->activity_name][] = $item;
+        }
+
+        $invoice->addGroupedItems($groupedItems);
 
         foreach ($items as $index => $item) {
           $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->measurement, $item->unit);
@@ -535,7 +566,7 @@ class OrdersController extends Controller
 
         $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
-          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.subtotal', 'unit.unit')
+          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.subtotal', 'unit.unit', 'items.remarks')
           ->where('order_id', '=', $order->id)
           ->where('items.activity_id', '=', 11)
           ->whereNull('items.deleted_at')
@@ -544,7 +575,7 @@ class OrdersController extends Controller
           ->get();
 
         foreach($others as $index => $item) {
-          $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal);
+          $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks);
         }
 
         // Generate Invoice

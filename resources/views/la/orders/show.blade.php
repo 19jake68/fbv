@@ -20,6 +20,10 @@
     margin-top: 7px;
   }
 
+  .th-add-item-80 {
+    width: 80px
+  }
+
   .th-add-item-110 {
     width: 110px;
   }
@@ -211,11 +215,12 @@
             <thead>
               <tr class="success">
                 <th>Name</th>
-                <th class="th-add-item-110">Amount</th>
-                <th class="th-add-item-110">Quantity</th>
-                <th class="th-add-item-110">Measurement</th>
-                <th class="th-add-item-110">Unit</th>
-                <th class="th-add-item-110">Subtotal</th>
+                <th class="th-add-item-80">Amount</th>
+                <th class="th-add-item-80">Quantity</th>
+                <th class="th-add-item-80">Measurement</th>
+                <th class="th-add-item-80">Unit</th>
+                <th class="th-add-item-80">Subtotal</th>
+                <th>Remarks</th>
               </tr>
             </thead>
             <tbody>
@@ -276,6 +281,7 @@ $(document).ready(function() {
               .append($('<td>').append(itemDetail.measurement))
               .append($('<td>').append(itemDetail.unit))
               .append($('<td class="text-right">').append(itemDetail.subtotal))
+              .append($('<td>').append(itemDetail.remarks))
             );
           });
         },

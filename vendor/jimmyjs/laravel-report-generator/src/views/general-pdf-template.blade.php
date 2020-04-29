@@ -27,10 +27,6 @@
 		    	border-style: none none ridge none;
 		    	font-size: 18px;
 		    }
-        .footer-content {
-          padding-top: 4px;
-          font-size: 16px;
-        }
             thead { display: table-header-group; }
             tfoot { display: table-row-group; }
             tr { page-break-inside: avoid; }
@@ -251,23 +247,6 @@
 					@endif
 		    	</table>
 			</div>
-      @if ($showFooter)
-      <div class="footer-content">
-        <table cellpadding="0" cellspacing="0" width="100%" border="0">
-						<?php $metaCtr = 0; ?>
-						@foreach($footers as $name => $value)
-							@if ($metaCtr % 2 == 0)
-							<tr>
-							@endif
-								<td><span style="color:#808080;">{{ $name }}</span>: {{ ucwords($value) }}</td>
-							@if ($metaCtr % 2 == 1)
-							</tr>
-							@endif
-							<?php $metaCtr++; ?>
-						@endforeach
-					</table>
-      </div>
-      @endif
 		</div>
 	    <script type="text/php">
 	    	@if (strtolower($orientation) == 'portrait')
