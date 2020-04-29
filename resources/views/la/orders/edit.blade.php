@@ -39,7 +39,7 @@
 					@la_input($module, 'account_name')
           @la_input($module, 'has_tax')
 					<!-- @la_input($module, 'area_id') -->
-					@la_input($module, 'date')
+					<!-- @la_input($module, 'date') -->
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
                     <br>

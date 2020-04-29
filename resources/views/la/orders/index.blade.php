@@ -90,6 +90,7 @@
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
           @la_input($module, 'has_tax')
+          <!-- @la_input($module, 'date') -->
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
           @la_input($module, 'remarks')
@@ -201,6 +202,8 @@ $(function () {
   $( ".datepicker" ).datetimepicker({
     format: 'YYYY-MM-DD'
   });
+
+  console.log($("#order-add-form input[name=date]").val());
 
 	$("#order-add-form").validate({});
   $("#order-generate-report-form").validate({});

@@ -121,6 +121,12 @@ class OrdersController extends Controller
         return redirect()->back()->withErrors($validator)->withInput();
       }
 
+      // Set today's date
+      $request->merge([
+        'date' => Carbon::today()->format('d/m/Y')
+      ]);
+      // dd($request->all());
+
       // Add user id who created the order
       $request->user_id = Auth::id();
       $insert_id = Module::insert("Orders", $request);
