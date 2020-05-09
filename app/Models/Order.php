@@ -58,6 +58,27 @@ class Order extends BaseModel
     return $order->save();
   }
 
+  public function setTaxDetails($id) {
+    $order = $this->where('id', $id)
+      ->first();
+
+    if ($order->has_tax) {
+      $itemModel = new Item;
+      $taxDetails = $itemModel->getTaxDetails($id);
+      $order->taxable_amount = $taxDetails['taxable'];
+      $order->tax_exempt_amount = $taxDetails['taxExempt'];
+      $order->total_tax_amount = $taxDetails['totalTax'];
+    } else {
+      $order->taxable_amount = 0;
+      $order->tax_exempt_amount = 0;
+      $order->total_tax_amount = 0;
+    }
+    
+    // dd($order);
+    
+    return $order->save();
+  }
+
   public static function checkUniqueJobNumberOnUpdate($jobNum, $id)
   {
     $model = Order::where('job_number', $jobNum);

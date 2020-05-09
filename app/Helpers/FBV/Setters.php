@@ -323,4 +323,20 @@ trait Setters
         $this->hasTax = $hasTax;
         return $this;
     }
+
+    /**
+     * Set Subtotal (Total - Tax Amount)
+     */
+    public function subtotal($subtotal) {
+        $this->subtotal = $subtotal;
+        return $this;
+    }
+
+    /**
+     * Set Tax Amount
+     */
+    public function taxAmount($taxAmount) {
+        $this->taxAmount = $taxAmount;
+        return $this;
+    }
 }

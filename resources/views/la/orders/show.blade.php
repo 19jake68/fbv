@@ -102,9 +102,9 @@
             <li>Company: {{ $order->company }}
             <li>Area: {{ $order->area->name }}</li>
             <li>Account Name: {{ $order->account_name }}</li>
-            <li>Date: {{ \Carbon\Carbon::parse($order->date)->format('M d, Y') }}</li>
-            <li>Time Start: {{ \Carbon\Carbon::parse($order->time_start)->format('M d, Y g:i a') }}</li>
-            <li>Time End: {{ \Carbon\Carbon::parse($order->time_finished)->format('M d, Y g:i a') }}</li>
+            <li>Date: {{ $order->date }}</li>
+            <li>Started: {{ $order->time_start }}</li>
+            <li>Ended: {{ $order->time_finished }}</li>
           </ul>
 				</div>
 			</div>
@@ -119,13 +119,11 @@
 		<div class="col-md-4">
       <div class="dats1 mt10"></div>
       <ul class="list-unstyled">
-      @if ($order->has_tax)
-        <li>Subtotal: <span class="total">&#8369;{{ number_format($order->total, 2) }}</span></li>
-        <li>Tax: <span class="tax">&#8369;{{ number_format($order->tax, 2) }}</span></li>
-        <li class="mt10" style="font-size: 20px">Total: <span class="totalAmount label label-success label-regular">&#8369;{{ number_format($order->totalAmount, 2) }}</span>
-      @else
-        <li style="font-size: 20px">Total: <span class="total label label-success label-regular">&#8369;{{ number_format($order->total, 2) }}</span>
-      @endif
+        @if ($order->has_tax)
+        <li>Subtotal: <span class="subtotal">&#8369;{{ number_format($order->total, 2) }}</span></li>
+        <li>Tax ({{ $order->tax }}%): <span class="tax">&#8369;{{ number_format($order->total_tax_amount, 2) }}</span></li>
+        @endif
+        <li style="font-size: 20px">Total: <span class="total label label-success label-regular">&#8369;{{ number_format($order->total + $order->total_tax_amount, 2) }}</span>
       </ul>
 		</div>
 		<div class="col-md-1 actions">
@@ -217,7 +215,6 @@
                 <th>Name</th>
                 <th class="th-add-item-80">Amount</th>
                 <th class="th-add-item-80">Quantity</th>
-                <th class="th-add-item-80">Measurement</th>
                 <th class="th-add-item-80">Unit</th>
                 <th class="th-add-item-80">Subtotal</th>
                 <th>Remarks</th>
@@ -225,6 +222,13 @@
             </thead>
             <tbody>
             </tbody>
+            @if ($order->has_tax)
+            <tfoot>
+              <tr>
+                <td colspan="6" style="font-size: 85%"><em>** Note: {{ $order->tax }}% Tax is already added on the amount.</em></td>
+              </tr>
+            </tfoot>
+            @endif
           </table>
 				</div>
 			</div>
@@ -256,7 +260,7 @@ $(document).ready(function() {
     listItems = function(keyword) {
       let url = "{{ url(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/') }}",
         tableBody = $('#itemList tbody'),
-        fullUrl = url + '/' + selectedActivity + '/' + {{ $order->area_id }};
+        fullUrl = url + '/' + selectedActivity + '/' + {{ $order->area_id }} + '/' + {{ $order->id }};
 
       if (keyword) {
         fullUrl = fullUrl + '?search=' + keyword;
@@ -278,7 +282,6 @@ $(document).ready(function() {
               .append($('<td>').append(itemDetail.name))
               .append($('<td>').append('&#8369;' + itemDetail.amount).addClass('text-right'))
               .append($('<td>').append(itemDetail.quantity))
-              .append($('<td>').append(itemDetail.measurement))
               .append($('<td>').append(itemDetail.unit))
               .append($('<td class="text-right">').append(itemDetail.subtotal))
               .append($('<td>').append(itemDetail.remarks))
@@ -309,22 +312,24 @@ $(document).ready(function() {
         { width: "80px", className: 'text-right', render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), searchable: false, targets: 3 },
         { width: "80px", searchable: false, targets: 4 },
         { width: "80px", searchable: false, targets: 5 },
-        { width: "80px", searchable: false, targets: 6 },
-        { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+        // { width: "80px", searchable: false, targets: 6 },
+        { width: "80px", className: 'text-right subtotal', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 6 },
+        { targets: 8, searchable: false, visible: false },
+        { targets: 9, searchable: false, visible: false },
         { width: "50px", className: 'text-center', searchable: false, orderable: false, targets: [-1] }
       ]
     }),
     addItemModal = $('#addItemModal'),
     calcAmount = function() {
-      let itemSum = orderItems.column(7).data().sum(),
+      let itemSum = orderItems.column(6).data().sum(),
         total = itemSum;
 
-      @if ($order->has_tax)
-      let tax = total * ({{env('TAX')}} / 100),
-        totalAmount = total + tax;
-      $('.tax').html('&#8369;' + tax.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-      $('.totalAmount').html('&#8369;' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-      @endif
+      // @if ($order->has_tax)
+      // let tax = total * ({{env('TAX')}} / 100),
+      //   totalAmount = total + tax;
+      // $('.tax').html('&#8369;' + tax.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+      // $('.totalAmount').html('&#8369;' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+      // @endif
 
       $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
     };
@@ -397,9 +402,9 @@ $(document).ready(function() {
     let value = $(this).val(),
       min = $(this).attr('min');
 
-    if (value < min) {
+    if (value <= min) {
       value = $(this).data('val');
-      $(this).val(value).focus();
+      $(this).val(parseFloat(min) + 1).focus();
       alert('Value should not be equal to or less than ' + min);
     }
 
@@ -407,11 +412,14 @@ $(document).ready(function() {
     if ($.inArray('quantity', $(this)[0].classList) > -1) {
       let id = $(this).data('id'),
         amount = $(this).data('amount'),
+        taxedAmount = $(this).data('taxedAmount'),
         subtotal = value * amount,
-        subtotalString = "₱" + subtotal.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+        subtotalString = "₱" + (value * taxedAmount).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+        console.log(taxedAmount);
 
       // Set values
-      $(this).parent().parent().find('.subtotalLabel').html(subtotalString);
+      $(this).parent().parent().find('.subtotal').html(subtotalString);
       $(this).parent().find('input[type=hidden]').val(subtotal);
     }
   });

@@ -77,7 +77,7 @@
                     </tr>
                     @foreach ($items as $item)
                     <tr class="text-center">
-                        <td>{{ $item->amount }}</td>
+                        <td>{{ $item->quantity }}</td>
                         <td>{{ $item->unit }}</td>
                         <td>{{ $item->name }}</td>
                         <td>{{ $item->totalPrice }}</td>
@@ -110,23 +110,23 @@
                 @if ($invoice->hasTax)
                 <tr>
                     <td colspan="3" class="text-right">Subtotal</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                    <td class="text-center">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
                     <td></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="text-right">Tax ({{ $invoice->tax }}%)</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
+                    <td class="text-center">{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="text-right">Total Invoice</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
+                    <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
+                    <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
                     <td></td>
                 </tr>
                 @else
                 <tr>
                     <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
-                    <td>{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                    <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
                     <td></td>
                 </tr>
                 @endif

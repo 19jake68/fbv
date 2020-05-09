@@ -73,6 +73,7 @@
 			<div class="modal-body">
 				<div class="box-body">
           {{-- @la_form($module) --}}
+
           <div class="form-group">
           {!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
           {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
@@ -89,7 +90,8 @@
           
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
-          @la_input($module, 'has_tax')
+          @la_input($module, 'has_tax', true)
+          @la_input($module, 'tax')
           <!-- @la_input($module, 'date') -->
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
@@ -202,8 +204,6 @@ $(function () {
   $( ".datepicker" ).datetimepicker({
     format: 'YYYY-MM-DD'
   });
-
-  console.log($("#order-add-form input[name=date]").val());
 
 	$("#order-add-form").validate({});
   $("#order-generate-report-form").validate({});

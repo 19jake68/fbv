@@ -83,6 +83,16 @@ class Invoice
     public $tax_type;
 
     /**
+     * Invoice Tax Amount
+     */
+    public $taxAmount;
+
+    /**
+     * Invoice subtotal (total - tax amount)
+     */
+    public $subtotal;
+
+    /**
      * Invoice number.
      *
      * @var int
@@ -288,13 +298,13 @@ class Invoice
      *
      * @return self
      */
-    public function addMisc($activity, $quantity, $unit, $amount, $remarks)
+    public function addMisc($activity, $quantity, $unit, $amount, $remarks, $hasTax, $tax)
     {
         $this->miscs->push(Collection::make([
             'activity'    => $activity,
             'quantity'    => $quantity,
             'unit'        => $unit,
-            'amount'      => number_format($amount, $this->decimals),
+            'amount'      => number_format($hasTax ? $this->_calcTax($amount, $tax) : $amount, $this->decimals),
             'remarks'     => $remarks
         ]));
 
@@ -353,7 +363,8 @@ class Invoice
      */
     private function subTotalPrice()
     {
-        return preg_replace("/([^0-9\\.])/i", "", $this->totalInvoice);
+        return $this->subtotal;
+        // return preg_replace("/([^0-9\\.])/i", "", $this->totalInvoice);
         // return $this->items->sum(function ($item) {
         //     return bcmul($item['price'], $item['ammount'], $this->decimals);
         // });
@@ -418,12 +429,13 @@ class Invoice
      */
     private function taxPrice()
     {
-        if ($this->tax_type == 'percentage') {
-            return $this->subTotalPrice() * ($this->tax / 100);
+        return $this->taxAmount;
+        // if ($this->tax_type == 'percentage') {
+            // return $this->subTotalPrice() * ($this->tax / 100);
             // return bcdiv(bcmul($this->tax, $this->subTotalPrice(), $this->decimals), 100, $this->decimals);
-        }
+        // }
 
-        return $this->tax;
+        // return $this->tax;
     }
 
     /**
@@ -498,4 +510,12 @@ class Invoice
 
         return $this->pdf->stream($name, ['Attachment' => false]);
     }
+
+    /**
+   * Calculate Tax
+   */
+  private function _calcTax($amount, $tax)
+  {
+    return ($amount * ($tax + 100)) / 100;
+  }
 }

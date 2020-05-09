@@ -46,7 +46,40 @@ class Item extends BaseModel
     return $this->hasOne('App\Models\Activity', 'id', 'activity_id')->select('id', 'name');
   }
 
-  public function createOrUpdate($orderId, $itemId, $activityId, $quantity, $measurement, $unit, $amount, $subtotal, $remarks)
+  public function setTaxDetails($orderId, $hasTax, $tax) {
+    return $this->where('order_id', $orderId)
+      ->update([
+        'has_tax' => $hasTax,
+        'tax' => $tax
+      ]);
+  }
+
+  public function getTaxDetails($orderId)
+  {
+    $model = $this->where('order_id', $orderId)
+      ->select('subtotal', 'has_tax', 'tax')
+      ->get();
+
+    $totalTax = 0;
+    $taxable = 0;
+    $taxExempt = 0;
+    foreach($model as $key => $item) {
+      if ($item->has_tax) {
+        $taxable += $item->subtotal;
+        $totalTax += $item->subtotal * ($item->tax / 100);
+      } else {
+        $taxExempt += $item->subtotal;
+      }
+    }
+    
+    return [
+      'taxable' => $taxable,
+      'taxExempt' => $taxExempt,
+      'totalTax' => $totalTax
+    ];
+  }
+
+  public function createOrUpdate($orderId, $itemId, $activityId, $quantity, $unit, $amount, $subtotal, $remarks)
   {
     $model = $this->where('order_id', $orderId)
       ->where('item_detail_id', $itemId)
@@ -54,7 +87,6 @@ class Item extends BaseModel
 
     if ($model) {
       $model->quantity += $quantity;
-      $model->measurement = $measurement;
       $model->unit_id = $unit;
       $model->amount += $amount;
       $model->subtotal += $subtotal;
@@ -65,7 +97,6 @@ class Item extends BaseModel
         'order_id' => $orderId,
         'item_detail_id' => $itemId,
         'activity_id' => $activityId,
-        'measurement' => $measurement,
         'unit_id' => $unit,
         'quantity' => $quantity,
         'amount' => $amount,

@@ -91,7 +91,7 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
   Route::post(config('laraadmin.adminRoute') . '/orders/edit_items', 'LA\OrdersController@editItems');
 
   Route::get(config('laraadmin.adminRoute') . '/order_dt_ajax', 'LA\OrdersController@dtajax');
-  Route::get(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/{id}/{areaId}', 'LA\OrdersController@getItemDetailsByActivityId');
+  Route::get(config('laraadmin.adminRoute') . '/order_get_item_details_by_activity/{id}/{areaId}/{orderId}', 'LA\OrdersController@getItemDetailsByActivityId');
   Route::get(config('laraadmin.adminRoute') . '/order_dt_ajax_items/{id}', 'LA\OrdersController@dtajaxOrderItems');
   Route::get(config('laraadmin.adminRoute') . '/order/generate_invoice/{id}', ['as' => config('laraadmin.adminRoute') . '.orders.generateInvoice', 'uses' => 'LA\OrdersController@generateInvoice']);
 	Route::post(config('laraadmin.adminRoute') . '/order/generate_report', ['as' => config('laraadmin.Route') . '.orders.generateReport', 'uses' => 'LA\OrdersController@generateReport']);

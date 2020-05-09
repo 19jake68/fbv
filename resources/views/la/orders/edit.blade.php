@@ -37,7 +37,8 @@
 					@la_input($module, 'company')
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
-          @la_input($module, 'has_tax')
+          @la_input($module, 'has_tax', true)
+					@la_input($module, 'tax')
 					<!-- @la_input($module, 'area_id') -->
 					<!-- @la_input($module, 'date') -->
 					@la_input($module, 'time_start')

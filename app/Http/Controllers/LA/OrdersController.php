@@ -32,7 +32,7 @@ class OrdersController extends Controller
   public $show_action;
   public $view_col = 'job_number';
   public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
-  public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'measurement', 'unit', 'subtotal', 'remarks'];
+  public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
 
   public function __construct()
   {
@@ -59,10 +59,6 @@ class OrdersController extends Controller
   public function index()
   {
     $module = Module::get('Orders');
-
-    // Rename time start and time finished
-    $module->fields['time_start']['label'] = 'Started';
-    $module->fields['time_finished']['label'] = 'Ended';
 
     if (Module::hasAccess($module->id)) {
       $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
@@ -125,7 +121,6 @@ class OrdersController extends Controller
       $request->merge([
         'date' => Carbon::today()->format('d/m/Y')
       ]);
-      // dd($request->all());
 
       // Add user id who created the order
       $request->user_id = Auth::id();
@@ -149,34 +144,32 @@ class OrdersController extends Controller
       $activityId = $request->activity_id;
       $itemModule = Module::get('Items');
 
+      $order = Order::find($orderId);
+
       foreach ($request->items as $itemId => $item) {
-        if ($item['quantity'] === '' || $item['measurement'] === '') continue;
-
+        if ($item['quantity'] === '' || $item['quantity'] <= 0) continue;
         $quantity = $item['quantity'];
-        $measurement = $item['measurement'];
-
-        // Check quantity and measurement
-        if ($quantity < (float) $itemModule->fields['quantity']['minlength']) continue;        
-        if ($measurement < (float) $itemModule->fields['measurement']['minlength']) continue;
-
         $amount = (float) $item['amount'];
         $subtotal = (float) $quantity * $amount;
-        
+
+        // Save item
         $itemModel = new Item;
         $itemModel->order_id = $orderId;
         $itemModel->item_detail_id = $itemId;
         $itemModel->activity_id = $activityId;
-        $itemModel->measurement = $measurement;
         $itemModel->unit_id = $item['unit'];
         $itemModel->quantity = $quantity;
         $itemModel->amount = $amount;
         $itemModel->subtotal = $subtotal;
         $itemModel->remarks = $item['remarks'];
+        $itemModel->has_tax = $order->has_tax;
+        $itemModel->tax = $order->tax;
         $itemModel->save();
       }
 
-      $order = new Order;
+      // Update order total amount
       $order->calcTotalAmount($orderId);
+      $order->setTaxDetails($orderId);
       return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
@@ -199,10 +192,24 @@ class OrdersController extends Controller
         $activities = Activity::lists('name', 'id');
 
         if ($order->has_tax) {
-          $order->tax = $order->total * (env('TAX') / 100);
-          $order->totalAmount = $order->total + $order->tax;
+          // $itemModel = new Item();
+          // dd($itemModel->getTaxDetails($id));
+          // dd(Module::get('Item')->getTaxDetails($id));
+          // $order->subtotal = ;
+          // $order->taxAmount = '';
+          // $order->tax = $order->total * (env('TAX') / 100);
+          // $order->totalAmount = $order->total + $order->tax;
         }
-        
+
+        // Format dates
+        $order->date = Carbon::parse($order->date)->format('M d, Y g:i a');
+        $order->time_start = !empty($order->time_start)
+         ? Carbon::parse($order->time_start)->format('M d, Y g:i a')
+         : '--';
+        $order->time_finished = !empty($order->time_finished)
+         ? Carbon::parse($order->time_finished)->format('M d, Y g:i a')
+         : '--';
+
         return view('la.orders.show', [
           'module' => $module,
           'view_col' => $this->view_col,
@@ -234,8 +241,6 @@ class OrdersController extends Controller
       $order = Order::find($id);
       if (isset($order->id)) {
         $module = Module::get('Orders');
-        $module->fields['time_start']['label'] = 'Started';
-        $module->fields['time_finished']['label'] = 'Ended';
         $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
         $module->row = $order;
 
@@ -277,17 +282,18 @@ class OrdersController extends Controller
         return redirect()->back()->withErrors($validator)->withInput();
       }
 
-      // Calculate Tax
-      if ($request->get('has_tax')) {
-        $order = Order::find($id);
-        $percentage = env('TAX');
-        $tax = $order->total * ($percentage / 100);
-      } else {
-        $tax = 0;
-      }
-      $request->tax = $tax;
+      // @ToDo: Update tax per item once order tax data is modified
 
       $insert_id = Module::updateRow("Orders", $request, $id);
+
+      // Set tax to all items
+      $modelItem = new Item;
+      $modelItem->setTaxDetails($insert_id, (bool) $request->has_tax, $request->tax);
+
+
+      $model = new Order;
+      $model->setTaxDetails($id);
+      
       return redirect(config('laraadmin.adminRoute') . "/orders/" . $id);
     } else {
       return redirect(config('laraadmin.adminRoute') . "/");
@@ -315,12 +321,15 @@ class OrdersController extends Controller
 
   public function dtajaxOrderItems($id, Request $request)
   {
+    // Order
+    $orderModel = Order::find($id);
+
     $values = DB::table(Item::getTableName() . ' AS item')
       ->leftJoin(Item_Detail::getTableName() . ' AS item_detail', 'item.item_detail_id', '=', 'item_detail.id')
       ->leftJoin(Activity::getTableName() . ' AS activity', 'item.activity_id', '=', 'activity.id')
       ->leftJoin(Unit::getTableName() . ' AS unit', 'item.unit_id', '=', 'unit.id')
-      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'item.measurement', 'unit.unit', 'item.subtotal', 'item.remarks')
-      ->where('item.order_id', $id)
+      ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'unit.unit', 'item.subtotal', 'item.remarks', 'item.has_tax', 'item.tax')
+      ->where('item.order_id', $orderModel->id)
       ->whereNull('item.deleted_at')
       ->whereNull('item_detail.deleted_at');
 
@@ -332,20 +341,23 @@ class OrdersController extends Controller
 
     $itemFields = Module::get('Items')->fields;
     $quantityMinLength = $itemFields['quantity']['minlength'];
-    $measurementMinLength = $itemFields['measurement']['minlength'];
     
     for ($i = 0; $i < count($data->data); $i++) {
       $output = '';
       if (Module::hasAccess('Items', 'edit')) {
-        // Quantity
-        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
+        // Amount
+        if ($orderModel->has_tax && $data->data[$i][8]) {
+          $data->data[$i][3] = $this->_calcTax($data->data[$i][3], $data->data[$i][9]);
+        }
 
-        // Measurement
-        $data->data[$i][5] = '<input type="text" value="' . $data->data[$i][5] . '" class="form-control input-sm inline-edit disabled" min="' . $measurementMinLength . '" style="width:100%" data-type="measurement" data-id="' . $data->data[$i][0] . '">';
+        $quantity = $data->data[$i][4];
+        
+        // Quantity
+        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $data->data[$i][9] . '" data-has-tax="' . $data->data[$i][8] . '" data-amount="' . $data->data[$i][3] . '" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
 
         $options = '';
         for ($j = 0; $j < count($units); $j++) {
-          if ($data->data[$i][6] == $units[$j]->unit) {
+          if ($data->data[$i][5] == $units[$j]->unit) {
             $options .= '<option selected value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
           } else {
             $options .= '<option value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
@@ -353,10 +365,11 @@ class OrdersController extends Controller
         }
 
         // Unit
-        $data->data[$i][6] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $data->data[$i][0] . '">' . $options . '</select>';
-
+        $data->data[$i][5] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $data->data[$i][0] . '">' . $options . '</select>';
+        // Subtotal
+        $data->data[$i][6] = ($orderModel->has_tax && $data->data[$i][8]) ? $data->data[$i][3] * $quantity : $data->data[$i][6];
         // Remarks
-        $data->data[$i][8] = '<textarea class="form-control input-sm inline-edit disabled" data-type="remarks" data-id="' . $data->data[$i][0] . '" style="resize:vertical;min-height:27px;">' . $data->data[$i][8] . '</textarea>';
+        $data->data[$i][7] = '<textarea class="form-control input-sm inline-edit disabled" data-type="remarks" data-id="' . $data->data[$i][0] . '" style="resize:vertical;min-height:27px;width:100%">' . $data->data[$i][7] . '</textarea>';
       }
 
       if (Module::hasAccess("Items", "delete")) {
@@ -444,8 +457,8 @@ class OrdersController extends Controller
       $model->where('name', 'like', '%'.$request->search.'%');
     }
 
+    $order = Order::find($request->orderId);
     $model = $model->get();
-
     $units = Unit::pluck('unit', 'id')->toArray();
     $unitOptions = '';
     foreach ($units as $id => $unit) {
@@ -454,16 +467,15 @@ class OrdersController extends Controller
 
     $itemFields = Module::get('Items')->fields;
     $quantityMinLength = $itemFields['quantity']['minlength'];
-    $measurementMinLength = $itemFields['measurement']['minlength'];
+    $quantityDefaultValue = $itemFields['quantity']['defaultvalue'];
 
     foreach ($model as $row) {
       // Add unit selection
       $amount = number_format($row->amount, 2, '.', '');
-      $row->amount = number_format($row->amount, 2);
-      $row->quantity = '<input style="width: 100px" type="number" step=".01" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-amount="' . $amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
-      $row->measurement = '<input style="width: 100px" type="number" name="items[' . $row->id . '][measurement]" class="form-control input-sm" min="' . $measurementMinLength . '">';
+      $row->amount = number_format($order->has_tax ? $this->_calcTax($row->amount, $order->tax) : $row->amount, 2);
+      $row->quantity = '<input style="width: 100px" type="number" step=".01" value="0" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-taxed-amount="' . $row->amount . '" data-amount="' . $amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
-      $row->subtotal = '<span class="subtotalLabel">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
+      $row->subtotal = '<span class="subtotal">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
       $row->remarks = '<textarea style="resize: vertical;min-height:27px"name="items[' . $row->id . '][remarks]" class="form-control input-sm"></textarea>';
     }
     return $model->toJson();
@@ -482,20 +494,9 @@ class OrdersController extends Controller
         $item->subtotal = $item->amount * $value;
         $item->save();
         $order = new Order;
-        $order->calcTotalAmount($request->get('orderId'));        
+        $order->calcTotalAmount($request->get('orderId'));
+        $order->setTaxDetails($request->get('orderId'));
       }, $request->get('quantity'), array_keys($request->get('quantity')));
-      $hasModifications = true;
-    }
-
-    // Update measurement
-    if ($request->get('measurement')) {
-      $minlength = (int) Module::get('Items')->fields['measurement']['minlength'];
-      array_map(function ($value, $id) use ($minlength) {
-        if ($value < $minlength) return;
-        $item = Item::find($id);
-        $item->measurement = (int) $value;
-        $item->save();        
-      }, $request->get('measurement'), array_keys($request->get('measurement')));
       $hasModifications = true;
     }
 
@@ -528,6 +529,12 @@ class OrdersController extends Controller
       $order = Order::find($request->id);
 
       if (isset($order->id)) {
+        $timeStart = !empty($order->time_start)
+          ? date("M j, Y g:i a", strtotime($order->time_start))
+          : '--';
+        $timeEnd = !empty($order->time_finished)
+          ? date("M j, Y g:i a", strtotime($order->time_finished))
+          : '--';
         $invoice = Invoice::make()
           ->template('fbv')
           ->id($order->id)
@@ -538,10 +545,12 @@ class OrdersController extends Controller
           ->number($order->job_number)
           ->area($order->area->name)
           ->dateDone(date("M j, Y", strtotime($order->date)))
-          ->timeStart(date("M j, Y g:i a", strtotime($order->time_start)))
-          ->timeEnd(date("M j, Y g:i a", strtotime($order->time_finished)))
+          ->timeStart($timeStart)
+          ->timeEnd($timeEnd)
           ->totalInvoice($order->total)
           ->hasTax($order->has_tax)
+          ->subtotal($order->total)
+          ->taxAmount($order->total_tax_amount)
           ->notes($order->remarks)
           ->currency('&#8369;');
 
@@ -549,7 +558,7 @@ class OrdersController extends Controller
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
           ->leftJoin(Activity::getTableName() . ' as activity', 'items.activity_id', '=', 'activity.id')
-          ->select('activity.name as activity_name', 'items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.amount', 'unit.unit',  'items.remarks', 'items.activity_id')
+          ->select('activity.name as activity_name', 'items.id', 'item_detail.name', 'items.quantity', 'items.amount', 'unit.unit',  'items.remarks', 'items.activity_id', 'items.has_tax', 'items.tax')
           ->where('order_id', '=', $order->id)
           ->where('items.activity_id', '<>', 11)
           ->whereNull('items.deleted_at')
@@ -560,6 +569,10 @@ class OrdersController extends Controller
 
         $groupedItems = [];
         foreach ($items as $index => $item) {
+          if ($order->has_tax && $item->has_tax) {
+            $item->amount = $this->_calcTax($item->amount, $item->tax);
+          }
+
           $item->totalPrice = $invoice->currency . number_format(bcmul($item->amount, $item->quantity, $invoice->decimals), $invoice->decimals);
           $groupedItems[$item->activity_name][] = $item;
         }
@@ -567,12 +580,12 @@ class OrdersController extends Controller
         $invoice->addGroupedItems($groupedItems);
 
         foreach ($items as $index => $item) {
-          $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->measurement, $item->unit);
+          $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->unit);
         }
 
         $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
-          ->select('items.id', 'item_detail.name', 'items.measurement', 'items.quantity', 'items.subtotal', 'unit.unit', 'items.remarks')
+          ->select('items.id', 'item_detail.name', 'items.quantity', 'items.subtotal', 'unit.unit', 'items.remarks', 'items.has_tax', 'items.tax')
           ->where('order_id', '=', $order->id)
           ->where('items.activity_id', '=', 11)
           ->whereNull('items.deleted_at')
@@ -581,7 +594,7 @@ class OrdersController extends Controller
           ->get();
 
         foreach($others as $index => $item) {
-          $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks);
+          $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks, $order->has_tax && $item->has_tax, $item->tax);
         }
 
         // Generate Invoice
@@ -714,7 +727,12 @@ class OrdersController extends Controller
     }
     return $criteria;
   }
+
+  /**
+   * Calculate Tax
+   */
+  private function _calcTax($amount, $tax)
+  {
+    return ($amount * ($tax + 100)) / 100;
+  }
 }
-
-
-
