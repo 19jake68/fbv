@@ -108,16 +108,18 @@
                 </tr>
 
                 @if ($invoice->hasTax)
-                <tr>
-                    <td colspan="3" class="text-right">Subtotal</td>
-                    <td class="text-center">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="text-right">Tax ({{ $invoice->tax }}%)</td>
-                    <td class="text-center">{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
-                    <td></td>
-                </tr>
+                    @if ($invoice->displayTax)
+                        <tr>
+                            <td colspan="3" class="text-right">Subtotal</td>
+                            <td class="text-center">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-right">Tax ({{ $invoice->tax }}%)</td>
+                            <td class="text-center">{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
+                            <td></td>
+                        </tr>
+                    @endif
                 <tr>
                     <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
                     <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>

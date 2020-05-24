@@ -325,6 +325,14 @@ trait Setters
     }
 
     /**
+     * Set tax display
+     */
+    public function displayTax($displayTax) {
+        $this->displayTax = $displayTax;
+        return $this;
+    }
+
+    /**
      * Set Subtotal (Total - Tax Amount)
      */
     public function subtotal($subtotal) {

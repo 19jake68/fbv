@@ -111,7 +111,7 @@
 @if(Auth::user()->isAdministrator())
 <div class="modal fade" id="ReportModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
-  {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form', 'novalidate' => 'novalidate', 'target' => '_blank']) !!}
+  {!! Form::open(['action' => 'LA\OrdersController@generateReport', 'id' => 'order-generate-report-form', 'novalidate' => 'novalidate']) !!}
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="myModalLabel">Generate Reports</h4>

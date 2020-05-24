@@ -69,6 +69,11 @@ class Invoice
     public $hasTax;
 
     /**
+     * Display tax
+     */
+    public $displayTax;
+
+    /**
      * Invoice tax.
      *
      * @var int

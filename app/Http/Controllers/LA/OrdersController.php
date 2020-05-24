@@ -549,6 +549,7 @@ class OrdersController extends Controller
           ->timeEnd($timeEnd)
           ->totalInvoice($order->total)
           ->hasTax($order->has_tax)
+          ->displayTax(false)
           ->subtotal($order->total)
           ->taxAmount($order->total_tax_amount)
           ->notes($order->remarks)
@@ -609,26 +610,29 @@ class OrdersController extends Controller
       $$key = $value;
     }
 
+    $adminModel = Employee::where('email', 'fbv.gibe@gmail.com')->first();
+    $loggedInPersonnel = Auth::user()->name;
+    $dateTimeGenerated = Carbon::now()->timezone('Asia/Manila')->format('M d, Y h:i A');
     $limit = 500;
     $title = 'FBV Order Report';
+    $filename = str_replace(' ', '_', $title);
     $meta = [
-      'Date' => date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)),
+      'Covered Date' => date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)),
+      'Order Type' => 'All',
       'Activity' => 'All',
-      'Area' => 'All',
-      'Created By' => 'All'
+      'Area' => 'All'
     ];
     $footer = [
-      'Prepared by' => '',
-      'Approved by' => 'Gilea Bernice Bebita',
-      'Noted by' => ''
+      'Prepared by' => $loggedInPersonnel . ' (' . $dateTimeGenerated . ')',
+      'Approved by' => $adminModel ? $adminModel->name : 'N/A'
     ];
     $columns = [
       'Job #' => 'job_number',
       'Order Type' => 'order_type',
-      'Company' => 'company',
+      // 'Company' => 'company',
       'Account Name' => 'account_name',
-      'Area' => 'area',
-      'Created By' => 'employee',
+      // 'Area' => 'area',
+      'Noted By' => 'employee',
       'Date' => 'date',
       'Total' => 'total'
     ];
@@ -648,10 +652,10 @@ class OrdersController extends Controller
       ->orderBy('date', 'desc');
 
     // Add limit for generic reports
-    if (!$areaId && !$userId && !$activityId) {
-      $query->limit($limit);
-      $meta['Records Displayed'] = 'First ' . $limit . ' data only';
-    }
+    // if (!$areaId && !$userId && !$activityId) {
+    //   $query->limit($limit);
+    //   $meta['Records Displayed'] = 'First ' . $limit . ' data only';
+    // }
 
     // Order Type condition
     if ($orderTypeId) {
@@ -673,8 +677,8 @@ class OrdersController extends Controller
     if ($userId) {
       $query->where('user_id', $userId);
       $user = Employee::find($userId);
-      $meta['Created By'] = $user->name;
-      unset($columns['Created By']);
+      $meta['Noted By'] = $user->name;
+      unset($columns['Noted By']);
     }
 
     // Activity
@@ -684,6 +688,9 @@ class OrdersController extends Controller
       $activity = Activity::find($activityId);
       $meta['Activity'] = $activity->name;
     }
+
+    // Append report date generation
+    $filename .= '_' . date('mdY');
 
     // Generate
     return PdfReport::of($title, $meta, $query, $columns, $footer)
@@ -701,10 +708,9 @@ class OrdersController extends Controller
       ->showTotal([
         'Total' => 'point'
       ])
-      ->setOrientation('landscape')
-      // ->simple()
-      // ->download('filename');
+      ->setOrientation('portrait')
       ->stream();
+      // ->download($filename);
   }
 
   /**

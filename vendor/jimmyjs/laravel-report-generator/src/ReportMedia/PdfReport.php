@@ -9,6 +9,7 @@ class PdfReport extends ReportGenerator
 	public function make()
 	{
 		$headers = $this->headers;
+		$footer = $this->footer;
 		$query = $this->query;
 		$columns = $this->columns;
 		$limit = $this->limit;
@@ -19,13 +20,14 @@ class PdfReport extends ReportGenerator
 		$styles = $this->styles;
 		$showHeader = $this->showHeader;
 		$showMeta = $this->showMeta;
+		$showFooter = $this->showFooter;
 		$showNumColumn = $this->showNumColumn;
 		$applyFlush = $this->applyFlush;
 
 		if ($this->withoutManipulation) {
-			$html = \View::make('laravel-report-generator::without-manipulation-pdf-template', compact('headers', 'columns', 'showTotalColumns', 'query', 'limit', 'groupByArr', 'orientation', 'showHeader', 'showMeta', 'applyFlush', 'showNumColumn'))->render();
+			$html = \View::make('laravel-report-generator::without-manipulation-pdf-template', compact('headers', 'footer', 'columns', 'showTotalColumns', 'query', 'limit', 'groupByArr', 'orientation', 'showHeader', 'showMeta', 'showFooter', 'applyFlush', 'showNumColumn'))->render();
 		} else {
-			$html = \View::make('laravel-report-generator::general-pdf-template', compact('headers', 'columns', 'editColumns', 'showTotalColumns', 'styles', 'query', 'limit', 'groupByArr', 'orientation', 'showHeader', 'showMeta', 'applyFlush', 'showNumColumn'))->render();
+			$html = \View::make('laravel-report-generator::general-pdf-template', compact('headers', 'footer', 'columns', 'editColumns', 'showTotalColumns', 'styles', 'query', 'limit', 'groupByArr', 'orientation', 'showHeader', 'showMeta', 'showFooter', 'applyFlush', 'showNumColumn'))->render();
 		}
 
 		try {
