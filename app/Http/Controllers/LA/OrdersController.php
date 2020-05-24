@@ -709,8 +709,8 @@ class OrdersController extends Controller
         'Total' => 'point'
       ])
       ->setOrientation('portrait')
-      ->stream();
-      // ->download($filename);
+      // ->stream();
+      ->download($filename);
   }
 
   /**
