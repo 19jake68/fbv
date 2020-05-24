@@ -472,7 +472,7 @@ class OrdersController extends Controller
     foreach ($model as $row) {
       // Add unit selection
       $amount = number_format($row->amount, 2, '.', '');
-      $row->amount = number_format($order->has_tax ? $this->_calcTax($row->amount, $order->tax) : $row->amount, 2);
+      $row->amount = $order->has_tax ? $this->_calcTax($row->amount, $order->tax) : $row->amount;
       $row->quantity = '<input style="width: 100px" type="number" step=".01" value="0" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-taxed-amount="' . $row->amount . '" data-amount="' . $amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
       $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
       $row->subtotal = '<span class="subtotal">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
@@ -577,7 +577,7 @@ class OrdersController extends Controller
           $item->totalPrice = $invoice->currency . number_format(bcmul($item->amount, $item->quantity, $invoice->decimals), $invoice->decimals);
           $groupedItems[$item->activity_name][] = $item;
         }
-
+        
         $invoice->addGroupedItems($groupedItems);
 
         foreach ($items as $index => $item) {
@@ -737,8 +737,9 @@ class OrdersController extends Controller
   /**
    * Calculate Tax
    */
-  private function _calcTax($amount, $tax)
+  private function _calcTax($amount, $tax, $decimals = 2)
   {
-    return ($amount * ($tax + 100)) / 100;
+    $calculatedAmount = ($amount * ($tax + 100)) / 100;
+    return number_format($calculatedAmount, $decimals);
   }
 }
