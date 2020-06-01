@@ -544,7 +544,7 @@ class OrdersController extends Controller
           ->customer(['name' => $order->account_name])
           ->number($order->job_number)
           ->area($order->area->name)
-          ->dateDone(date("M j, Y", strtotime($order->date)))
+          ->dateDone(date("M j, Y"))
           ->timeStart($timeStart)
           ->timeEnd($timeEnd)
           ->totalInvoice($order->total)
@@ -677,7 +677,7 @@ class OrdersController extends Controller
     if ($userId) {
       $query->where('user_id', $userId);
       $user = Employee::find($userId);
-      $meta['Noted By'] = $user->name;
+      $footer['Noted By'] = $user->name;
       unset($columns['Noted By']);
     }
 
