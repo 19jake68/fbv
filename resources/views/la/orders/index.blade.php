@@ -146,7 +146,7 @@
             {{ Form::select('areaId', $reports->areas, null, ['id' => 'area2', 'class' => 'form-control']) }}
           </div>
           <div class="form-group">
-            {{ Form::label('employee2', 'User:') }}
+            {{ Form::label('employee2', 'Billed By:') }}
             {{ Form::select('userId', $reports->employees, null, ['id' => 'employee2', 'class' => 'form-control']) }}
           </div>
 				</div>
