@@ -632,7 +632,7 @@ class OrdersController extends Controller
       // 'Company' => 'company',
       'Account Name' => 'account_name',
       // 'Area' => 'area',
-      'Noted By' => 'employee',
+      'Billed By' => 'employee',
       'Date' => 'date',
       'Total' => 'total'
     ];
@@ -677,8 +677,8 @@ class OrdersController extends Controller
     if ($userId) {
       $query->where('user_id', $userId);
       $user = Employee::find($userId);
-      $footer['Noted By'] = $user->name;
-      unset($columns['Noted By']);
+      $footer['Billed By'] = $user->name;
+      unset($columns['Billed By']);
     }
 
     // Activity

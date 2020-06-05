@@ -112,7 +112,7 @@
 		<div class="col-md-3">
       <div class="hidden-xs" style="margin-top:25px">&nbsp;</div>
       <ul class="list-unstyled">
-        <li>Added by: {{ $order->user->name }} &lt;{{ $order->user->email }}&gt;</li>
+        <li>Billed by: {{ $order->user->name }} &lt;{{ $order->user->email }}&gt;</li>
         <li>Remarks: {{ $order->remarks }}</li>
       </ul>
 		</div>
