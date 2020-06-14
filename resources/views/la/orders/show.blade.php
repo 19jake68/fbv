@@ -412,11 +412,8 @@ $(document).ready(function() {
     if ($.inArray('quantity', $(this)[0].classList) > -1) {
       let id = $(this).data('id'),
         amount = $(this).data('amount'),
-        taxedAmount = $(this).data('taxedAmount'),
         subtotal = value * amount,
-        subtotalString = "₱" + (value * taxedAmount).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-
-        console.log(taxedAmount);
+        subtotalString = "₱" + (value * amount).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
       // Set values
       $(this).parent().parent().find('.subtotal').html(subtotalString);

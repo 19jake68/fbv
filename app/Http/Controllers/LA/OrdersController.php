@@ -359,12 +359,12 @@ class OrdersController extends Controller
         $hasTax = $orderModel->has_tax && $_hasTax;
         // Amount
         if ($hasTax) {
-          $orderItem[3] = (float) $this->_calcTax($_amount, $_tax);
+          $orderItem[3] = $this->_calcTax($_amount, $_tax);
           $_amount = $orderItem[3];
         }
 
         // Quantity
-        $orderItem[4] = '<input type="number" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $_tax . '" data-has-tax="' . $_hasTax . '" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
+        $orderItem[4] = '<input type="number" step="0.01" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $_tax . '" data-has-tax="' . $_hasTax . '" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
 
         // Unit
         $options = '';
@@ -503,7 +503,7 @@ class OrdersController extends Controller
       array_map(function($value, $id) use ($request, $minlength) {
         if ($value < $minlength) return;
         $item = Item::find($id);
-        $item->quantity = (int) $value;
+        $item->quantity = (float) $value;
         $item->subtotal = $item->amount * $value;
         $item->save();
         $order = new Order;
@@ -583,21 +583,16 @@ class OrdersController extends Controller
 
         $groupedItems = [];
         foreach ($items as $index => $item) {
-          $amount = floatval($item->amount);
           if ($order->has_tax && $item->has_tax) {
-            $item->amount = $this->_calcTax($amount, $item->tax);
+            $item->amount = $this->_calcTax($item->amount, $item->tax);
           }
 
-          $item->totalPrice = $invoice->currency . number_format(bcmul($amount, $item->quantity, $invoice->decimals), $invoice->decimals);
+          $totalPrice = number_format(bcmul($item->amount, $item->quantity, $invoice->decimals), $invoice->decimals);
+          $item->totalPrice = $invoice->currency . $totalPrice;
           $groupedItems[$item->activity_name][] = $item;
         }
         
         $invoice->addGroupedItems($groupedItems);
-
-        foreach ($items as $index => $item) {
-          $amount = floatval($item->amount);
-          $invoice->addItem($item->name, $amount, $item->quantity, $index+1, $item->unit);
-        }
 
         $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
           ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
@@ -754,7 +749,8 @@ class OrdersController extends Controller
    */
   private function _calcTax($amount, $tax, $decimals = 2)
   {
+    $amount = (float) $amount;
     $calculatedAmount = ($amount * ($tax + 100)) / 100;
-    return number_format($calculatedAmount, $decimals);
+    return (float) number_format($calculatedAmount, $decimals, '.', '');
   }
 }
