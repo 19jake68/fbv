@@ -341,46 +341,59 @@ class OrdersController extends Controller
 
     $itemFields = Module::get('Items')->fields;
     $quantityMinLength = $itemFields['quantity']['minlength'];
-    
-    for ($i = 0; $i < count($data->data); $i++) {
-      $output = '';
+
+    $items = [];
+    foreach ($data->data as $orderItem) {
+      $_id = $orderItem[0];
+      $_activity = $orderItem[1];
+      $_name = $orderItem[2];
+      $_amount = $orderItem[3];
+      $_quantity = $orderItem[4];
+      $_unit = $orderItem[5];
+      $_subtotal = (float) $orderItem[6];
+      $_remarks = $orderItem[7];
+      $_hasTax = $orderItem[8];
+      $_tax = $orderItem[9];
+
       if (Module::hasAccess('Items', 'edit')) {
+        $hasTax = $orderModel->has_tax && $_hasTax;
         // Amount
-        if ($orderModel->has_tax && $data->data[$i][8]) {
-          $data->data[$i][3] = $this->_calcTax($data->data[$i][3], $data->data[$i][9]);
+        if ($hasTax) {
+          $orderItem[3] = (float) $this->_calcTax($_amount, $_tax);
+          $_amount = $orderItem[3];
         }
 
-        $quantity = $data->data[$i][4];
-        
         // Quantity
-        $data->data[$i][4] = '<input type="number" value="' . $data->data[$i][4] . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $data->data[$i][9] . '" data-has-tax="' . $data->data[$i][8] . '" data-amount="' . $data->data[$i][3] . '" data-type="quantity" data-id="' . $data->data[$i][0] . '">';
-
-        $options = '';
-        for ($j = 0; $j < count($units); $j++) {
-          if ($data->data[$i][5] == $units[$j]->unit) {
-            $options .= '<option selected value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
-          } else {
-            $options .= '<option value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
-          }          
-        }
+        $orderItem[4] = '<input type="number" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $_tax . '" data-has-tax="' . $_hasTax . '" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
 
         // Unit
-        $data->data[$i][5] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $data->data[$i][0] . '">' . $options . '</select>';
+        $options = '';
+        for ($j = 0; $j < count($units); $j++) {
+          $options .= $_unit === $units[$j]->unit
+            ? '<option selected value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>'
+            : '<option value="' . $units[$j]->id . '">' . $units[$j]->unit . '</option>';
+        }
+        $orderItem[5] = '<select class="form-control input-sm inline-edit disabled" style="width:100%" data-type="unit" data-id="' . $_id . '">' . $options . '</select>';
+
         // Subtotal
-        $data->data[$i][6] = ($orderModel->has_tax && $data->data[$i][8]) ? $data->data[$i][3] * $quantity : $data->data[$i][6];
+        $orderItem[6] = ($hasTax) ? $_amount * $_quantity : $_subtotal;
+
         // Remarks
-        $data->data[$i][7] = '<textarea class="form-control input-sm inline-edit disabled" data-type="remarks" data-id="' . $data->data[$i][0] . '" style="resize:vertical;min-height:27px;width:100%">' . $data->data[$i][7] . '</textarea>';
+        $orderItem[7] = '<textarea class="form-control input-sm inline-edit disabled" data-type="remarks" data-id="' . $_id . '" style="resize:vertical;min-height:27px;width:100%">' . $_remarks . '</textarea>';
       }
 
-      if (Module::hasAccess("Items", "delete")) {
-        $output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.items.destroy', $data->data[$i][0]], 'method' => 'delete', 'style' => 'display:inline']);
+      $output = '';
+      if (Module::hasAccess('Items', 'delete')) {
+        $output .= Form::open(['route' => [config('laraadmin.adminRoute') . '.items.destroy', $_id], 'method' => 'delete', 'style' => 'display:inline']);
         $output .= ' <button class="btn btn-danger btn-xs item-delete" type="submit"><i class="fa fa-times"></i></button>';
         $output .= Form::close();
       }
-
-      $data->data[$i][] = (string) $output;
+      $orderItem[] = $output;
+      
+      array_push($items, $orderItem);
     }
 
+    $data->data = $items;
     $out->setData($data);
     return $out;
   }
@@ -570,18 +583,20 @@ class OrdersController extends Controller
 
         $groupedItems = [];
         foreach ($items as $index => $item) {
+          $amount = floatval($item->amount);
           if ($order->has_tax && $item->has_tax) {
-            $item->amount = $this->_calcTax($item->amount, $item->tax);
+            $item->amount = $this->_calcTax($amount, $item->tax);
           }
 
-          $item->totalPrice = $invoice->currency . number_format(bcmul($item->amount, $item->quantity, $invoice->decimals), $invoice->decimals);
+          $item->totalPrice = $invoice->currency . number_format(bcmul($amount, $item->quantity, $invoice->decimals), $invoice->decimals);
           $groupedItems[$item->activity_name][] = $item;
         }
         
         $invoice->addGroupedItems($groupedItems);
 
         foreach ($items as $index => $item) {
-          $invoice->addItem($item->name, $item->amount, $item->quantity, $index+1, $item->unit);
+          $amount = floatval($item->amount);
+          $invoice->addItem($item->name, $amount, $item->quantity, $index+1, $item->unit);
         }
 
         $others = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
