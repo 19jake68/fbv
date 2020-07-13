@@ -486,11 +486,6 @@ $(document).ready(function() {
     listItems(keyword);
   }, 300));
 
-  // Open modal after order creation
-  if (searchParams.has('additem')) {
-    addItemModal.modal('show');
-  }
-
   $('.btn-print').click(function() {
     let url = "{{ route(config('laraadmin.adminRoute') . '.orders.generateInvoice', ['id' => $order->id]) }}";
     printJS({
@@ -499,6 +494,11 @@ $(document).ready(function() {
       showModal: true
     });
   });
+
+  // Open modal after order creation
+  if (searchParams.has('additem')) {
+    addItemModal.modal('show');
+  }
 });
 </script>
 @endpush

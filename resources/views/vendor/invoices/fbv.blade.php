@@ -4,11 +4,13 @@
         <meta charset="utf-8">
         <title>{{ $invoice->name }}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <!-- <link href="{{ asset('la-assets/css/bootstrap.css') }}" rel="stylesheet" type="text/css" /> -->
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
+        <link href="{{ asset('la-assets/css/bootstrap.v-3.3.7.min.css') }}" rel="stylesheet" type="text/css" />
         <style>
-            body { font-size: 10px }
-            h1,h2,h3,h4,p,span,div { font-family: DejaVu Sans; sans-serif; }
+            html, body {
+                font-family: 'Dot Matrix', DejaVu Sans; sans-serif;
+                font-size: 30px;
+            }
 
             .wrapper {
                 outline: 1px solid black;
@@ -20,7 +22,7 @@
             }
 
             td {
-                padding: auto 5px;
+                padding: auto 20px;
                 border: 1px solid #888;
             }
 
@@ -141,7 +143,7 @@
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
             </table>
-            <div style="min-height:500px;display:block;font-size:10px;margin:5px;">Remarks: {{ $invoice->notes }}</div>
+            <div style="min-height:500px;display:block;margin:20px;">Remarks: {{ $invoice->notes }}</div>
         </div>
     </body>
 </html>

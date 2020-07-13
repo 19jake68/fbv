@@ -608,7 +608,11 @@ class OrdersController extends Controller
           $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks, $order->has_tax && $item->has_tax, $item->tax);
         }
 
-        // Generate Invoice
+        $invoiceParams = [
+          'invoice' => $invoice
+        ];
+
+        // // Generate Invoice
         $invoice->show();
       }
     }
