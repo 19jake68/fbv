@@ -9,7 +9,7 @@
         <style>
             html, body {
                 font-family: 'Dot Matrix', DejaVu Sans; sans-serif;
-                font-size: 30px;
+                font-size: 10px;
             }
 
             .wrapper {

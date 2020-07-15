@@ -29,7 +29,7 @@ class PDF
 
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
-        $options->set('dpi', 300);
+        // $options->set('dpi', 300);
         // $options->set('defaultFont', 'Dot Matrix');
 
         $pdf = new Dompdf($options);
