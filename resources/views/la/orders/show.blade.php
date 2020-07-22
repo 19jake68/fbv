@@ -340,6 +340,9 @@ $(document).ready(function() {
       // @endif
 
       $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+    },
+    refreshInvoice = function() {
+      document.getElementById('invoice').src += '';
     };
 
   addItemModal.modal({
@@ -444,6 +447,7 @@ $(document).ready(function() {
       success: function(result) {
         orderItems.ajax.reload(function() {
           calcAmount();
+          refreshInvoice();
         }, false);
       }
     });
@@ -480,6 +484,8 @@ $(document).ready(function() {
             orderItems.ajax.reload(function () {
               form[0].reset();
               calcAmount();
+              refreshInvoice();
+              // @todo: refresh invoice
             }, false);
           }
         }

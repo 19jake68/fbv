@@ -331,7 +331,9 @@ class OrdersController extends Controller
       ->select('item.id', 'activity.name AS activity', 'item_detail.name AS item', 'item.amount', 'item.quantity', 'unit.unit', 'item.subtotal', 'item.remarks', 'item.has_tax', 'item.tax')
       ->where('item.order_id', $orderModel->id)
       ->whereNull('item.deleted_at')
-      ->whereNull('item_detail.deleted_at');
+      ->whereNull('item_detail.deleted_at')
+      ->orderBy('activity.id', 'ASC')
+      ->orderBy('item_detail.id', 'ASC');
 
     $out = Datatables::of($values)->make();
     $data = $out->getData();
@@ -464,7 +466,7 @@ class OrdersController extends Controller
     $model = Item_Detail::where('activity_id', $request->id)
       ->where('area_id', $request->areaId)
       ->whereNull('deleted_at')
-      ->orderBy('name', 'ASC');
+      ->orderBy('id', 'ASC');
 
     if ($request->search) {
       $model->where('name', 'like', '%'.$request->search.'%');

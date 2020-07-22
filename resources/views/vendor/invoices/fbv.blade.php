@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <title>Invoice #{{ $invoice->number }}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
         <link href="{{ asset('la-assets/css/bootstrap.v-3.3.7.min.css') }}" rel="stylesheet" type="text/css" />
         <style>
             html, body {
@@ -144,7 +143,7 @@
             <table>
             <table class="text-center">
                 <tr>
-                    <td class="font-weight-bold">J.O. Type U+20B1</td>
+                    <td class="font-weight-bold">J.O. Type</td>
                     <td>{{ $invoice->orderType }}
                     <td class="font-weight-bold">Billed by</td>
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
