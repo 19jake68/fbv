@@ -242,6 +242,14 @@
 	</div>
 </div>
 @endla_access
+
+<!-- Print iFrame -->
+<iframe
+  id="invoice"
+  name="invoice"
+  src="{{ route(config('laraadmin.adminRoute') . '.orders.generateInvoice', ['id' => $order->id]) }}"
+  style="position: absolute; visibility: hidden"
+></iframe>
 @endsection
 
 @push('scripts')
@@ -487,12 +495,7 @@ $(document).ready(function() {
   }, 300));
 
   $('.btn-print').click(function() {
-    let url = "{{ route(config('laraadmin.adminRoute') . '.orders.generateInvoice', ['id' => $order->id]) }}";
-    printJS({
-      printable: url,
-      type: 'pdf',
-      showModal: true
-    });
+    window.frames['invoice'].print();
   });
 
   // Open modal after order creation

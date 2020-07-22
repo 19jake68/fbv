@@ -2,14 +2,21 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>{{ $invoice->name }}</title>
+        <title>Invoice #{{ $invoice->number }}</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
         <link href="{{ asset('la-assets/css/bootstrap.v-3.3.7.min.css') }}" rel="stylesheet" type="text/css" />
         <style>
             html, body {
-                font-family: 'Dot Matrix', DejaVu Sans; sans-serif;
-                font-size: 10px;
+                font-family: sans-serif;
+                font-size: 12px;
+                line-height: 1.2;
+                letter-spacing: 1px;
+            }
+
+            body {
+                width: 98%;
+                margin: auto;
             }
 
             .wrapper {
@@ -22,7 +29,7 @@
             }
 
             td {
-                padding: auto 20px;
+                padding: 5px;
                 border: 1px solid #888;
             }
 
@@ -135,15 +142,23 @@
                 </tr>
                 @endif
             <table>
-            <table>
+            <table class="text-center">
                 <tr>
-                    <td class="font-weight-bold">J.O. Type</td>
+                    <td class="font-weight-bold">J.O. Type U+20B1</td>
                     <td>{{ $invoice->orderType }}
                     <td class="font-weight-bold">Billed by</td>
                     <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
                 </tr>
             </table>
-            <div style="min-height:500px;display:block;margin:20px;">Remarks: {{ $invoice->notes }}</div>
+            <table>
+                <tr>
+                    <td>
+                        <div style="min-height:100px">
+                        Remarks: {{ $invoice->notes }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </body>
 </html>

@@ -566,7 +566,7 @@ class OrdersController extends Controller
           ->subtotal($order->total)
           ->taxAmount($order->total_tax_amount)
           ->notes($order->remarks)
-          ->currency('&#8369;');
+          ->currency('₱');
 
         // Items
         $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
@@ -577,7 +577,7 @@ class OrdersController extends Controller
           ->where('items.activity_id', '<>', 11)
           ->whereNull('items.deleted_at')
           ->whereNull('item_detail.deleted_at')
-          ->orderBy('activity.name', 'ASC')
+          ->orderBy('activity.id', 'ASC')
           ->orderBy('items.id', 'ASC')
           ->get();
 
@@ -611,9 +611,10 @@ class OrdersController extends Controller
         $invoiceParams = [
           'invoice' => $invoice
         ];
+        return View('vendor.invoices.fbv', $invoiceParams);
 
         // // Generate Invoice
-        $invoice->show();
+        // $invoice->show();
       }
     }
   }
