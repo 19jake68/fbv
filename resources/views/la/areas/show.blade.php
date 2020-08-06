@@ -28,7 +28,7 @@
 		</div>
 		<div class="col-md-1 actions">
 			@la_access("Areas", "edit")
-				<a href="{{ url(config('laraadmin.adminRoute') . '/areas/'.$area->id.'/edit') }}" class="btn btn-xs btn-edit btn-default"><i class="fa fa-pencil"></i></a><br>
+				<a href="{{ url(config('laraadmin.adminRoute') . '/areas/'.$area->id.'/edit') }}" class="btn btn-xs btn-edit-area btn-default"><i class="fa fa-pencil"></i></a><br>
 			@endla_access
 			
 			@la_access("Areas", "delete")
