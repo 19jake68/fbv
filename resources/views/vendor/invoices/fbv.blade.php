@@ -146,7 +146,7 @@
                     <td class="font-weight-bold">J.O. Type</td>
                     <td>{{ $invoice->orderType }}
                     <td class="font-weight-bold">Billed by</td>
-                    <td>{{ $invoice->biller_details['name'] }}<br>{{ $invoice->biller_details['email'] }}</td>
+                    <td>{{ $invoice->biller_details['name'] }}</td>
                 </tr>
             </table>
             <table>
