@@ -24,7 +24,7 @@
 
 <div class="box">
 	<div class="box-header">
-		
+
 	</div>
 	<div class="box-body">
 		<div class="row">
@@ -37,6 +37,7 @@
 					@la_input($module, 'company')
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
+					@la_input($module, 'ot_multiplier')
           @la_input($module, 'has_tax', true)
 					@la_input($module, 'tax')
 					<!-- @la_input($module, 'area_id') -->
@@ -59,7 +60,7 @@
 <script>
 $(function () {
 	$("#order-edit-form").validate({
-		
+
 	});
 });
 </script>

@@ -82,7 +82,7 @@
   }
 </style>
 @endpush
-  
+
 @section('htmlheader_title')
 	Order View
 @endsection
@@ -112,7 +112,7 @@
 		<div class="col-md-3">
       <div class="hidden-xs" style="margin-top:25px">&nbsp;</div>
       <ul class="list-unstyled">
-        <li>Billed by: {{ $order->user->name }} &lt;{{ $order->user->email }}&gt;</li>
+        <li>Billed by: {{ $order->user->name }}</li>
         <li>Remarks: {{ $order->remarks }}</li>
       </ul>
 		</div>
@@ -120,6 +120,12 @@
       <div class="dats1 mt10"></div>
       <ul class="list-unstyled">
         @if ($order->has_tax)
+          @if ($order->otMulti)
+            @php
+              $otMultiStr = '';
+              $otMultiVal = 0;
+            @endphp
+          @endif
         <li>Subtotal: <span class="subtotal">&#8369;{{ number_format($order->total, 2) }}</span></li>
         <li>Tax ({{ $order->tax }}%): <span class="tax">&#8369;{{ number_format($order->total_tax_amount, 2) }}</span></li>
         @endif
@@ -132,7 +138,7 @@
 			@la_access("Orders", "edit")
 				<a href="{{ url(config('laraadmin.adminRoute') . '/orders/'.$order->id.'/edit') }}" class="btn btn-xs btn-edit btn-default" title="Edit Order"><i class="fa fa-pencil"></i></a><br>
 			@endla_access
-			
+
 			@la_access("Orders", "delete")
 				{{ Form::open(['route' => [config('laraadmin.adminRoute') . '.orders.destroy', $order->id], 'method' => 'delete', 'style'=>'display:inline']) }}
 					<button class="btn btn-default btn-delete btn-xs" type="submit" title="Delete Order"><i class="fa fa-times"></i></button>
@@ -176,7 +182,7 @@
                 </tr>
               </thead>
               <tbody>
-                
+
               </tbody>
             </table>
             {{ Form::hidden('orderId', $order->id) }}
@@ -208,7 +214,7 @@
           <div class="form-group">
             <input type="text" class="form-control" id="searchbox" placeholder="Type a keyword to search for an item">
           </div>
-          
+
           <table id="itemList" class="table table-bordered table-striped">
             <thead>
               <tr class="success">
@@ -225,7 +231,7 @@
             @if ($order->has_tax)
             <tfoot>
               <tr>
-                <td colspan="6" style="font-size: 85%"><em>** Note: {{ $order->tax }}% Tax is already added on the amount.</em></td>
+                <td colspan="6" style="font-size: 85%"><em>** Note: {{ $order->tax }}% Tax is NOT added on the amount.</em></td>
               </tr>
             </tfoot>
             @endif
@@ -332,13 +338,6 @@ $(document).ready(function() {
       let itemSum = orderItems.column(6).data().sum(),
         total = itemSum;
 
-      // @if ($order->has_tax)
-      // let tax = total * ({{env('TAX')}} / 100),
-      //   totalAmount = total + tax;
-      // $('.tax').html('&#8369;' + tax.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-      // $('.totalAmount').html('&#8369;' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-      // @endif
-
       $('.total').html('&#8369;' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
     },
     refreshInvoice = function() {
@@ -384,19 +383,19 @@ $(document).ready(function() {
     if (result) {
       let form = $(this).parent().get(0),
         url = $(form).attr('action');
-      
+
       $.ajax({
         type: 'POST',
         url: url,
         data: $(form).serialize(),
-        success: function(result) {   
+        success: function(result) {
           orderItems.ajax.reload(function() {
             calcAmount();
           }, false);
         }
       });
     }
-    
+
     e.preventDefault();
   });
 
@@ -439,7 +438,7 @@ $(document).ready(function() {
     let form = $(this).parents('form:first')[0],
       url = $(form).attr('action'),
       method = $(form).attr('method');
-      
+
     $.ajax({
       type: method,
       url: url,
@@ -460,10 +459,10 @@ $(document).ready(function() {
 
     // Change button text
     $(this).text(toggle === 'enable' ? 'Save Items' : 'Edit Items');
-    
+
     // Toggle textbox enable/disable
     $.map($('#orderItems').find('.inline-edit'), function(node) {
-      toggle === 'enable' 
+      toggle === 'enable'
         ? $(node).removeClass('disabled')
         : $(node).addClass('disabled');
     });
@@ -491,7 +490,7 @@ $(document).ready(function() {
         }
       });
     }
-    
+
     $(this).data('toggle', newToggle);
   });
 

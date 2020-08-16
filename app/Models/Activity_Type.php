@@ -8,11 +8,11 @@ namespace App\Models;
 
 use App\Models\BaseModel;
 
-class Activity extends BaseModel
+class Activity_Type extends BaseModel
 {
     // use SoftDeletes;
 
-    protected $table = 'activities';
+    protected $table = 'activity_types';
 
     protected $hidden = [
 

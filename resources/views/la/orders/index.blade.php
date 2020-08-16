@@ -87,9 +87,10 @@
           @else
           @la_input($module, 'area_id')
           @endif
-          
+
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
+          @la_input($module, 'ot_multiplier')
           @la_input($module, 'has_tax', true)
           @la_input($module, 'tax')
           <!-- @la_input($module, 'date') -->
@@ -132,7 +133,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="form-group">
             {{ Form::label('order_type2', 'Order Type:') }}
             {{ Form::select('orderTypeId', $reports->order_type, null, ['id' => 'order_type2', 'class' => 'form-control']) }}
@@ -216,19 +217,19 @@ $(function () {
     if (result) {
       let form = $(this).parent().get(0),
         url = $(form).attr('action');
-      
+
       $.ajax({
         type: 'POST',
         url: url,
         data: $(form).serialize(),
-        success: function(result) {   
+        success: function(result) {
           datatable.ajax.reload(function() {
             // callback
           }, false);
         }
       });
     }
-    
+
     e.preventDefault();
   });
   @endif

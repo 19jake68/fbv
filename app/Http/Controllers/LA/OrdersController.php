@@ -15,6 +15,7 @@ use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Order_Type;
+use App\Models\Overtime_Multiplier;
 use App\Models\Unit;
 use Auth;
 use Carbon\Carbon;
@@ -33,6 +34,7 @@ class OrdersController extends Controller
     public $view_col = 'job_number';
     public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
     public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
+    public $displayTaxPerItem = false;
 
     public function __construct()
     {
@@ -192,7 +194,8 @@ class OrdersController extends Controller
             if (isset($order->id)) {
                 $module = Module::get('Orders');
                 $module->row = $order;
-                $activities = Activity::lists('name', 'id');
+                $activities = Activity::where('type', Auth::user()->employee->activity_id)->lists('name', 'id');
+                $order->otMulti = Overtime_Multiplier::whereIn('id', json_decode($order->ot_multiplier))->get();
 
                 if ($order->has_tax) {
                     // $itemModel = new Item();
@@ -361,14 +364,19 @@ class OrdersController extends Controller
 
             if (Module::hasAccess('Items', 'edit')) {
                 $hasTax = $orderModel->has_tax && $_hasTax;
-                // Amount
-                if ($hasTax) {
-                    $orderItem[3] = $this->_calcTax($_amount, $_tax);
-                    $_amount = $orderItem[3];
-                }
 
-                // Quantity
-                $orderItem[4] = '<input type="number" step="0.01" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $_tax . '" data-has-tax="' . $_hasTax . '" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
+                if ($this->displayTaxPerItem) {
+                    // Amount
+                    if ($hasTax) {
+                        $orderItem[3] = $this->_calcTax($_amount, $_tax);
+                        $_amount = $orderItem[3];
+                    }
+
+                    // Quantity
+                    $orderItem[4] = '<input type="number" step="0.01" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-tax="' . $_tax . '" data-has-tax="' . $_hasTax . '" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
+                } else {
+                    $orderItem[4] = '<input type="number" step="0.01" value="' . $_quantity . '" class="quantity form-control input-sm inline-edit disabled" min="' . $quantityMinLength . '" style="width:100%" data-amount="' . $_amount . '" data-type="quantity" data-id="' . $_id . '">';
+                }
 
                 // Unit
                 $options = '';
@@ -465,13 +473,14 @@ class OrdersController extends Controller
      */
     public function getItemDetailsByActivityId(Request $request)
     {
-        $model = Item_Detail::where('activity_id', $request->id)
+        $model = DB::table(Item_Detail::getTableName() . ' AS item_detail')
+            ->where('activity_id', $request->id)
             ->where('area_id', $request->areaId)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'ASC');
+            ->whereNull('item_detail.deleted_at')
+            ->orderBy('item_detail.id', 'ASC');
 
         if ($request->search) {
-            $model->where('name', 'like', '%' . $request->search . '%');
+            $model->where('item_detail.name', 'like', '%' . $request->search . '%');
         }
 
         $order = Order::find($request->orderId);
@@ -489,13 +498,13 @@ class OrdersController extends Controller
         foreach ($model as $row) {
             // Add unit selection
             $amount = number_format($row->amount, 2, '.', '');
-            $row->amount = $order->has_tax ? $this->_calcTax($row->amount, $order->tax) : $row->amount;
+            $row->amount = $order->has_tax && $this->displayTaxPerItem ? $this->_calcTax($row->amount, $order->tax) : $row->amount;
             $row->quantity = '<input style="width: 100px" type="number" step=".01" value="0" name="items[' . $row->id . '][quantity]" class="quantity form-control input-sm" data-taxed-amount="' . $row->amount . '" data-amount="' . $amount . '" data-id="' . $row->id . '" min="' . $quantityMinLength . '">';
             $row->unit = '<select style="width: 100px" name="items[' . $row->id . '][unit]" class="form-control input-sm">' . $unitOptions . '</select>';
             $row->subtotal = '<span class="subtotal">₱0.00</span><input type="hidden" name="items[' . $row->id . '][amount]" value="' . $amount . '">';
             $row->remarks = '<textarea style="resize: vertical;min-height:27px"name="items[' . $row->id . '][remarks]" class="form-control input-sm"></textarea>';
         }
-        return $model->toJson();
+        return $model;
     }
 
     public function editItems(Request $request)
@@ -590,7 +599,7 @@ class OrdersController extends Controller
 
                 $groupedItems = [];
                 foreach ($items as $index => $item) {
-                    if ($order->has_tax && $item->has_tax) {
+                    if ($order->has_tax && $item->has_tax && $this->displayTaxPerItem) {
                         $item->amount = $this->_calcTax($item->amount, $item->tax);
                     }
 
@@ -612,7 +621,7 @@ class OrdersController extends Controller
                     ->get();
 
                 foreach ($others as $index => $item) {
-                    $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks, $order->has_tax && $item->has_tax, $item->tax);
+                    $invoice->addMisc($item->name, $item->quantity, $item->unit, $item->subtotal, $item->remarks, $order->has_tax && $item->has_tax && $this->displayTaxPerItem, $item->tax);
                 }
 
                 $invoiceParams = [
