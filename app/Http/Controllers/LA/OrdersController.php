@@ -10,6 +10,7 @@ use App\Helpers\FBV\Invoice;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Area;
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Item;
 use App\Models\Item_Detail;
@@ -32,7 +33,7 @@ class OrdersController extends Controller
 {
     public $show_action;
     public $view_col = 'job_number';
-    public $listing_cols = ['id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
+    public $listing_cols = ['id', 'job_number', 'company', 'order_type_id', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
     public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
     public $displayTaxPerItem = false;
 
@@ -63,25 +64,25 @@ class OrdersController extends Controller
         $module = Module::get('Orders');
 
         if (Module::hasAccess($module->id)) {
-            $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
+            $orderType = Order_Type::whereNull('deleted_at')->where('id', '!=', 1)->lists('name', 'id');
+            $areaModel = new Area;
+            $areaModel = $areaModel->where('id', '!=', 1)->whereNull('deleted_at');
+
+            if (!$this->isAdmin) {
+                $userAreas = Auth::user()->employee()->first()->areas;
+                $userAreas = json_decode($userAreas);
+                $areaModel = $areaModel->whereIn('id', $userAreas);
+            }
+
             $params = [
                 'show_actions' => $this->show_action,
                 'listing_cols' => $this->listing_cols,
                 'module' => $module,
                 'orderType' => $orderType,
+                'areas' => $areaModel->lists('name', 'id'),
+                'reports' => $this->isAdmin ? $this->_setReportsCriteria() : null,
+                'showUserColumn' => $this->isAdmin ? true : false
             ];
-
-            if (!Auth::user()->isAdministrator()) {
-                $areas = Auth::user()->employee()->first()->areas;
-                $areas = json_decode($areas);
-                $areas = Area::whereIn('id', $areas)->lists('name', 'id');
-                $params['areas'] = $areas;
-            }
-
-            // Display report generator on admin
-            if (Auth::user()->isAdministrator()) {
-                $params['reports'] = $this->_setReportsCriteria();
-            }
 
             return View('la.orders.index', $params);
         } else {
@@ -194,9 +195,9 @@ class OrdersController extends Controller
             if (isset($order->id)) {
                 $module = Module::get('Orders');
                 $module->row = $order;
-                $activities = Activity::where('type', Auth::user()->employee->activity_id)->lists('name', 'id');
-                $order->otMulti = Overtime_Multiplier::whereIn('id', json_decode($order->ot_multiplier))->get();
-
+                $activities = Activity::where('type', Auth::user()->employee->activity_type)->lists('name', 'id');
+                // $order->otMulti = Overtime_Multiplier::whereIn('id', json_decode($order->ot_multiplier))->get();
+                dd($order->otMultiplier()->get());
                 if ($order->has_tax) {
                     // $itemModel = new Item();
                     // dd($itemModel->getTaxDetails($id));
@@ -215,6 +216,9 @@ class OrdersController extends Controller
                 $order->time_finished = !empty($order->time_finished)
                 ? Carbon::parse($order->time_finished)->format('M d, Y g:i a')
                 : '--';
+
+                // Get company based on user's details
+                $order->company = $this->_getCompanyByEmployee($order);
 
                 return view('la.orders.show', [
                     'module' => $module,
@@ -249,11 +253,11 @@ class OrdersController extends Controller
                 $module = Module::get('Orders');
                 $orderType = Order_Type::whereNull('deleted_at')->lists('name', 'id');
                 $module->row = $order;
-
                 return view('la.orders.edit', [
                     'module' => $module,
                     'view_col' => $this->view_col,
                     'orderType' => $orderType,
+                    'order' => $order
                 ])->with('order', $order);
             } else {
                 return view('errors.404', [
@@ -418,23 +422,24 @@ class OrdersController extends Controller
     public function dtajax()
     {
         $values = DB::table('orders')
-            ->leftJoin('employees', 'employees.id', '=', 'orders.user_id')
-            ->select(['orders.id', 'job_number', 'company', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
+            ->leftJoin(Employee::getTableName() . ' AS employees', 'employees.id', '=', 'orders.user_id')
+            ->leftJoin(Company::getTableName() . ' AS companies', 'companies.id', '=', 'employees.company')
+            ->leftJoin(Order_Type::getTableName() . ' AS order_types', 'order_types.id', '=', 'orders.order_type_id')
+            ->select(['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type','account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
             ->whereNull('orders.deleted_at');
 
         // List user created order if not admin, otherwise display all orders
-        if (!Auth::user()->isAdministrator()) {
+        if (!$this->isAdmin) {
             $values->where('user_id', Auth::user()->id);
         }
-
         $out = Datatables::of($values)->make();
         $data = $out->getData();
         $fields_popup = ModuleFields::getModuleFields('Orders');
 
         for ($i = 0; $i < count($data->data); $i++) {
             // Calculate Tax
-            if ($data->data[$i][8]) { // has tax
-                $data->data[$i][7] += round($data->data[$i][7] * (env('TAX') / 100), 2);
+            if ($data->data[$i][9]) { // has tax
+                $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
             }
 
             for ($j = 0; $j < count($this->listing_cols); $j++) {
@@ -568,7 +573,7 @@ class OrdersController extends Controller
                     ->template('fbv')
                     ->id($order->id)
                     ->orderType($order->orderType->name)
-                    ->business(['name' => $order->company])
+                    ->business(['name' => $this->_getCompanyByEmployee($order)])
                     ->biller(['name' => $order->user->name, 'email' => $order->user->email])
                     ->customer(['name' => $order->account_name])
                     ->number($order->job_number)
@@ -773,5 +778,10 @@ class OrdersController extends Controller
         $amount = (float) $amount;
         $calculatedAmount = ($amount * ($tax + 100)) / 100;
         return (float) number_format($calculatedAmount, $decimals, '.', '');
+    }
+
+    private function _getCompanyByEmployee($model)
+    {
+        return $model->user->company()->first()->name;
     }
 }

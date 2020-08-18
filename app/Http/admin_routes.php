@@ -131,4 +131,8 @@ Route::group(['as' => $as, 'middleware' => ['auth', 'permission:ADMIN_PANEL']], 
     /* ================== Overtime_Multipliers ================== */
     Route::resource(config('laraadmin.adminRoute') . '/overtime_multipliers', 'LA\Overtime_MultipliersController');
     Route::get(config('laraadmin.adminRoute') . '/overtime_multiplier_dt_ajax', 'LA\Overtime_MultipliersController@dtajax');
+
+    /* ================== Companies ================== */
+    Route::resource(config('laraadmin.adminRoute') . '/companies', 'LA\CompaniesController');
+    Route::get(config('laraadmin.adminRoute') . '/company_dt_ajax', 'LA\CompaniesController@dtajax');
 });

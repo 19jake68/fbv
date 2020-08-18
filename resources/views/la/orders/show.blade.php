@@ -120,12 +120,6 @@
       <div class="dats1 mt10"></div>
       <ul class="list-unstyled">
         @if ($order->has_tax)
-          @if ($order->otMulti)
-            @php
-              $otMultiStr = '';
-              $otMultiVal = 0;
-            @endphp
-          @endif
         <li>Subtotal: <span class="subtotal">&#8369;{{ number_format($order->total, 2) }}</span></li>
         <li>Tax ({{ $order->tax }}%): <span class="tax">&#8369;{{ number_format($order->total_tax_amount, 2) }}</span></li>
         @endif

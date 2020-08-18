@@ -59,6 +59,7 @@
 					@la_input($module, 'name')
           @la_input($module, 'email')
 					@la_input($module, 'designation')
+					@la_input($module, 'company')
 					@la_input($module, 'activity_type')
           @la_input($module, 'areas')
 					@la_input($module, 'gender')

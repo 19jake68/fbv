@@ -47,6 +47,11 @@ class Order extends BaseModel
         return $this->belongsTo('App\Models\Employee');
     }
 
+    public function otMultiplier()
+    {
+        return $this->hasMany('App\Models\Overtime_Multiplier');
+    }
+
     public function calcTotalAmount($id)
     {
         $itemTotal = Item::where('order_id', $id)

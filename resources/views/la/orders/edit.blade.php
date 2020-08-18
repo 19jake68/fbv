@@ -34,10 +34,9 @@
 					{!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
 					{!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
 					</div>
-					@la_input($module, 'company')
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
-					@la_input($module, 'ot_multiplier')
+					@la_input($module, 'ot_multiplier', null, null, 'form-control select2-hidden-accessible ot-multiplier')
           @la_input($module, 'has_tax', true)
 					@la_input($module, 'tax')
 					<!-- @la_input($module, 'area_id') -->
@@ -59,6 +58,7 @@
 @push('scripts')
 <script>
 $(function () {
+	$('.ot-multiplier').val({!!$order->ot_multiplier!!}).trigger('change');
 	$("#order-edit-form").validate({
 
 	});

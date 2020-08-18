@@ -26,7 +26,7 @@ class EmployeesController extends Controller
 {
     public $show_action;
     public $view_col = 'name';
-    public $listing_cols = ['id', 'name', 'designation', 'mobile', 'activity_type', 'dept'];
+    public $listing_cols = ['id', 'name', 'designation', 'company', 'activity_type', 'dept'];
 
     public function __construct()
     {
