@@ -16,7 +16,6 @@ use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Order_Type;
-use App\Models\Overtime_Multiplier;
 use App\Models\Unit;
 use Auth;
 use Carbon\Carbon;
@@ -81,7 +80,7 @@ class OrdersController extends Controller
                 'orderType' => $orderType,
                 'areas' => $areaModel->lists('name', 'id'),
                 'reports' => $this->isAdmin ? $this->_setReportsCriteria() : null,
-                'showUserColumn' => $this->isAdmin ? true : false
+                'showUserColumn' => $this->isAdmin ? true : false,
             ];
 
             return View('la.orders.index', $params);
@@ -197,7 +196,7 @@ class OrdersController extends Controller
                 $module->row = $order;
                 $activities = Activity::where('type', Auth::user()->employee->activity_type)->lists('name', 'id');
                 // $order->otMulti = Overtime_Multiplier::whereIn('id', json_decode($order->ot_multiplier))->get();
-                dd($order->otMultiplier()->get());
+                // dd($order->otMultiplier()->get());
                 if ($order->has_tax) {
                     // $itemModel = new Item();
                     // dd($itemModel->getTaxDetails($id));
@@ -257,7 +256,7 @@ class OrdersController extends Controller
                     'module' => $module,
                     'view_col' => $this->view_col,
                     'orderType' => $orderType,
-                    'order' => $order
+                    'order' => $order,
                 ])->with('order', $order);
             } else {
                 return view('errors.404', [
@@ -425,7 +424,7 @@ class OrdersController extends Controller
             ->leftJoin(Employee::getTableName() . ' AS employees', 'employees.id', '=', 'orders.user_id')
             ->leftJoin(Company::getTableName() . ' AS companies', 'companies.id', '=', 'employees.company')
             ->leftJoin(Order_Type::getTableName() . ' AS order_types', 'order_types.id', '=', 'orders.order_type_id')
-            ->select(['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type','account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
+            ->select(['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
             ->whereNull('orders.deleted_at');
 
         // List user created order if not admin, otherwise display all orders
