@@ -89,7 +89,6 @@ class Order_MiscsController extends Controller
             $insert_id = Module::insert("Order_Miscs", $request);
             $order = new Order;
             $order->calcTotalAmount($request->order_id);
-
             return redirect(config('laraadmin.adminRoute') . "/orders/" . $request->order_id . '#tab-misc');
         } else {
             return redirect(config('laraadmin.adminRoute') . "/");

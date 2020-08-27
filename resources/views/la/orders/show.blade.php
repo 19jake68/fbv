@@ -119,11 +119,19 @@
 		<div class="col-md-4">
       <div class="dats1 mt10"></div>
       <ul class="list-unstyled">
-        @if ($order->has_tax)
-        <li>Subtotal: <span class="subtotal">&#8369;{{ number_format($order->total, 2) }}</span></li>
-        <li>Tax ({{ $order->tax }}%): <span class="tax">&#8369;{{ number_format($order->total_tax_amount, 2) }}</span></li>
+        @if ($order->has_tax || $hasOTMultiplier)
+          <li>Subtotal: &#8369;<span class="subtotal">{{ number_format($order->total, 2) }}</span></li>
+
+          @if ($hasOTMultiplier)
+            <li>{{ $order->ot_multiplier_text }} OT: &#8369;<span class="otMultiplier">{{ number_format($order->ot_multiplier_amount, 2) }}</span></li>
+          @endif
+
+          @if ($order->has_tax)
+            <li>Tax: &#8369;<span class="tax">{{ number_format($order->total_tax_amount + $order->ot_multiplier_tax, 2) }}</span></li>
+          @endif
         @endif
-        <li style="font-size: 20px">Total: <span class="total label label-success label-regular">&#8369;{{ number_format($order->total + $order->total_tax_amount, 2) }}</span>
+
+        <li style="font-size: 20px">Total: &#8369;<span class="total label label-success label-regular">{{ number_format($order->total + $order->total_tax_amount + $order->ot_multiplier_amount + $order->ot_multiplier_tax, 2) }}</span></li>
       </ul>
 		</div>
 		<div class="col-md-1 actions">
@@ -336,6 +344,25 @@ $(document).ready(function() {
     },
     refreshInvoice = function() {
       document.getElementById('invoice').src += '';
+    },
+    currencyFormatter = function(num) {
+      var num_parts = num.toFixed(2).split(".");
+      num_parts[0] = num_parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return num_parts.join(".");
+    }
+    // Set displayed amount in the header
+    setDisplayedAmount = function(order) {
+      const amount = order.total;
+      const tax = order.total_tax_amount;
+      const otMultiAmount = order.ot_multiplier_amount;
+      const otMultiTax = order.ot_multiplier_tax;
+      const totalTax = tax + otMultiTax;
+      const totalAmount = amount + otMultiAmount + tax + otMultiTax;
+
+      $('.subtotal').html(currencyFormatter(amount));
+      $('.otMultiplier').html(currencyFormatter(otMultiAmount));
+      $('.tax').html(currencyFormatter(totalTax));
+      $('.total').html(currencyFormatter(totalAmount));
     };
 
   addItemModal.modal({
@@ -376,7 +403,7 @@ $(document).ready(function() {
 
     if (result) {
       let form = $(this).parent().get(0),
-        url = $(form).attr('action');
+        url = $(form).attr('action') + '?ajax';
 
       $.ajax({
         type: 'POST',
@@ -384,7 +411,8 @@ $(document).ready(function() {
         data: $(form).serialize(),
         success: function(result) {
           orderItems.ajax.reload(function() {
-            calcAmount();
+            setDisplayedAmount(result.order);
+            refreshInvoice();
           }, false);
         }
       });
@@ -430,7 +458,7 @@ $(document).ready(function() {
     e.preventDefault();
 
     let form = $(this).parents('form:first')[0],
-      url = $(form).attr('action'),
+      url = $(form).attr('action') + '?ajax',
       method = $(form).attr('method');
 
     $.ajax({
@@ -439,7 +467,7 @@ $(document).ready(function() {
       data: $(form).serialize(),
       success: function(result) {
         orderItems.ajax.reload(function() {
-          calcAmount();
+          setDisplayedAmount(result.order);
           refreshInvoice();
         }, false);
       }
@@ -476,9 +504,8 @@ $(document).ready(function() {
           if (result.has_modifications) {
             orderItems.ajax.reload(function () {
               form[0].reset();
-              calcAmount();
+              setDisplayedAmount(result.order);
               refreshInvoice();
-              // @todo: refresh invoice
             }, false);
           }
         }

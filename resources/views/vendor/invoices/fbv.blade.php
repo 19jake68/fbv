@@ -115,30 +115,40 @@
                     <td>&nbsp;</td>
                 </tr>
 
-                @if ($invoice->hasTax)
-                    @if ($invoice->displayTax)
+                @if ($invoice->hasTax || $invoice->hasOTMultiplier)
+                    <tr>
+                        <td colspan="3" class="text-right">Subtotal</td>
+                        <td class="text-center">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                        <td></td>
+                    </tr>
+
+                    @if ($invoice->hasOTMultiplier)
                         <tr>
-                            <td colspan="3" class="text-right">Subtotal</td>
-                            <td class="text-center">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                            <td colspan="3" class="text-right">{{ $invoice->otMultiplierText }} OT</td>
+                            <td class="text-center">{{ $invoice->currency }}{{ $invoice->otMultiAmountFormatted() }}</td>
                             <td></td>
                         </tr>
+                    @endif
+
+
+                    @if ($invoice->hasTax)
                         <tr>
-                            <td colspan="3" class="text-right">Tax ({{ $invoice->tax }}%)</td>
+                            <td colspan="3" class="text-right">Tax</td>
                             <td class="text-center">{{ $invoice->currency }}{{ $invoice->taxPriceFormatted() }}</td>
                             <td></td>
                         </tr>
                     @endif
-                <tr>
-                    <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
-                    <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
-                    <td></td>
-                </tr>
+                    <tr>
+                        <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
+                        <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->totalPriceFormatted() }}</td>
+                        <td></td>
+                    </tr>
                 @else
-                <tr>
-                    <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
-                    <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
-                    <td></td>
-                </tr>
+                    <tr>
+                        <td colspan="3" class="text-right font-weight-bold">Total Invoice</td>
+                        <td class="text-center font-weight-bold">{{ $invoice->currency }}{{ $invoice->subTotalPriceFormatted() }}</td>
+                        <td></td>
+                    </tr>
                 @endif
             <table>
             <table class="text-center">

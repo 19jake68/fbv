@@ -60,30 +60,28 @@ class Order extends BaseModel
             ->sum('amount');
         $order = $this->where('id', $id)
             ->first();
-        $order->total = $itemTotal + $miscTotal;
-        return $order->save();
-    }
+        $order->total = round($itemTotal + $miscTotal, 2);
 
-    public function setTaxDetails($id)
-    {
-        $order = $this->where('id', $id)
-            ->first();
+        // OT Multiplier
+        if (count(json_decode($order->ot_multiplier))) {
+            $order->ot_multiplier_amount = round($order->total * ($order->ot_multiplier_value), 2);
+        } else {
+            $order->ot_multiplier_amount = 0;
+        }
 
-        if ($order->has_tax) {
-            $itemModel = new Item;
-            $taxDetails = $itemModel->getTaxDetails($id);
-            $order->taxable_amount = $taxDetails['taxable'];
-            $order->tax_exempt_amount = $taxDetails['taxExempt'];
-            $order->total_tax_amount = $taxDetails['totalTax'];
+        // Tax
+        if ($order->has_tax && $order->tax > 0) {
+            $order->taxable_amount = $order->total;
+            $order->ot_multiplier_tax = round($order->ot_multiplier_amount * ($order->tax / 100), 2);
+            $order->total_tax_amount = round($order->total * ($order->tax / 100), 2);
         } else {
             $order->taxable_amount = 0;
-            $order->tax_exempt_amount = 0;
+            $order->ot_multiplier_tax = 0;
             $order->total_tax_amount = 0;
         }
 
-        // dd($order);
-
-        return $order->save();
+        $order->save();
+        return $order;
     }
 
     public static function checkUniqueJobNumberOnUpdate($jobNum, $id)

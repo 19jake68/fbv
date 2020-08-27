@@ -16,6 +16,7 @@ use App\Models\Item;
 use App\Models\Item_Detail;
 use App\Models\Order;
 use App\Models\Order_Type;
+use App\Models\Overtime_Multiplier;
 use App\Models\Unit;
 use Auth;
 use Carbon\Carbon;
@@ -35,6 +36,7 @@ class OrdersController extends Controller
     public $listing_cols = ['id', 'job_number', 'company', 'order_type_id', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
     public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
     public $displayTaxPerItem = false;
+    public $hasOTMultiplier = false;
 
     public function __construct()
     {
@@ -124,6 +126,13 @@ class OrdersController extends Controller
                 'date' => Carbon::today()->format('d/m/Y'),
             ]);
 
+            // Get OT Multiplier Value
+            if ($request->ot_multiplier) {
+                $otMulti = $this->_getOTMultiValue($request->ot_multiplier);
+                $request->ot_multiplier_text = $otMulti->text;
+                $request->ot_multiplier_value = $otMulti->value;
+            }
+
             // Add user id who created the order
             $request->user_id = Auth::id();
             $insert_id = Module::insert("Orders", $request);
@@ -173,8 +182,12 @@ class OrdersController extends Controller
             }
 
             // Update order total amount
-            $order->calcTotalAmount($orderId);
-            $order->setTaxDetails($orderId);
+            $newOrderData = $order->calcTotalAmount($orderId);
+
+            if ($request->get('ajax') !== null) {
+                return response()->json(['order' => $newOrderData]);
+            }
+
             return redirect(config('laraadmin.adminRoute') . "/orders/" . $orderId);
         } else {
             return redirect(config('laraadmin.adminRoute') . "/");
@@ -195,17 +208,7 @@ class OrdersController extends Controller
                 $module = Module::get('Orders');
                 $module->row = $order;
                 $activities = Activity::where('type', Auth::user()->employee->activity_type)->lists('name', 'id');
-                // $order->otMulti = Overtime_Multiplier::whereIn('id', json_decode($order->ot_multiplier))->get();
-                // dd($order->otMultiplier()->get());
-                if ($order->has_tax) {
-                    // $itemModel = new Item();
-                    // dd($itemModel->getTaxDetails($id));
-                    // dd(Module::get('Item')->getTaxDetails($id));
-                    // $order->subtotal = ;
-                    // $order->taxAmount = '';
-                    // $order->tax = $order->total * (env('TAX') / 100);
-                    // $order->totalAmount = $order->total + $order->tax;
-                }
+                $this->hasOTMultiplier = !!count(json_decode($order->ot_multiplier));
 
                 // Format dates
                 $order->date = Carbon::parse($order->date)->format('M d, Y g:i a');
@@ -226,6 +229,7 @@ class OrdersController extends Controller
                     'no_padding' => "no-padding",
                     'activities' => $activities,
                     'items_cols' => $this->order_items_cols,
+                    'hasOTMultiplier' => $this->hasOTMultiplier,
                 ])->with('order', $order);
             } else {
                 return view('errors.404', [
@@ -291,17 +295,19 @@ class OrdersController extends Controller
                 return redirect()->back()->withErrors($validator)->withInput();
             }
 
-            // @ToDo: Update tax per item once order tax data is modified
+            if ($request->ot_multiplier) {
+                $otMulti = $this->_getOTMultiValue($request->ot_multiplier);
+                $request->ot_multiplier_text = $otMulti->text;
+                $request->ot_multiplier_value = $otMulti->value;
+            } else {
+                $request->ot_multiplier = [];
+                $request->ot_multiplier_text = '';
+                $request->ot_multiplier_value = 0;
+            }
 
             $insert_id = Module::updateRow("Orders", $request, $id);
-
-            // Set tax to all items
-            $modelItem = new Item;
-            $modelItem->setTaxDetails($insert_id, (bool) $request->has_tax, $request->tax);
-
             $model = new Order;
-            $model->setTaxDetails($id);
-
+            $model->calcTotalAmount($id);
             return redirect(config('laraadmin.adminRoute') . "/orders/" . $id);
         } else {
             return redirect(config('laraadmin.adminRoute') . "/");
@@ -514,6 +520,7 @@ class OrdersController extends Controller
     public function editItems(Request $request)
     {
         $hasModifications = false;
+        $newOrderData = null;
         // Update quantity
         if ($request->get('quantity')) {
             $minlength = (int) Module::get('Items')->fields['quantity']['minlength'];
@@ -526,9 +533,6 @@ class OrdersController extends Controller
                 $item->quantity = (float) $value;
                 $item->subtotal = $item->amount * $value;
                 $item->save();
-                $order = new Order;
-                $order->calcTotalAmount($request->get('orderId'));
-                $order->setTaxDetails($request->get('orderId'));
             }, $request->get('quantity'), array_keys($request->get('quantity')));
             $hasModifications = true;
         }
@@ -553,13 +557,17 @@ class OrdersController extends Controller
             $hasModifications = true;
         }
 
-        return response()->json(['has_modifications' => $hasModifications]);
+        $order = new Order;
+        $newOrderData = $order->calcTotalAmount($request->get('orderId'));
+
+        return response()->json(['has_modifications' => $hasModifications, 'order' => $newOrderData]);
     }
 
     public function generateInvoice(Request $request)
     {
         if (Module::hasAccess("Orders", "view")) {
             $order = Order::find($request->id);
+            $this->hasOTMultiplier = !!count(json_decode($order->ot_multiplier));
 
             if (isset($order->id)) {
                 $timeStart = !empty($order->time_start)
@@ -585,6 +593,10 @@ class OrdersController extends Controller
                     ->displayTax(true)
                     ->subtotal($order->total)
                     ->taxAmount($order->total_tax_amount)
+                    ->hasOTMultiplier($this->hasOTMultiplier)
+                    ->otMultiplierText($order->ot_multiplier_text)
+                    ->otMultiplierAmount($order->ot_multiplier_amount)
+                    ->otMultiplierTax($order->ot_multiplier_tax)
                     ->notes($order->remarks)
                     ->currency('₱');
 
@@ -767,6 +779,28 @@ class OrdersController extends Controller
                 ->toArray();
         }
         return $criteria;
+    }
+
+    /**
+     * Get OT Multipler values
+     */
+    private function _getOTMultiValue($otMultiArr)
+    {
+        $orderOTMuli = Overtime_Multiplier::whereIn('id', $otMultiArr)->get();
+        $obj = new \stdClass();
+        $orderStr = [];
+        $orderVal = 0;
+
+        for ($i = 0; $i < count($orderOTMuli); $i++) {
+            $otMulti = $orderOTMuli[$i];
+            $orderVal += $otMulti->value;
+            array_push($orderStr, $otMulti->type);
+        }
+
+        $obj->text = implode(' + ', $orderStr);
+        $obj->value = $orderVal;
+
+        return $obj;
     }
 
     /**
