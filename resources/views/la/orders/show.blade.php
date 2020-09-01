@@ -96,15 +96,28 @@
 					<div class="profile-icon text-primary"><i class="fa {{ $module->fa_icon }}"></i></div>
 				</div>
 				<div class="col-md-9">
-					<h4 class="name">Job Order: {{ $order->$view_col }}</h4>
+          @if ($isActivityTypeVista)
+          <h4 class="name">Meter #: {{ $order->meter_no }}</h4>
+          @else
+          <h4 class="name">Job Order: {{ $order->view_col }}</h4>
+          @endif
+					
           <ul class="list-unstyled">
             <li>Order Type: {{ $order->orderType->name }}</li>
             <li>Company: {{ $order->company }}
             <li>Area: {{ $order->area->name }}</li>
+            @if (!$isActivityTypeVista)
             <li>Account Name: {{ $order->account_name }}</li>
+            @endif
+            
             <li>Date: {{ $order->date }}</li>
+            @if ($isActivityTypeVista)
+            <li>Block: {{ $order->block }}</li>
+            <li>Lot: {{ $order->lot }}</li>
+            @else
             <li>Started: {{ $order->time_start }}</li>
             <li>Ended: {{ $order->time_finished }}</li>
+            @endif
           </ul>
 				</div>
 			</div>
@@ -113,7 +126,10 @@
       <div class="hidden-xs" style="margin-top:25px">&nbsp;</div>
       <ul class="list-unstyled">
         <li>Billed by: {{ $order->user->name }}</li>
+        @if (!$isActivityTypeVista)
         <li>Remarks: {{ $order->remarks }}</li>
+        @endif
+        
       </ul>
 		</div>
 		<div class="col-md-4">

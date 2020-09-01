@@ -30,8 +30,13 @@ class Employee extends BaseModel
         return $this->hasOne('App\User', 'context_id', 'id');
     }
 
-    public function company()
+    public function employeeCompany()
     {
         return $this->belongsTo('App\Models\Company', 'company');
+    }
+
+    public function employeeActivityType()
+    {
+        return $this->belongsTo('App\Models\Activity_Type', 'activity_type');
     }
 }

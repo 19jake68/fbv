@@ -25,6 +25,7 @@ use Datatables;
 use DB;
 use Dwij\Laraadmin\Models\Module;
 use Dwij\Laraadmin\Models\ModuleFields;
+use ExcelReport;
 use Illuminate\Http\Request;
 use PdfReport;
 use Validator;
@@ -33,10 +34,14 @@ class OrdersController extends Controller
 {
     public $show_action;
     public $view_col = 'job_number';
+    public $vista_view_col = 'meter_no';
     public $listing_cols = ['id', 'job_number', 'company', 'order_type_id', 'account_name', 'area_id', 'date', 'user_id', 'total', 'has_tax'];
+    public $vista_listing_cols = ['id', 'meter_no', 'company', 'order_type_id', 'area_id', 'date', 'user_id', 'total'];
     public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
     public $displayTaxPerItem = false;
     public $hasOTMultiplier = false;
+    public $activityTypeLabel;
+    public $isActivityTypeVista;
 
     public function __construct()
     {
@@ -44,15 +49,27 @@ class OrdersController extends Controller
         // Field Access of Listing Columns
         if (\Dwij\Laraadmin\Helpers\LAHelper::laravel_ver() == 5.3) {
             $this->middleware(function ($request, $next) {
-                $this->listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->listing_cols);
+                if ($this->isActivityTypeVista) {
+                    $this->vista_listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->vista_listing_cols);
+                } else {
+                    $this->listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->listing_cols);
+                }
+
                 return $next($request);
             });
         } else {
-            $this->listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->listing_cols);
+            if ($this->isActivityTypeVista) {
+                $this->vista_listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->vista_listing_cols);
+            } else {
+                $this->listing_cols = ModuleFields::listingColumnAccessScan('Orders', $this->listing_cols);
+            }
+
         }
 
         $this->show_action = Module::hasAccess("Orders", "edit") || Module::hasAccess("Orders", "delete");
 
+        $this->activityTypeLabel = Auth::user()->employee->employeeActivityType->activity_type;
+        $this->isActivityTypeVista = Auth::user()->employee->activity_type === 2;
     }
 
     /**
@@ -77,12 +94,14 @@ class OrdersController extends Controller
 
             $params = [
                 'show_actions' => $this->show_action,
-                'listing_cols' => $this->listing_cols,
+                'listing_cols' => $this->isActivityTypeVista ? $this->vista_listing_cols : $this->listing_cols,
                 'module' => $module,
                 'orderType' => $orderType,
                 'areas' => $areaModel->lists('name', 'id'),
                 'reports' => $this->isAdmin ? $this->_setReportsCriteria() : null,
-                'showUserColumn' => $this->isAdmin ? true : false,
+                'showUserColumn' => $this->isAdmin ? false : false,
+                'activityTypeLabel' => $this->activityTypeLabel,
+                'isActivityTypeVista' => $this->isActivityTypeVista,
             ];
 
             return View('la.orders.index', $params);
@@ -113,7 +132,14 @@ class OrdersController extends Controller
             $rules = Module::validateRules("Orders", $request);
 
             // add custom rule
-            $rules['job_number'] = 'unique:orders|required|max:255';
+            if ($this->isActivityTypeVista) {
+                $rules['date'] = 'required';
+                $rules['block'] = 'required';
+                $rules['lot'] = 'required';
+                $rules['meter_no'] = 'unique:orders|required|max:255';
+            } else {
+                $rules['job_number'] = 'unique:orders|required|max:255';
+            }
 
             $validator = Validator::make($request->all(), $rules);
 
@@ -121,10 +147,14 @@ class OrdersController extends Controller
                 return redirect()->back()->withErrors($validator)->withInput();
             }
 
-            // Set today's date
-            $request->merge([
-                'date' => Carbon::today()->format('d/m/Y'),
-            ]);
+            if ($this->isActivityTypeVista) {
+                $request->job_number = 'METNO' . $request->meter_no;
+            } else {
+                // Set today's date
+                $request->merge([
+                    'date' => Carbon::today()->format('d/m/Y'),
+                ]);
+            }
 
             // Get OT Multiplier Value
             if ($request->ot_multiplier) {
@@ -224,12 +254,13 @@ class OrdersController extends Controller
 
                 return view('la.orders.show', [
                     'module' => $module,
-                    'view_col' => $this->view_col,
+                    'view_col' => $this->isActivityTypeVista ? $this->vista_view_col : $this->view_col,
                     'no_header' => true,
                     'no_padding' => "no-padding",
                     'activities' => $activities,
                     'items_cols' => $this->order_items_cols,
                     'hasOTMultiplier' => $this->hasOTMultiplier,
+                    'isActivityTypeVista' => $this->isActivityTypeVista,
                 ])->with('order', $order);
             } else {
                 return view('errors.404', [
@@ -261,6 +292,7 @@ class OrdersController extends Controller
                     'view_col' => $this->view_col,
                     'orderType' => $orderType,
                     'order' => $order,
+                    'isActivityTypeVista' => $this->isActivityTypeVista,
                 ])->with('order', $order);
             } else {
                 return view('errors.404', [
@@ -426,34 +458,52 @@ class OrdersController extends Controller
      */
     public function dtajax()
     {
+        if ($this->isActivityTypeVista) {
+            $select = ['orders.id', 'meter_no', 'companies.name as company', 'order_types.name as order_type', 'area_id', 'date', 'employees.name', 'total'];
+        } else {
+            $select = ['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'];
+        }
+
         $values = DB::table('orders')
             ->leftJoin(Employee::getTableName() . ' AS employees', 'employees.id', '=', 'orders.user_id')
             ->leftJoin(Company::getTableName() . ' AS companies', 'companies.id', '=', 'employees.company')
             ->leftJoin(Order_Type::getTableName() . ' AS order_types', 'order_types.id', '=', 'orders.order_type_id')
-            ->select(['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'])
+            ->select($select)
             ->whereNull('orders.deleted_at');
 
         // List user created order if not admin, otherwise display all orders
-        if (!$this->isAdmin) {
-            $values->where('user_id', Auth::user()->id);
-        }
+        // if (!$this->isAdmin) {
+        $values->where('user_id', Auth::user()->id);
+        // }
         $out = Datatables::of($values)->make();
         $data = $out->getData();
         $fields_popup = ModuleFields::getModuleFields('Orders');
 
         for ($i = 0; $i < count($data->data); $i++) {
             // Calculate Tax
-            if ($data->data[$i][9]) { // has tax
-                $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
-            }
-
-            for ($j = 0; $j < count($this->listing_cols); $j++) {
-                $col = $this->listing_cols[$j];
-                if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
-                    $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+            if (!$this->isActivityTypeVista) {
+                if ($data->data[$i][9]) { // has tax
+                    $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
                 }
-                if ($col == $this->view_col) {
-                    $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+
+                for ($j = 0; $j < count($this->listing_cols); $j++) {
+                    $col = $this->listing_cols[$j];
+                    if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                        $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                    }
+                    if ($col == $this->view_col) {
+                        $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                    }
+                }
+            } else {
+                for ($j = 0; $j < count($this->vista_listing_cols); $j++) {
+                    $col = $this->vista_listing_cols[$j];
+                    if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                        $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                    }
+                    if ($col == $this->vista_view_col) {
+                        $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                    }
                 }
             }
 
@@ -583,7 +633,7 @@ class OrdersController extends Controller
                     ->business(['name' => $this->_getCompanyByEmployee($order)])
                     ->biller(['name' => $order->user->name, 'email' => $order->user->email])
                     ->customer(['name' => $order->account_name])
-                    ->number($order->job_number)
+                    ->number($this->isActivityTypeVista ? $order->meter_no : $order->job_number)
                     ->area($order->area->name)
                     ->dateDone(date("M j, Y"))
                     ->timeStart($timeStart)
@@ -643,12 +693,62 @@ class OrdersController extends Controller
                 $invoiceParams = [
                     'invoice' => $invoice,
                 ];
-                return View('vendor.invoices.fbv', $invoiceParams);
 
-                // // Generate Invoice
-                // $invoice->show();
+                if ($this->isActivityTypeVista) {
+                    return View('vendor.invoices.fbv-vista', $invoiceParams);
+                } else {
+                    return View('vendor.invoices.fbv', $invoiceParams);
+                }
             }
         }
+    }
+
+    public function generateReportV2(Request $request)
+    {
+        foreach ($request->all() as $key => $value) {
+            $$key = $value;
+        }
+
+        $title = 'Order Report';
+        $meta = [
+            'Covered Date' => date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)),
+            'Order Type' => 'All',
+            'Activity' => 'All',
+            'Area' => 'All',
+        ];
+
+        $columns = [
+            'Job #' => 'job_number',
+            'Order Type' => 'order_type',
+            // 'Company' => 'company',
+            'Account Name' => 'account_name',
+            // 'Area' => 'area',
+            'Billed By' => 'employee',
+            'Date' => 'date',
+            'Total' => 'total',
+        ];
+
+        if ($activityId) {
+            $query = Order::select('company.name as company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'), 'activity.name');
+        } else {
+            $query = Order::select('company.name as company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
+        }
+
+        $query->leftJoin(Area::getTableName() . ' as area', 'area.id', '=', 'area_id')
+            ->leftJoin(Employee::getTableName() . ' as user', 'user.id', '=', 'user_id')
+            ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
+            ->leftJoin(Company::getTableName() . ' as company', 'company.id', '=', 'user.company')
+            ->leftJoin(Order_Type::getTableName() . ' as order_type', 'order_type.id', '=', 'orders.order_type_id')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->groupBy('item.order_id')
+            ->orderBy('date', 'desc');
+
+        return ExcelReport::of($title, $meta, $query, $columns, [])
+            ->showTotal([ // Used to sum all value on specified column on the last table (except using groupBy method). 'point' is a type for displaying total with a thousand separator
+                'Total Balance' => 'point', // if you want to show dollar sign ($) then use 'Total Balance' => '$'
+            ])
+            ->limit(20) // Limit record to be showed
+            ->download('download'); // other available method: download('filename') to download pdf / make() that will producing DomPDF / SnappyPdf instance so you could do any other DomPDF / snappyPdf method such as stream() or download()
     }
 
     public function generateReport(Request $request)
@@ -685,14 +785,15 @@ class OrdersController extends Controller
         ];
 
         if ($activityId) {
-            $query = Order::select('company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'), 'activity.name');
+            $query = Order::select('company.name as company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'), 'activity.name');
         } else {
-            $query = Order::select('company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
+            $query = Order::select('company.name as company', 'order_type.name as order_type', 'job_number', 'account_name', 'area.name as area', 'user.name as employee', 'date', DB::raw('SUM(subtotal) as total'));
         }
 
         $query->leftJoin(Area::getTableName() . ' as area', 'area.id', '=', 'area_id')
             ->leftJoin(Employee::getTableName() . ' as user', 'user.id', '=', 'user_id')
             ->leftJoin(Item::getTableName() . ' as item', 'item.order_id', '=', 'orders.id')
+            ->leftJoin(Company::getTableName() . ' as company', 'company.id', '=', 'user.company')
             ->leftJoin(Order_Type::getTableName() . ' as order_type', 'order_type.id', '=', 'orders.order_type_id')
             ->whereBetween('date', [$startDate, $endDate])
             ->groupBy('item.order_id')
@@ -739,7 +840,6 @@ class OrdersController extends Controller
         // Append report date generation
         $filename .= '_' . date('mdY');
 
-        // Generate
         return PdfReport::of($title, $meta, $query, $columns, $footer)
             ->editColumn('Date', [
                 'displayAs' => function ($result) {
@@ -756,7 +856,6 @@ class OrdersController extends Controller
                 'Total' => 'point',
             ])
             ->setOrientation('portrait')
-        // ->stream();
             ->download($filename);
     }
 
@@ -815,6 +914,6 @@ class OrdersController extends Controller
 
     private function _getCompanyByEmployee($model)
     {
-        return $model->user->company()->first()->name;
+        return $model->user->employeeCompany()->first()->name;
     }
 }
