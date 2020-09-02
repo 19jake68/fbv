@@ -112,6 +112,7 @@
             
             <li>Date: {{ $order->date }}</li>
             @if ($isActivityTypeVista)
+            <li>Subdivision: {{ $order->subdivision }}</li>
             <li>Block: {{ $order->block }}</li>
             <li>Lot: {{ $order->lot }}</li>
             @else

@@ -59,8 +59,15 @@
                     <td class="font-weight-bold">Area</td>
                     <td>{{ $invoice->area }}</td>
                     <td></td>
-                    <td class="font-weight-bold"></td>
+                    <td class="font-weight-bold">Block</td>
+                    <td>{{ $invoice->block }}</td>
+                </tr>
+                <tr>
+                    <td class="font-weight-bold">Subdivision</td>
+                    <td>{{ $invoice->subdivision }}</td>
                     <td></td>
+                    <td class="font-weight-bold">Lot</td>
+                    <td>{{ $invoice->lot }}</td>
                 </tr>
             </table>
             <table style="margin-top:10px">

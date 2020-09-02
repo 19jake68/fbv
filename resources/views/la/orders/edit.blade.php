@@ -37,6 +37,7 @@
 
 					@if ($isActivityTypeVista)
 					@la_input($module, 'date')
+					@la_input($module, 'subdivision')
 					@la_input($module, 'block')
 					@la_input($module, 'lot')
 					@else

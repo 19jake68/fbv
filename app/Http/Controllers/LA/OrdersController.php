@@ -9,6 +9,7 @@ namespace App\Http\Controllers\LA;
 use App\Helpers\FBV\Invoice;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Activity_Type;
 use App\Models\Area;
 use App\Models\Company;
 use App\Models\Employee;
@@ -40,6 +41,7 @@ class OrdersController extends Controller
     public $order_items_cols = ['id', 'activity', 'item', 'amount', 'quantity', 'unit', 'subtotal', 'remarks', 'has_tax', 'tax'];
     public $displayTaxPerItem = false;
     public $hasOTMultiplier = false;
+    public $activityType;
     public $activityTypeLabel;
     public $isActivityTypeVista;
 
@@ -68,8 +70,10 @@ class OrdersController extends Controller
 
         $this->show_action = Module::hasAccess("Orders", "edit") || Module::hasAccess("Orders", "delete");
 
-        $this->activityTypeLabel = Auth::user()->employee->employeeActivityType->activity_type;
-        $this->isActivityTypeVista = Auth::user()->employee->activity_type === 2;
+        $employee = Auth::user()->employee;
+        $this->activityType = $employee->activity_type;
+        $this->activityTypeLabel = $employee->employeeActivityType->activity_type;
+        $this->isActivityTypeVista = $this->activityType === 2;
     }
 
     /**
@@ -134,6 +138,7 @@ class OrdersController extends Controller
             // add custom rule
             if ($this->isActivityTypeVista) {
                 $rules['date'] = 'required';
+                $rules['subdivision'] = 'required';
                 $rules['block'] = 'required';
                 $rules['lot'] = 'required';
                 $rules['meter_no'] = 'unique:orders|required|max:255';
@@ -162,6 +167,9 @@ class OrdersController extends Controller
                 $request->ot_multiplier_text = $otMulti->text;
                 $request->ot_multiplier_value = $otMulti->value;
             }
+
+            // Add activity type
+            $request->activity_type = $this->activityType;
 
             // Add user id who created the order
             $request->user_id = Auth::id();
@@ -316,6 +324,15 @@ class OrdersController extends Controller
     {
         if (Module::hasAccess("Orders", "edit")) {
             $rules = Module::validateRules("Orders", $request, true);
+
+            // add custom rule
+            if ($this->isActivityTypeVista) {
+                $rules['date'] = 'required';
+                $rules['subdivision'] = 'required';
+                $rules['block'] = 'required';
+                $rules['lot'] = 'required';
+            }
+
             $validator = Validator::make($request->all(), $rules);
             $validator->after(function ($validator) use ($request, $id) {
                 if (!Order::checkUniqueJobNumberOnUpdate($request->job_number, $id)) {
@@ -650,6 +667,12 @@ class OrdersController extends Controller
                     ->notes($order->remarks)
                     ->currency('₱');
 
+                if ($this->isActivityTypeVista) {
+                    $invoice->subdivision($order->subdivision)
+                        ->block($order->block)
+                        ->lot($order->lot);
+                }
+
                 // Items
                 $items = Item::leftJoin(Item_Detail::getTableName() . ' as item_detail', 'item_detail_id', '=', 'item_detail.id')
                     ->leftJoin(Unit::getTableName() . ' as unit', 'unit_id', '=', 'unit.id')
@@ -748,11 +771,12 @@ class OrdersController extends Controller
                 'Total Balance' => 'point', // if you want to show dollar sign ($) then use 'Total Balance' => '$'
             ])
             ->limit(20) // Limit record to be showed
-            ->download('download'); // other available method: download('filename') to download pdf / make() that will producing DomPDF / SnappyPdf instance so you could do any other DomPDF / snappyPdf method such as stream() or download()
+            ->download('download.xlsx'); // other available method: download('filename') to download pdf / make() that will producing DomPDF / SnappyPdf instance so you could do any other DomPDF / snappyPdf method such as stream() or download()
     }
 
     public function generateReport(Request $request)
     {
+        return $this->generateReportV2($request);
         foreach ($request->all() as $key => $value) {
             $$key = $value;
         }
@@ -871,6 +895,11 @@ class OrdersController extends Controller
             'employees' => 'App\Models\Employee',
             'order_type' => 'App\Models\Order_Type',
         ];
+
+        $criteria->activity_type = Activity_Type::orderBy('activity_type')
+            ->pluck('activity_type', 'id')
+            ->toArray();
+
         foreach ($models as $key => $model) {
             $criteria->$key = (new $model)->orderBy('name')
                 ->pluck('name', 'id')

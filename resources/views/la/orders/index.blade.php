@@ -84,6 +84,7 @@
           @if ($isActivityTypeVista)
             @la_input($module, 'meter_no')
             @la_input($module, 'date')
+            @la_input($module, 'subdivision')
             @la_input($module, 'block')
             @la_input($module, 'lot')
             
@@ -133,7 +134,10 @@
               </div>
             </div>
           </div>
-
+          <div class="form-group">
+            {{ Form::label('activity_type2', 'Activity Type:') }}
+            {{ Form::select('activityTypeId', $reports->activity_type, null, ['id' => 'activity_type2', 'class' => 'form-control']) }}
+          </div>
           <div class="form-group">
             {{ Form::label('order_type2', 'Order Type:') }}
             {{ Form::select('orderTypeId', $reports->order_type, null, ['id' => 'order_type2', 'class' => 'form-control']) }}

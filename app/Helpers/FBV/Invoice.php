@@ -230,6 +230,27 @@ class Invoice
     public $totalInvoice;
 
     /**
+     * Vista - Subdivision
+     *
+     * @var String
+     */
+    public $subdivision;
+
+    /**
+     * Vista - Block
+     *
+     * @var String
+     */
+    public $block;
+
+    /**
+     * Vista - Lot
+     *
+     * @var String
+     */
+    public $lot;
+
+    /**
      * Stores the PDF object.
      *
      * @var Dompdf\Dompdf

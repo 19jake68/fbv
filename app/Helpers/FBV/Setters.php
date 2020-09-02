@@ -440,4 +440,49 @@ trait Setters
         $this->otMultiplierTax = $otMultiplierTax;
         return $this;
     }
+
+    /**
+     * Vista - Subdivision
+     *
+     * @method subdivision
+     *
+     * @param array $subdivision
+     *
+     * @return self
+     */
+    public function subdivision($subdivision)
+    {
+        $this->subdivision = $subdivision;
+        return $this;
+    }
+
+    /**
+     * Vista - Block
+     *
+     * @method block
+     *
+     * @param array $block
+     *
+     * @return self
+     */
+    public function block($block)
+    {
+        $this->block = $block;
+        return $this;
+    }
+
+    /**
+     * Vista - Lot
+     *
+     * @method lot
+     *
+     * @param array $lot
+     *
+     * @return self
+     */
+    public function lot($lot)
+    {
+        $this->lot = $lot;
+        return $this;
+    }
 }
