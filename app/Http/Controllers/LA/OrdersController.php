@@ -99,11 +99,12 @@ class OrdersController extends Controller
             $params = [
                 'show_actions' => $this->show_action,
                 'listing_cols' => $this->isActivityTypeVista ? $this->vista_listing_cols : $this->listing_cols,
+                'listing_cols_vista' => $this->vista_listing_cols,
                 'module' => $module,
                 'orderType' => $orderType,
                 'areas' => $areaModel->lists('name', 'id'),
                 'reports' => $this->isAdmin ? $this->_setReportsCriteria() : null,
-                'showUserColumn' => $this->isAdmin ? false : false,
+                'showUserColumn' => $this->isAdmin ? true : false,
                 'activityTypeLabel' => $this->activityTypeLabel,
                 'isActivityTypeVista' => $this->isActivityTypeVista,
             ];
@@ -473,53 +474,82 @@ class OrdersController extends Controller
      *
      * @return
      */
-    public function dtajax()
+    public function dtajax(Request $request)
     {
-        if ($this->isActivityTypeVista) {
-            $select = ['orders.id', 'meter_no', 'companies.name as company', 'order_types.name as order_type', 'area_id', 'date', 'employees.name', 'total'];
-        } else {
-            $select = ['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'];
-        }
+        $selectVista = ['orders.id', 'meter_no', 'companies.name as company', 'order_types.name as order_type', 'area_id', 'date', 'employees.name', 'total'];
+        $selectJV = ['orders.id', 'job_number', 'companies.name as company', 'order_types.name as order_type', 'account_name', 'area_id', 'date', 'employees.name', 'total', 'has_tax'];
 
         $values = DB::table('orders')
             ->leftJoin(Employee::getTableName() . ' AS employees', 'employees.id', '=', 'orders.user_id')
             ->leftJoin(Company::getTableName() . ' AS companies', 'companies.id', '=', 'employees.company')
             ->leftJoin(Order_Type::getTableName() . ' AS order_types', 'order_types.id', '=', 'orders.order_type_id')
-            ->select($select)
             ->whereNull('orders.deleted_at');
 
-        // List user created order if not admin, otherwise display all orders
-        // if (!$this->isAdmin) {
-        $values->where('user_id', Auth::user()->id);
-        // }
+        if ($this->isAdmin) {
+            $activityType = (int) $request->get('activityType');
+            $values->select($activityType === 1 ? $selectJV : $selectVista);
+            $values->where('orders.activity_type', $activityType);
+        } else {
+            $values->select($this->isActivityTypeVista ? $selectVista : $selectJV);
+            $values->where('user_id', Auth::user()->id);
+        }
+
         $out = Datatables::of($values)->make();
         $data = $out->getData();
         $fields_popup = ModuleFields::getModuleFields('Orders');
 
         for ($i = 0; $i < count($data->data); $i++) {
             // Calculate Tax
-            if (!$this->isActivityTypeVista) {
-                if ($data->data[$i][9]) { // has tax
-                    $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
-                }
-
-                for ($j = 0; $j < count($this->listing_cols); $j++) {
-                    $col = $this->listing_cols[$j];
-                    if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
-                        $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+            if ($this->isAdmin) {
+                if ((int) $request->get('activityType') === 1) {
+                    if ($data->data[$i][9]) { // has tax
+                        $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
                     }
-                    if ($col == $this->view_col) {
-                        $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+
+                    for ($j = 0; $j < count($this->listing_cols); $j++) {
+                        $col = $this->listing_cols[$j];
+                        if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                            $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                        }
+                        if ($col == $this->view_col) {
+                            $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                        }
+                    }
+                } else {
+                    for ($j = 0; $j < count($this->vista_listing_cols); $j++) {
+                        $col = $this->vista_listing_cols[$j];
+                        if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                            $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                        }
+                        if ($col == $this->vista_view_col) {
+                            $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                        }
                     }
                 }
             } else {
-                for ($j = 0; $j < count($this->vista_listing_cols); $j++) {
-                    $col = $this->vista_listing_cols[$j];
-                    if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
-                        $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                if ($this->isActivityTypeVista) {
+                    for ($j = 0; $j < count($this->vista_listing_cols); $j++) {
+                        $col = $this->vista_listing_cols[$j];
+                        if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                            $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                        }
+                        if ($col == $this->vista_view_col) {
+                            $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                        }
                     }
-                    if ($col == $this->vista_view_col) {
-                        $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                } else {
+                    if ($data->data[$i][9]) { // has tax
+                        $data->data[$i][8] += round($data->data[$i][8] * (env('TAX') / 100), 2);
+                    }
+
+                    for ($j = 0; $j < count($this->listing_cols); $j++) {
+                        $col = $this->listing_cols[$j];
+                        if ($fields_popup[$col] != null && starts_with($fields_popup[$col]->popup_vals, "@")) {
+                            $data->data[$i][$j] = ModuleFields::getFieldValue($fields_popup[$col], $data->data[$i][$j]);
+                        }
+                        if ($col == $this->view_col) {
+                            $data->data[$i][$j] = '<a href="' . url(config('laraadmin.adminRoute') . '/orders/' . $data->data[$i][0]) . '">' . $data->data[$i][$j] . '</a>';
+                        }
                     }
                 }
             }
@@ -776,7 +806,6 @@ class OrdersController extends Controller
 
     public function generateReport(Request $request)
     {
-        return $this->generateReportV2($request);
         foreach ($request->all() as $key => $value) {
             $$key = $value;
         }

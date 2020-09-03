@@ -43,59 +43,6 @@
   </div>
 @endif
 
-@if(Auth::user()->isAdministrator())
-<div class="box box-success">
-	<div class="box-header">
-    <ul data-toggle="ajax-tab" class="nav nav-tabs" role="tablist">
-      <li class="active"><a role="tab" data-toggle="tab" class="active" href="#tab-joint-venture" data-target="#tab-joint-venture"><i class="fa fa-list-ul"></i> Joint Venture</a></li>
-      <li class=""><a role="tab" data-toggle="tab" class="" href="#tab-vista" data-target="#tab-vista"><i class="fa fa-list-ul"></i> Vista</a></li>
-    </ul>
-  </div>
-	<div class="box-body">
-    <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active fade in" id="tab-joint-venture">
-        <div class="tab-content">
-          <div class="panel infolist">
-            <table id="orderTableJV" class="table table-bordered">
-              <thead>
-                <tr class="success">
-                  @foreach( $listing_cols as $col )
-                  <th>{{ $module->fields[$col]['label'] or ucfirst($col) }}</th>
-                  @endforeach
-                  @if($show_actions)
-                  <th>Actions</th>
-                  @endif
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div role="tabpanel" class="tab-pane fade in" id="tab-vista">
-        <div class="tab-content">
-          <div class="panel infolist">
-            <table id="orderTableVista" class="table table-bordered">
-              <thead>
-                <tr class="success">
-                  @foreach( $listing_cols_vista as $col )
-                  <th>{{ $module->fields[$col]['label'] or ucfirst($col) }}</th>
-                  @endforeach
-                  @if($show_actions)
-                  <th>Actions</th>
-                  @endif
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-	</div>
-</div>
-@else
 <div class="box box-success">
 	<div class="box-body">
 		<table id="orderTable" class="table table-bordered">
@@ -113,7 +60,6 @@
 		</table>
 	</div>
 </div>
-@endif
 
 @la_access("Orders", "create")
 <div class="modal fade" id="AddModal" role="dialog" aria-labelledby="myModalLabel">
@@ -140,7 +86,7 @@
             @la_input($module, 'subdivision')
             @la_input($module, 'block')
             @la_input($module, 'lot')
-            
+
           @else
             @la_input($module, 'job_number')
             @la_input($module, 'account_name')
@@ -150,7 +96,7 @@
             @la_input($module, 'time_start')
             @la_input($module, 'time_finished')
             @la_input($module, 'remarks')
-          @endif					
+          @endif
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -248,49 +194,7 @@ $(function () {
       @endif
     ];
 
-  @if (Auth::user()->isAdministrator())
-  let datatableJV = $("#orderTableJV").DataTable({
-    pageLength: 100,
-		processing: true,
-    serverSide: true,
-    ajax: {
-      url: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
-      data: {
-        activityType: 1
-      }
-    },
-		language: {
-			lengthMenu: "_MENU_",
-			search: "_INPUT_",
-			searchPlaceholder: "Search"
-    },
-    order: [
-      [ 0, 'desc' ]
-    ],
-    columnDefs: columnDefsJV
-	});
-  let datatableVista = $("#orderTableVista").DataTable({
-    pageLength: 100,
-		processing: true,
-    serverSide: true,
-    ajax: {
-      url: "{{ url(config('laraadmin.adminRoute') . '/order_dt_ajax') }}",
-      data: {
-        activityType: 2
-      }
-    },
-		language: {
-			lengthMenu: "_MENU_",
-			search: "_INPUT_",
-			searchPlaceholder: "Search"
-    },
-    order: [
-      [ 0, 'desc' ]
-    ],
-    columnDefs: columnDefsVista
-	});
-  @else
-  let datatable = $("#orderTable").DataTable({
+	let datatable = $("#orderTable").DataTable({
     pageLength: 100,
 		processing: true,
     serverSide: true,
@@ -305,7 +209,6 @@ $(function () {
     ],
     columnDefs: {{ $isActivityTypeVista ? 'columnDefsVista' : 'columnDefsJV' }}
 	});
-  @endif
 
   $('#AddModal').modal({
     backdrop: 'static',
@@ -334,18 +237,9 @@ $(function () {
         url: url,
         data: $(form).serialize(),
         success: function(result) {
-          @if (Auth::user()->isAdministrator())
-            datatableJV.ajax.reload(function() {
-              // callback
-            }, false);
-            datatableVista.ajax.reload(function() {
-              // callback
-            }, false);
-          @else
-            datatable.ajax.reload(function() {
-              // callback
-            }, false);
-          @endif
+          datatable.ajax.reload(function() {
+            // callback
+          }, false);
         }
       });
     }

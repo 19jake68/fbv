@@ -8,67 +8,66 @@ namespace App;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-
 use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\SoftDeletes;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
-  use Authenticatable, CanResetPassword;
-  // use SoftDeletes;
-  use EntrustUserTrait;
+    use Authenticatable, CanResetPassword;
+    // use SoftDeletes;
+    use EntrustUserTrait;
 
-  protected $table = 'users';
-	
-	/**
-   * The attributes that are mass assignable.
-   *
-   * @var array
-   */
-	protected $fillable = [
-		'name', 'email', 'password', "role", "context_id", "type", 'is_active', 'changepass'
-	];
-	
-	/**
-   * The attributes that should be hidden for arrays.
-   *
-   * @var array
-   */
-	protected $hidden = [
-		'password', 'remember_token',
-  ];
-    
-  // protected $dates = ['deleted_at'];
+    protected $table = 'users';
 
-  /**
-   * @return mixed
-   */
-  public function uploads()
-  {
-    return $this->hasMany('App\Upload');
-  }
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password', "role", "context_id", "type", 'is_active', 'changepass',
+    ];
 
-  public function roleUser()
-  {
-    return $this->hasOne('App\RoleUser');
-  }
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
 
-  public function orders()
-  {
-    return $this->hasMany('App\Models\Order');
-  }
+    // protected $dates = ['deleted_at'];
 
-  public function employee()
-  {
-    return $this->belongsTo('App\Models\Employee', 'context_id');
-  }
+    /**
+     * @return mixed
+     */
+    public function uploads()
+    {
+        return $this->hasMany('App\Upload');
+    }
 
-  public function isAdministrator()
-  {
-    return $this->hasRole('ADMIN') || $this->hasRole('SUPER_ADMIN');
-  } 
+    public function roleUser()
+    {
+        return $this->hasOne('App\RoleUser');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Order');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo('App\Models\Employee', 'context_id');
+    }
+
+    public function isAdministrator()
+    {
+        return $this->hasRole('SUPER_ADMIN');
+    }
 }
