@@ -1,14 +1,14 @@
 @extends("la.layouts.app")
 
-@section("contentheader_title", "Order Types")
-@section("contentheader_description", "Order Types listing")
-@section("section", "Order Types")
+@section("contentheader_title", "Overtime Multipliers")
+@section("contentheader_description", "Overtime Multipliers listing")
+@section("section", "Overtime Multipliers")
 @section("sub_section", "Listing")
-@section("htmlheader_title", "Order Types Listing")
+@section("htmlheader_title", "Overtime Multipliers Listing")
 
 @section("headerElems")
-@la_access("Order_Types", "create")
-	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Order Type</button>
+@la_access("Overtime_Multipliers", "create")
+	<button class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#AddModal">Add Overtime Multiplier</button>
 @endla_access
 @endsection
 
@@ -39,27 +39,28 @@
 		</tr>
 		</thead>
 		<tbody>
-
+			
 		</tbody>
 		</table>
 	</div>
 </div>
 
-@la_access("Order_Types", "create")
+@la_access("Overtime_Multipliers", "create")
 <div class="modal fade" id="AddModal" role="dialog" aria-labelledby="myModalLabel">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Add Order Type</h4>
+				<h4 class="modal-title" id="myModalLabel">Add Overtime Multiplier</h4>
 			</div>
-			{!! Form::open(['action' => 'LA\Order_TypesController@store', 'id' => 'order_type-add-form']) !!}
+			{!! Form::open(['action' => 'LA\Overtime_MultipliersController@store', 'id' => 'overtime_multiplier-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
                     @la_form($module)
-
+					
 					{{--
-					@la_input($module, 'name')
+					@la_input($module, 'type')
+					@la_input($module, 'value')
 					--}}
 				</div>
 			</div>
@@ -84,10 +85,9 @@
 <script>
 $(function () {
 	$("#example1").DataTable({
-		pageLength: 100,
 		processing: true,
-		serverSide: true,
-		ajax: "{{ url(config('laraadmin.adminRoute') . '/order_type_dt_ajax') }}",
+        serverSide: true,
+        ajax: "{{ url(config('laraadmin.adminRoute') . '/overtime_multiplier_dt_ajax') }}",
 		language: {
 			lengthMenu: "_MENU_",
 			search: "_INPUT_",
@@ -97,8 +97,8 @@ $(function () {
 		columnDefs: [ { orderable: false, targets: [-1] }],
 		@endif
 	});
-	$("#order_type-add-form").validate({
-
+	$("#overtime_multiplier-add-form").validate({
+		
 	});
 });
 </script>

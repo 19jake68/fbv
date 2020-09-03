@@ -24,7 +24,7 @@
 
 <div class="box">
 	<div class="box-header">
-		
+
 	</div>
 	<div class="box-body">
 		<div class="row">
@@ -34,16 +34,25 @@
 					{!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
 					{!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2'] ) !!}
 					</div>
-					@la_input($module, 'company')
+
+					@if ($isActivityTypeVista)
+					@la_input($module, 'date')
+					@la_input($module, 'subdivision')
+					@la_input($module, 'block')
+					@la_input($module, 'lot')
+					@else
 					@la_input($module, 'job_number')
 					@la_input($module, 'account_name')
+					@la_input($module, 'ot_multiplier', null, null, 'form-control select2-hidden-accessible ot-multiplier')
           @la_input($module, 'has_tax', true)
 					@la_input($module, 'tax')
 					<!-- @la_input($module, 'area_id') -->
-					<!-- @la_input($module, 'date') -->
+					
 					@la_input($module, 'time_start')
 					@la_input($module, 'time_finished')
-                    <br>
+					@endif
+					
+					<br>
 					<div class="form-group">
 						{!! Form::submit( 'Update', ['class'=>'btn btn-success']) !!} <button class="btn btn-default pull-right"><a href="{{ url(config('laraadmin.adminRoute') . '/orders') . '/' . $order->id }}">Cancel</a></button>
 					</div>
@@ -58,8 +67,9 @@
 @push('scripts')
 <script>
 $(function () {
+	$('.ot-multiplier').val({!!$order->ot_multiplier!!}).trigger('change');
 	$("#order-edit-form").validate({
-		
+
 	});
 });
 </script>

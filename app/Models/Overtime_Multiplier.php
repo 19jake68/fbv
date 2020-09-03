@@ -8,11 +8,11 @@ namespace App\Models;
 
 use App\Models\BaseModel;
 
-class Activity extends BaseModel
+class Overtime_Multiplier extends BaseModel
 {
     // use SoftDeletes;
 
-    protected $table = 'activities';
+    protected $table = 'overtime_multipliers';
 
     protected $hidden = [
 

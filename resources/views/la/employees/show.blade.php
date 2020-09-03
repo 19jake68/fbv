@@ -20,7 +20,6 @@
 		</div>
 		<div class="col-md-3">
 			<div class="dats1"><div class="label2">{{ $user->type }}</div></div>
-			<div class="dats1"><i class="fa fa-envelope-o"></i> {{ $employee->email }}</div>
 		</div>
 		<div class="col-md-4">
 		</div>
@@ -28,7 +27,7 @@
 			@if($employee->id == Auth::user()->context_id || Auth::user()->isAdministrator())
 				<a href="{{ url(config('laraadmin.adminRoute') . '/employees/'.$employee->id.'/edit') }}" class="btn btn-xs btn-edit btn-default"><i class="fa fa-pencil"></i></a><br>
 			@endif
-			
+
 			@la_access("Employees", "delete")
 				{{ Form::open(['route' => [config('laraadmin.adminRoute') . '.employees.destroy', $employee->id], 'method' => 'delete', 'style'=>'display:inline']) }}
 					<button class="btn btn-default btn-delete btn-xs" type="submit"><i class="fa fa-times"></i></button>
@@ -55,6 +54,7 @@
 					<div class="panel-body">
 						@la_display($module, 'name')
 						@la_display($module, 'designation')
+						@la_display($module, 'activity_type')
             @la_display($module, 'areas')
 						@la_display($module, 'gender')
 						@la_display($module, 'mobile')
@@ -63,7 +63,7 @@
 				</div>
 			</div>
 		</div>
-		
+
     @if($employee->id == Auth::user()->context_id || Auth::user()->isAdministrator())
 		<div role="tabpanel" class="tab-pane fade" id="tab-account-settings">
 			<div class="tab-content">
@@ -125,7 +125,7 @@
 							@if(Session::has('success_message2'))
 								<p class="alert {{ Session::get('alert-class', 'alert-success') }}">{{ Session::get('success_message2') }}</p>
 							@endif
-              
+
               <div class="form-group">
 								<label for="status" class=" col-md-2">Status</label>
 								<div class=" col-md-10">

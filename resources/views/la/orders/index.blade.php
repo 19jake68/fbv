@@ -67,35 +67,37 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="myModalLabel">Add Order</h4>
+				<h4 class="modal-title" id="myModalLabel">Add Order - {{ $activityTypeLabel }}</h4>
 			</div>
 			{!! Form::open(['action' => 'LA\OrdersController@store', 'id' => 'order-add-form']) !!}
 			<div class="modal-body">
 				<div class="box-body">
-          {{-- @la_form($module) --}}
+          <div class="form-group">
+            {!! Form::label('order_type_id', 'Order Type*', ['for' => 'order_type_id']) !!}
+            {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
+          </div>
+          <div class="form-group">
+            {!! Form::label('area_id', 'Area* :', ['for' => 'area_id']) !!}
+            {!! Form::select('area_id', $areas, null, ['id' => 'area_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
+          </div>
 
-          <div class="form-group">
-          {!! Form::label('order_type_id', 'Order Type', ['for' => 'order_type_id']) !!}
-          {!! Form::select('order_type_id', $orderType, null, ['id' => 'order_type_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
-          </div>
-          @la_input($module, 'company')
-          @if(!empty($areas))
-          <div class="form-group">
-          {!! Form::label('area_id', 'Area* :', ['for' => 'area_id']) !!}
-          {!! Form::select('area_id', $areas, null, ['id' => 'area_id', 'class' => 'form-control', 'rel' => 'select2', 'required' => true] ) !!}
-          </div>
+          @if ($isActivityTypeVista)
+            @la_input($module, 'meter_no')
+            @la_input($module, 'date')
+            @la_input($module, 'subdivision')
+            @la_input($module, 'block')
+            @la_input($module, 'lot')
+            
           @else
-          @la_input($module, 'area_id')
-          @endif
-          
-					@la_input($module, 'job_number')
-					@la_input($module, 'account_name')
-          @la_input($module, 'has_tax', true)
-          @la_input($module, 'tax')
-          <!-- @la_input($module, 'date') -->
-					@la_input($module, 'time_start')
-					@la_input($module, 'time_finished')
-          @la_input($module, 'remarks')
+            @la_input($module, 'job_number')
+            @la_input($module, 'account_name')
+            @la_input($module, 'ot_multiplier')
+            @la_input($module, 'has_tax', true)
+            @la_input($module, 'tax')
+            @la_input($module, 'time_start')
+            @la_input($module, 'time_finished')
+            @la_input($module, 'remarks')
+          @endif					
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -132,7 +134,10 @@
               </div>
             </div>
           </div>
-          
+          <div class="form-group">
+            {{ Form::label('activity_type2', 'Activity Type:') }}
+            {{ Form::select('activityTypeId', $reports->activity_type, null, ['id' => 'activity_type2', 'class' => 'form-control']) }}
+          </div>
           <div class="form-group">
             {{ Form::label('order_type2', 'Order Type:') }}
             {{ Form::select('orderTypeId', $reports->order_type, null, ['id' => 'order_type2', 'class' => 'form-control']) }}
@@ -172,6 +177,27 @@
 
 <script>
 $(function () {
+  @if ($isActivityTypeVista)
+  let columnDefs = [
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
+      { visible: {{ $showUserColumn ? 'true' : 'false' }}, targets: [6] },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
+      @if($show_actions)
+      { className: 'actions text-center', orderable: false, targets: [-1] }
+      @endif
+    ];
+  @else
+  let columnDefs = [
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 6 },
+      { visible: {{ $showUserColumn ? 'true' : 'false' }}, targets: [7] },
+      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 8 },
+      { visible: false, targets: [9] },
+      @if($show_actions)
+      { className: 'actions text-center', orderable: false, targets: [-1] }
+      @endif
+    ];
+  @endif
+  
 	let datatable = $("#orderTable").DataTable({
     pageLength: 100,
 		processing: true,
@@ -185,14 +211,7 @@ $(function () {
     order: [
       [ 0, 'desc' ]
     ],
-    columnDefs: [
-      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.moment( 'MMM D, YYYY' ), targets: 5 },
-      { width: "80px", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ',', '.', 2, '&#8369;' ), targets: 7 },
-      @if($show_actions)
-      { visible: false, targets: [8] },
-      { className: 'actions text-center', orderable: false, targets: [-1] }
-      @endif
-    ]
+    columnDefs: columnDefs
 	});
 
   $('#AddModal').modal({
@@ -216,19 +235,19 @@ $(function () {
     if (result) {
       let form = $(this).parent().get(0),
         url = $(form).attr('action');
-      
+
       $.ajax({
         type: 'POST',
         url: url,
         data: $(form).serialize(),
-        success: function(result) {   
+        success: function(result) {
           datatable.ajax.reload(function() {
             // callback
           }, false);
         }
       });
     }
-    
+
     e.preventDefault();
   });
   @endif

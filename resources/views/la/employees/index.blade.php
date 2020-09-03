@@ -39,7 +39,7 @@
 		</tr>
 		</thead>
 		<tbody>
-			
+
 		</tbody>
 		</table>
 	</div>
@@ -59,6 +59,8 @@
 					@la_input($module, 'name')
           @la_input($module, 'email')
 					@la_input($module, 'designation')
+					@la_input($module, 'company')
+					@la_input($module, 'activity_type')
           @la_input($module, 'areas')
 					@la_input($module, 'gender')
 					@la_input($module, 'mobile')
@@ -70,7 +72,7 @@
           <div class="form-group">
 						<label for="role">Role* :</label>
 						<select class="form-control" required="1" data-placeholder="Select Role" rel="select2" name="role">
-							<?php $roles = App\Role::all(); ?>
+							<?php $roles = App\Role::all();?>
 							@foreach($roles as $role)
 								@if($role->id != 1)
 									<option value="{{ $role->id }}">{{ $role->name }}</option>
@@ -120,7 +122,7 @@ $(function () {
   $('body').on('click', '.btn-edit', function(e) {
     // e.preventDefault();
     let id  = $(this).data('id');
-    
+
   });
   // Delete item
   $('body').on('click', 'button.btn-delete', function(e) {
@@ -129,19 +131,19 @@ $(function () {
     if (result) {
       let form = $(this).parent().get(0),
         url = $(form).attr('action');
-      
+
       $.ajax({
         type: 'POST',
         url: url,
         data: $(form).serialize(),
-        success: function(result) {   
+        success: function(result) {
           datatable.ajax.reload(function() {
             // callback
           }, false);
         }
       });
     }
-    
+
     e.preventDefault();
   });
 });

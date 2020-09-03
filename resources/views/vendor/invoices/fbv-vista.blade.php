@@ -49,25 +49,25 @@
                     <td colspan="5" class="font-weight-bold text-uppercase">{{ $invoice->business_details['name'] }}</td>
                 </tr>
                 <tr>
-                    <td class="font-weight-bold">J.O. #</td>
+                    <td class="font-weight-bold">Meter #</td>
                     <td>{{ $invoice->number }}</td>
                     <td></td>
                     <td class="font-weight-bold">Date</td>
                     <td>{{ $invoice->dateDone }}</td>
                 </tr>
                 <tr>
-                    <td class="font-weight-bold">Account Name</td>
-                    <td>{{ $invoice->customer_details['name'] }}</td>
-                    <td></td>
-                    <td class="font-weight-bold">Started</td>
-                    <td>{{ $invoice->timeStart }}</td>
-                </tr>
-                <tr>
                     <td class="font-weight-bold">Area</td>
                     <td>{{ $invoice->area }}</td>
                     <td></td>
-                    <td class="font-weight-bold">Ended</td>
-                    <td>{{ $invoice->timeEnd }}</td>
+                    <td class="font-weight-bold">Block</td>
+                    <td>{{ $invoice->block }}</td>
+                </tr>
+                <tr>
+                    <td class="font-weight-bold">Subdivision</td>
+                    <td>{{ $invoice->subdivision }}</td>
+                    <td></td>
+                    <td class="font-weight-bold">Lot</td>
+                    <td>{{ $invoice->lot }}</td>
                 </tr>
             </table>
             <table style="margin-top:10px">

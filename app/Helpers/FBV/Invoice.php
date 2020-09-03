@@ -2,8 +2,8 @@
 
 namespace App\Helpers\FBV;
 
-use Carbon\Carbon;
 use App\Helpers\FBV\Setters;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Storage;
 
@@ -16,14 +16,14 @@ class Invoice
 
     /**
      * Invoice ID.
-     * 
+     *
      * @var integer
      */
     public $id;
 
     /**
      * Order Type
-     * 
+     *
      * @var string
      */
     public $orderType;
@@ -63,7 +63,7 @@ class Invoice
 
     /**
      * Invoice has tax.
-     * 
+     *
      * @var boolean
      */
     public $hasTax;
@@ -93,6 +93,26 @@ class Invoice
     public $taxAmount;
 
     /**
+     * Check if order has OT Multiplier
+     */
+    public $hasOTMultiplier;
+
+    /**
+     * OT Multipler Text
+     */
+    public $otMultiplierText;
+
+    /**
+     * OT Multipler Amount
+     */
+    public $otMultiplierAmount;
+
+    /**
+     * OT Multiplier Tax Amount
+     */
+    public $otMultiplierTax;
+
+    /**
      * Invoice subtotal (total - tax amount)
      */
     public $subtotal;
@@ -106,7 +126,7 @@ class Invoice
 
     /**
      * Area name
-     * 
+     *
      * @var string
      */
     public $area = null;
@@ -162,7 +182,7 @@ class Invoice
 
     /**
      * Invoice biller
-     * 
+     *
      * @var array
      */
     public $biller_details;
@@ -176,38 +196,59 @@ class Invoice
 
     /**
      * Invoice Template
-     * 
+     *
      * @var string
      */
     public $template = 'default';
 
     /**
      * Date done
-     * 
+     *
      * @var Date
      */
     public $dateDone;
 
     /**
      * timeStart
-     * 
+     *
      * @var Date
      */
     public $timeStart;
 
     /**
      * timeEnd
-     * 
+     *
      * @var Date
      */
     public $timeEnd;
 
     /**
      * totalInvoice
-     * 
+     *
      * @var Integer
      */
     public $totalInvoice;
+
+    /**
+     * Vista - Subdivision
+     *
+     * @var String
+     */
+    public $subdivision;
+
+    /**
+     * Vista - Block
+     *
+     * @var String
+     */
+    public $block;
+
+    /**
+     * Vista - Lot
+     *
+     * @var String
+     */
+    public $lot;
 
     /**
      * Stores the PDF object.
@@ -270,13 +311,13 @@ class Invoice
     public function addItem($name, $price, $ammount = 1, $id = '-', $measurement = '', $unit = '')
     {
         $this->items->push(Collection::make([
-            'name'        => $name,
-            'price'       => $price,
-            'ammount'     => $ammount,
-            'totalPrice'  => number_format(bcmul($price, $ammount, $this->decimals), $this->decimals),
-            'id'          => $id,
+            'name' => $name,
+            'price' => $price,
+            'ammount' => $ammount,
+            'totalPrice' => number_format(bcmul($price, $ammount, $this->decimals), $this->decimals),
+            'id' => $id,
             'measurement' => $measurement,
-            'unit'        => $unit
+            'unit' => $unit,
         ]));
 
         return $this;
@@ -306,11 +347,11 @@ class Invoice
     public function addMisc($activity, $quantity, $unit, $amount, $remarks, $hasTax, $tax)
     {
         $this->miscs->push(Collection::make([
-            'activity'    => $activity,
-            'quantity'    => $quantity,
-            'unit'        => $unit,
-            'amount'      => number_format($hasTax ? $this->_calcTax($amount, $tax) : $amount, $this->decimals),
-            'remarks'     => $remarks
+            'activity' => $activity,
+            'quantity' => $quantity,
+            'unit' => $unit,
+            'amount' => number_format($hasTax ? $this->_calcTax($amount, $tax) : $amount, $this->decimals),
+            'remarks' => $remarks,
         ]));
 
         return $this;
@@ -353,7 +394,7 @@ class Invoice
      */
     public function formatCurrency()
     {
-        $currencies = json_decode(file_get_contents(__DIR__.'/../Currencies.json'));
+        $currencies = json_decode(file_get_contents(__DIR__ . '/../Currencies.json'));
         $currency = $this->currency;
 
         return $currencies->$currency;
@@ -369,10 +410,6 @@ class Invoice
     private function subTotalPrice()
     {
         return $this->subtotal;
-        // return preg_replace("/([^0-9\\.])/i", "", $this->totalInvoice);
-        // return $this->items->sum(function ($item) {
-        //     return bcmul($item['price'], $item['ammount'], $this->decimals);
-        // });
     }
 
     /**
@@ -384,7 +421,15 @@ class Invoice
      */
     public function subTotalPriceFormatted()
     {
-        return number_format($this->subTotalPrice(), $this->decimals);
+        return number_format($this->subtotal, $this->decimals);
+    }
+
+    /**
+     *
+     */
+    public function otMultiAmountFormatted()
+    {
+        return number_format($this->otMultiplierAmount, $this->decimals);
     }
 
     /**
@@ -396,18 +441,18 @@ class Invoice
      */
     private function totalPrice()
     {
-        return $this->subtotalPrice() + $this->taxPrice();
-        // return bcadd($this->subTotalPrice(), $this->taxPrice(), $this->decimals);
+        return $this->subtotal + $this->otMultiplierAmount + $this->otMultiplierTax + $this->taxAmount;
     }
 
     /**
      * Total Invoice
-     * 
+     *
      * @method totalInvoice
-     * 
+     *
      * @return self
      */
-    public function totalInvoice($totalInvoice) {
+    public function totalInvoice($totalInvoice)
+    {
         $this->totalInvoice = number_format($totalInvoice, $this->decimals);
 
         return $this;
@@ -436,8 +481,8 @@ class Invoice
     {
         return $this->taxAmount;
         // if ($this->tax_type == 'percentage') {
-            // return $this->subTotalPrice() * ($this->tax / 100);
-            // return bcdiv(bcmul($this->tax, $this->subTotalPrice(), $this->decimals), 100, $this->decimals);
+        // return $this->subTotalPrice() * ($this->tax / 100);
+        // return bcdiv(bcmul($this->tax, $this->subTotalPrice(), $this->decimals), 100, $this->decimals);
         // }
 
         // return $this->tax;
@@ -452,7 +497,8 @@ class Invoice
      */
     public function taxPriceFormatted()
     {
-        return number_format($this->taxPrice(), $this->decimals);
+        $taxPrice = $this->hasOTMultiplier ? $this->taxAmount + $this->otMultiplierTax : $this->taxAmount;
+        return number_format($taxPrice, $this->decimals);
     }
 
     /**
@@ -517,10 +563,10 @@ class Invoice
     }
 
     /**
-   * Calculate Tax
-   */
-  private function _calcTax($amount, $tax)
-  {
-    return ($amount * ($tax + 100)) / 100;
-  }
+     * Calculate Tax
+     */
+    private function _calcTax($amount, $tax)
+    {
+        return ($amount * ($tax + 100)) / 100;
+    }
 }
